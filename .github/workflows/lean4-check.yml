@@ -1,0 +1,67 @@
+name: Lean4 Verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "lean4_verification/**"
+      - ".github/workflows/lean4-check.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "lean4_verification/**"
+      - ".github/workflows/lean4-check.yml"
+  workflow_dispatch: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lean4-build:
+    name: Build and check Lean4 proofs
+    runs-on: ubuntu-latest
+    # Don't fail the whole repo's CI status while lean4_verification/ is
+    # still empty stubs — flip to false once theorems have real content.
+    continue-on-error: true
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check whether lakefile has content
+        id: lakefile_check
+        run: |
+          if [ -s lean4_verification/lakefile.lean ]; then
+            echo "has_content=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_content=false" >> "$GITHUB_OUTPUT"
+            echo "lakefile.lean is empty — skipping Lean4 build for now."
+          fi
+
+      - name: Install elan (Lean version manager)
+        if: steps.lakefile_check.outputs.has_content == 'true'
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache Lean4 / Mathlib build artifacts
+        if: steps.lakefile_check.outputs.has_content == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            lean4_verification/.lake
+          key: lean4-${{ runner.os }}-${{ hashFiles('lean4_verification/lakefile.lean', 'lean4_verification/lake-manifest.json') }}
+          restore-keys: |
+            lean4-${{ runner.os }}-
+
+      - name: Build Lean4 project
+        if: steps.lakefile_check.outputs.has_content == 'true'
+        working-directory: lean4_verification
+        run: |
+          lake update
+          lake build
+
+      - name: Skip notice
+        if: steps.lakefile_check.outputs.has_content == 'false'
+        run: echo "No Lean4 content to check yet — this step is a no-op placeholder."

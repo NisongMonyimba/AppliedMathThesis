@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint-typecheck-test:
+    name: Lint, type-check, and test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install dependencies
+        run: |
+          if [ -s requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "requirements.txt is empty — installing minimal toolchain"
+            pip install numpy scipy pandas matplotlib statsmodels scikit-learn \
+                        pytest mypy ruff
+          fi
+
+      - name: Install package (editable)
+        run: |
+          if [ -s setup.py ]; then
+            pip install -e .
+          else
+            echo "setup.py is empty — skipping editable install"
+          fi
+
+      - name: Lint with ruff
+        run: |
+          if [ -d code/src ]; then
+            python -m ruff check code/src code/tests
+          else
+            echo "code/src not present — skipping lint"
+          fi
+
+      - name: Type-check with mypy --strict
+        run: |
+          if [ -d code/src ]; then
+            python -m mypy --strict code/src
+          else
+            echo "code/src not present — skipping type-check"
+          fi
+
+      - name: Run tests with pytest
+        run: |
+          if [ -d code/tests ]; then
+            python -m pytest code/tests -v --maxfail=1
+          else
+            echo "code/tests not present — skipping tests"
+          fi
+
+  manuscript-build-check:
+    name: Check LaTeX manuscript compiles
+    runs-on: ubuntu-latest
+    # Don't fail the whole CI run while the manuscript is still a stub —
+    # flip continue-on-error to false once main.tex has real content.
+    continue-on-error: true
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Compile manuscript
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: manuscript/main.tex
+          working_directory: .
+          args: -interaction=nonstopmode -halt-on-error
