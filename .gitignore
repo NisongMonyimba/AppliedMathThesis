@@ -1,2 +1,13 @@
 __pycache__/
 *.pyc
+manuscript/*.aux
+manuscript/*.log
+manuscript/*.lof
+manuscript/*.lot
+manuscript/*.out
+manuscript/*.toc
+manuscript/*.bbl
+manuscript/*.blg
+manuscript/*.synctex.gz
+manuscript/*.fls
+manuscript/*.fdb_latexmk
