@@ -1,0 +1,123 @@
+\contentsline {chapter}{\numberline {1}Introduction}{6}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Overview}{6}{section.1.1}%
+\contentsline {paragraph}{Executive summary.}{6}{section*.4}%
+\contentsline {section}{\numberline {1.2}What Is a Mean-Field Game?}{8}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}The $N$-Player Problem: A Financial Market}{8}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Why the $N$-Player Problem Is Intractable}{9}{subsection.1.2.2}%
+\contentsline {subsection}{\numberline {1.2.3}The Mean-Field Limit: $N \to \infty $}{9}{subsection.1.2.3}%
+\contentsline {paragraph}{The Key Observation.}{9}{section*.5}%
+\contentsline {paragraph}{The $\varepsilon $-Nash Property.}{10}{section*.6}%
+\contentsline {subsection}{\numberline {1.2.4}Why Common Noise Is Non-Trivial}{10}{subsection.1.2.4}%
+\contentsline {paragraph}{Deterministic Case ($\sigma _0 = 0$).}{10}{section*.7}%
+\contentsline {paragraph}{Common-Noise Case ($\sigma _0 > 0$): New Challenges.}{10}{section*.8}%
+\contentsline {paragraph}{Key Structural Observation.}{10}{section*.9}%
+\contentsline {section}{\numberline {1.3}The FBSDE Characterisation}{10}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Overview of the System}{10}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Heuristic Derivation}{10}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.3.3}The Forward Equation: Population Measure Flow}{11}{subsection.1.3.3}%
+\contentsline {subsection}{\numberline {1.3.4}The Backward Equation: Adjoint Variables}{11}{subsection.1.3.4}%
+\contentsline {subsection}{\numberline {1.3.5}The Optimality Condition}{11}{subsection.1.3.5}%
+\contentsline {subsection}{\numberline {1.3.6}The Consistency Condition}{11}{subsection.1.3.6}%
+\contentsline {subsection}{\numberline {1.3.7}The Complete FBSDE System}{11}{subsection.1.3.7}%
+\contentsline {section}{\numberline {1.4}State of the Art}{12}{section.1.4}%
+\contentsline {subsection}{\numberline {1.4.1}Mean-Field Game Theory}{12}{subsection.1.4.1}%
+\contentsline {paragraph}{Foundations.}{12}{section*.10}%
+\contentsline {paragraph}{Common-noise MFGs.}{12}{section*.11}%
+\contentsline {paragraph}{Trade crowding.}{12}{section*.12}%
+\contentsline {subsection}{\numberline {1.4.2}Reinforcement Learning for Mean-Field Games}{13}{subsection.1.4.2}%
+\contentsline {paragraph}{Two-timescale methods.}{13}{section*.13}%
+\contentsline {paragraph}{Three-timescale methods and common noise.}{13}{section*.14}%
+\contentsline {paragraph}{Entropy regularisation and exponential convergence.}{13}{section*.15}%
+\contentsline {subsection}{\numberline {1.4.3}Quantitative Finance}{13}{subsection.1.4.3}%
+\contentsline {paragraph}{Factor models and crowding.}{13}{section*.16}%
+\contentsline {paragraph}{MFG applications in finance.}{13}{section*.17}%
+\contentsline {subsection}{\numberline {1.4.4}Wasserstein Distance in Financial Applications}{14}{subsection.1.4.4}%
+\contentsline {subsection}{\numberline {1.4.5}Gaps in the Literature}{14}{subsection.1.4.5}%
+\contentsline {section}{\numberline {1.5}The Three Critical Gaps}{14}{section.1.5}%
+\contentsline {paragraph}{Gap 1 (Theoretical).}{14}{section*.18}%
+\contentsline {paragraph}{Gap 2 (Algorithmic).}{14}{section*.19}%
+\contentsline {paragraph}{Gap 3 (Applied).}{15}{section*.20}%
+\contentsline {section}{\numberline {1.6}Principal Contributions}{15}{section.1.6}%
+\contentsline {paragraph}{Formal verification.}{17}{section*.26}%
+\contentsline {section}{\numberline {1.7}Connections Between Fields}{17}{section.1.7}%
+\contentsline {paragraph}{Connection 1 (SPDE $\to $ RL architecture).}{17}{section*.28}%
+\contentsline {paragraph}{Connection 2 (Stability $\to $ Crisis robustness).}{18}{section*.29}%
+\contentsline {paragraph}{Connection 3 (Equilibrium $\to $ Alpha).}{18}{section*.30}%
+\contentsline {section}{\numberline {1.8}Thesis Roadmap}{18}{section.1.8}%
+\contentsline {subsection}{\numberline {1.8.1}Chapter Dependency Graph}{18}{subsection.1.8.1}%
+\contentsline {subsection}{\numberline {1.8.2}Chapter-by-Chapter Summary}{18}{subsection.1.8.2}%
+\contentsline {section}{\numberline {1.9}Key Notation and Standing Assumptions}{18}{section.1.9}%
+\contentsline {subsection}{\numberline {1.9.1}Notation Reference}{19}{subsection.1.9.1}%
+\contentsline {subsection}{\numberline {1.9.2}Standing Assumptions}{19}{subsection.1.9.2}%
+\contentsline {section}{\numberline {1.10}Guide to Reading}{19}{section.1.10}%
+\contentsline {section}{\numberline {1.11}Why This Problem, Why Now}{20}{section.1.11}%
+\contentsline {paragraph}{Central message.}{20}{section*.31}%
+\contentsline {chapter}{\numberline {2}Mathematical Preliminaries}{21}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Overview}{21}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Wasserstein-2 Space}{22}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Probability Measures with Finite Second Moment}{22}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Optimal Transport and the Wasserstein Distance}{22}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}The Sinkhorn Algorithm}{23}{subsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.2.4}Metric Space Structure}{23}{subsection.2.2.4}%
+\contentsline {subsection}{\numberline {2.2.5}Weak Convergence in $\mathcal {P}_2$}{24}{subsection.2.2.5}%
+\contentsline {subsection}{\numberline {2.2.6}Geodesics and the Lions Derivative}{24}{subsection.2.2.6}%
+\contentsline {subsection}{\numberline {2.2.7}Law of Large Numbers in Wasserstein Distance}{25}{subsection.2.2.7}%
+\contentsline {subsection}{\numberline {2.2.8}Wasserstein Barycentre}{25}{subsection.2.2.8}%
+\contentsline {section}{\numberline {2.3}Brownian Motion and It\^o Calculus}{26}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Brownian Motion: Construction and Properties}{26}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Quadratic Variation}{26}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}The It\^o Integral}{27}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}It\^o's Formula}{27}{subsection.2.3.4}%
+\contentsline {subsection}{\numberline {2.3.5}It\^o's Product Rule and Integration by Parts}{28}{subsection.2.3.5}%
+\contentsline {subsection}{\numberline {2.3.6}Stochastic Differential Equations}{28}{subsection.2.3.6}%
+\contentsline {section}{\numberline {2.4}Fokker--Planck SPDE}{29}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}The Forward Equation}{29}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Strong Form: The SPDE in Density Form}{29}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Sobolev Regularity}{30}{subsection.2.4.3}%
+\contentsline {subsection}{\numberline {2.4.4}The Gelfand Triple}{30}{subsection.2.4.4}%
+\contentsline {section}{\numberline {2.5}Martingale Theory}{30}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Martingales and Stopping Times}{30}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Martingale Representation Theorem}{31}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}The Novikov Condition and Girsanov's Theorem}{31}{subsection.2.5.3}%
+\contentsline {section}{\numberline {2.6}Sobolev Spaces and Functional Analysis}{32}{section.2.6}%
+\contentsline {subsection}{\numberline {2.6.1}Sobolev Embedding Theorem}{32}{subsection.2.6.1}%
+\contentsline {subsection}{\numberline {2.6.2}Hahn--Banach Extension Theorem}{32}{subsection.2.6.2}%
+\contentsline {subsection}{\numberline {2.6.3}Lumer--Phillips Theorem and Contraction Semigroups}{32}{subsection.2.6.3}%
+\contentsline {subsection}{\numberline {2.6.4}Spectral Gap and Log-Sobolev Inequality}{32}{subsection.2.6.4}%
+\contentsline {section}{\numberline {2.7}Stochastic Maximum Principle}{33}{section.2.7}%
+\contentsline {subsection}{\numberline {2.7.1}The Control Problem}{33}{subsection.2.7.1}%
+\contentsline {subsection}{\numberline {2.7.2}The Hamiltonian}{33}{subsection.2.7.2}%
+\contentsline {subsection}{\numberline {2.7.3}The Adjoint Process and SMP}{34}{subsection.2.7.3}%
+\contentsline {subsection}{\numberline {2.7.4}Connection to Hamilton--Jacobi--Bellman}{34}{subsection.2.7.4}%
+\contentsline {section}{\numberline {2.8}Summary: Toolkit Reference}{35}{section.2.8}%
+\contentsline {chapter}{\numberline {3}Quantitative Well-Posedness of the Common-Noise MFG}{37}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Overview}{37}{section.3.1}%
+\contentsline {paragraph}{Chapter organisation.}{38}{section*.33}%
+\contentsline {section}{\numberline {3.2}Standing Assumptions and Notation}{38}{section.3.2}%
+\contentsline {paragraph}{Notation.}{38}{section*.34}%
+\contentsline {section}{\numberline {3.3}Statement of the Main Theorem}{39}{section.3.3}%
+\contentsline {section}{\numberline {3.4}The Fixed-Point Map $\Phi $}{39}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Stability Estimate for the Map $\Phi $}{40}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Synchronous Coupling}{40}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}It\^o Expansion of the Squared Difference}{41}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Lipschitz Estimates and Gronwall Setup}{41}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}Control Difference via SMP and Lions Derivatives}{41}{subsection.3.5.4}%
+\contentsline {subsection}{\numberline {3.5.5}Adjoint Process Difference}{42}{subsection.3.5.5}%
+\contentsline {subsection}{\numberline {3.5.6}Combining the Estimates}{42}{subsection.3.5.6}%
+\contentsline {subsection}{\numberline {3.5.7}The Wasserstein Stability Estimate}{43}{subsection.3.5.7}%
+\contentsline {section}{\numberline {3.6}Contraction in Weighted Wasserstein Metric}{43}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Existence and Uniqueness}{43}{section.3.7}%
+\contentsline {section}{\numberline {3.8}The $\varepsilon $-Nash Property}{44}{section.3.8}%
+\contentsline {section}{\numberline {3.9}Discussion of the Contraction Constant}{44}{section.3.9}%
+\contentsline {paragraph}{Limitations.}{45}{section*.36}%
+\contentsline {section}{\numberline {3.10}Formal Verification in Lean 4}{45}{section.3.10}%
+\contentsline {chapter}{\numberline {4}Numerical Analysis of the Common-Noise MFG System}{47}{chapter.4}%
+\contentsline {chapter}{\numberline {5}Reinforcement Learning Convergence for Common-Noise MFGs}{48}{chapter.5}%
+\contentsline {chapter}{\numberline {6}Hierarchical Reinforcement Learning Architecture for Common-Noise MFGs}{49}{chapter.6}%
+\contentsline {chapter}{\numberline {7}Case Study: Systemic Risk and Optimal Bailouts in a Common-Noise MFG}{50}{chapter.7}%
+\contentsline {chapter}{\numberline {8}Alpha Generation from the Mean-Field Game Equilibrium}{51}{chapter.8}%
+\contentsline {chapter}{\numberline {9}Empirical Validation: S\&P 500 Constituents, 2000--2024}{52}{chapter.9}%
+\contentsline {chapter}{\numberline {10}Synthesis and Outlook}{53}{chapter.10}%
+\contentsline {chapter}{\numberline {A}Proofs}{54}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Formal Verification in Lean 4}{55}{appendix.B}%
+\contentsline {chapter}{\numberline {C}Additional Results}{56}{appendix.C}%

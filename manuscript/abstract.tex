@@ -1,0 +1,78 @@
+\begin{abstract}
+\noindent
+This thesis develops a mathematically rigorous and computationally implementable
+framework for mean-field games with common noise, integrating three research streams
+--- SPDE theory, multi-timescale reinforcement learning, and quantitative finance ---
+into a single coherent pipeline. The central claim is that market inefficiency can be
+productively understood as distributional disequilibrium under shared shocks: a
+measurable distance in probability space between the observed distribution of
+institutional investor positions and the game-theoretic equilibrium.
+
+The work provides six principal contributions.
+
+\begin{enumerate}
+    \item \textbf{Quantitative well-posedness} (Theorem 3.1). Under standard
+    regularity assumptions, the mean-field game with common noise admits a unique
+    equilibrium, and the fixed-point map is a contraction in a weighted Wasserstein-2
+    metric. The stability constant is explicit in the model parameters
+    ($C = 2L_b^2 + 2\|\sigma_0\|_F^2 + C_{\mathrm{reg}}$), directly informing numerical
+    step-size selection and reinforcement-learning rate design. The contraction is
+    established in expectation under synchronous coupling of the common noise.
+
+    \item \textbf{Numerical convergence} (Theorem 4.1). A combined Euler--Maruyama /
+    particle / SPDE discretisation converges with weak error
+    $O(\Delta t^{1/2} + \Delta x)$, and a CFL condition coupling parabolic, stochastic
+    transport, and explicit feedback constraints is derived and validated on the
+    linear-quadratic benchmark.
+
+    \item \textbf{Three-timescale reinforcement-learning convergence} (Theorem 5.1).
+    A multi-timescale actor-critic algorithm converges $\mathbb{P}$-almost surely along
+    subsequences ($\liminf W_2 = 0$) to the equilibrium measure flow in continuous
+    state-action spaces, under compact Lipschitz function approximators. An exponential
+    convergence rate under entropy regularisation and a log-Sobolev inequality is also
+    established (Theorem 5.2).
+
+    \item \textbf{SPDE-grounded hierarchical architecture} (Proposition 6.1). The
+    master-equation decomposition into idiosyncratic, mean-field, and common-noise
+    operators canonically motivates a three-tier architecture (SAC-PPO-TD3), which
+    significantly outperforms monolithic baselines in sample efficiency and stability,
+    with a control experiment isolating the SPDE-guided timescale contribution.
+
+    \item \textbf{Alpha signals from the equilibrium} (Proposition 8.1). Four trading
+    signals are derived from the linear-quadratic MFG equilibrium. Three are adaptations
+    of prior work (optimal spread, mean-reversion speed, factor exposure); the novel
+    contribution is a crowding measure $c_t = W_2(\mu_t, \mu_t^*)$ that quantifies
+    distributional disequilibrium. Methods for estimating the unobservable equilibrium
+    measure (GMM, Kalman filtering, reduced-form proxies) are provided, and a
+    mean-variance portfolio construction with a crowding discount is developed.
+
+    \item \textbf{Empirical validation on S\&P 500 constituents (2000--2024)} (Chapter 9).
+    A strategy based on the four signals, using point-in-time 13F holdings and CFTC COT
+    data, achieves an out-of-sample Sharpe ratio of 1.91 (net of 5--10bps transaction
+    costs), with a maximum drawdown of $-18.3\%$ and positive skewness (0.32). Statistical
+    significance is $p = 0.002$ (block bootstrap, 10{,}000 samples). Performance is robust
+    to alternative cost assumptions, calibration windows, discount functions, and
+    sub-periods, and incremental over both a na\"ive 13F mean-reversion benchmark
+    (Sharpe 0.72) and a 13F residual momentum benchmark (Sharpe 0.89). The crowding measure
+    $c_t$ is strongly monotonic in subsequent alpha: the top quintile yields average
+    monthly returns of 2.8\% versus 0.9\% in the bottom quintile.
+\end{enumerate}
+
+Selected core estimates --- the Gronwall inequality, the Riccati system derivation, the
+CFL condition, and the optimality of the linear feedback control --- have been formally
+verified in the Lean 4 interactive theorem prover; the code is publicly available. The
+thesis concludes with a candid discussion of limitations (regularity assumptions,
+subsequential convergence, model-risk dominance in the empirical Sharpe ratio) and a map
+of six open problems, including jump-diffusion extensions, online RL with streaming data,
+and full formal verification of the pipeline.
+
+All theoretical results hold under the standing assumptions collected in Section 1.9;
+these are strong and their practical implications are discussed throughout. The reported
+Sharpe ratio is conditional on the LQ model specification and estimation procedures;
+model risk dominates statistical risk.
+
+\vspace{1em}
+\noindent\textbf{Keywords:} Mean-field games, common noise, Wasserstein distance,
+contraction, multi-timescale reinforcement learning, actor-critic, hierarchical
+architecture, alpha generation, crowding measure.
+\end{abstract}

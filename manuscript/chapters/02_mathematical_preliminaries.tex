@@ -1,0 +1,1061 @@
+% chapters/02_mathematical_preliminaries.tex
+
+\section{Overview}
+
+This chapter develops the complete mathematical toolkit required for all subsequent
+chapters. No prior knowledge of optimal transport or stochastic partial differential
+equations is assumed; every result is stated with either a complete proof or a detailed
+proof sketch, with references to the authoritative sources for full details. The
+standing assumptions A1--A7 referenced throughout are collected in Section 1.9 of
+Chapter 1.
+
+The chapter covers six interlocking topics:
+
+\begin{enumerate}
+    \item \textbf{Wasserstein-2 space} $(\mathcal{P}_2(\mathbb{R}^d), W_2)$: optimal
+    transport, metric space structure, geodesics, weak convergence, rates of
+    convergence for empirical measures, and the Lions derivative.
+    \item \textbf{Brownian motion and It\^o calculus}: construction, quadratic
+    variation, the It\^o integral, It\^o's formula, and stochastic differential
+    equations.
+    \item \textbf{Fokker--Planck SPDE}: derivation from It\^o's formula, weak
+    formulation, strong form, Sobolev regularity, and the Gelfand triple framework. We
+    clarify the distinction between the linear Fokker--Planck SPDE and the nonlinear
+    Kushner--Zakai equation.
+    \item \textbf{Martingale theory}: martingales, stopping times, Doob's inequality,
+    the Burkholder--Davis--Gundy inequality, martingale representation, and Girsanov's
+    theorem.
+    \item \textbf{Sobolev spaces and functional analysis}: Sobolev embedding,
+    Hahn--Banach extension, Lumer--Phillips theorem, spectral gap, and log-Sobolev
+    inequalities.
+    \item \textbf{Stochastic Maximum Principle}: the control problem, Hamiltonian,
+    adjoint BSDE, optimality conditions, and connections to Hamilton--Jacobi--Bellman
+    equations.
+\end{enumerate}
+
+A summary table at the end of the chapter (\Cref{sec:mp-summary}) maps each tool to its
+first use in the thesis, serving as a quick reference. For readers seeking a deeper
+treatment, we recommend Villani (2009) for optimal transport, Carmona--Delarue (2018,
+Vol.\ I, Chapters 1--2) for Wasserstein analysis in the MFG context, and
+Karatzas--Shreve (1991) for stochastic calculus.
+
+
+\section{Wasserstein-2 Space}
+\label{sec:mp-wasserstein}
+
+\subsection{Probability Measures with Finite Second Moment}
+
+Let $\mathcal{B}(\mathbb{R}^d)$ denote the Borel $\sigma$-algebra on $\mathbb{R}^d$. The
+space $\mathcal{P}_2(\mathbb{R}^d)$ consists of all Borel probability measures $\mu$ on
+$\mathbb{R}^d$ with finite second moment:
+\begin{equation}
+    \mathcal{P}_2(\mathbb{R}^d) := \left\{ \mu \in \mathcal{P}(\mathbb{R}^d) \;\middle|\;
+    \int_{\mathbb{R}^d} |x|^2\, \mu(dx) < \infty \right\}.
+    \label{eq:p2-def}
+\end{equation}
+
+Elements of $\mathcal{P}_2(\mathbb{R}^d)$ arise naturally in our setting:
+\begin{itemize}
+    \item As the law $\mu = \mathcal{L}(X)$ of an $\mathbb{R}^d$-valued random variable
+    with $\mathbb{E}[|X|^2] < \infty$.
+    \item As the empirical measure $\mu^N = \frac{1}{N}\sum_{i=1}^N \delta_{x_i}$ when
+    the particles satisfy $\frac{1}{N}\sum_i |x_i|^2 < \infty$.
+    \item As the mean-field distribution $\mu_t$ in the MFG system, provided the
+    agents' positions remain square-integrable in expectation.
+\end{itemize}
+
+\subsection{Optimal Transport and the Wasserstein Distance}
+
+\begin{definition}[Coupling and Wasserstein-2 Distance]
+A coupling of $\mu, \nu \in \mathcal{P}_2(\mathbb{R}^d)$ is a probability measure
+$\pi \in \mathcal{P}(\mathbb{R}^d \times \mathbb{R}^d)$ with marginals $\mu$ and $\nu$:
+$\pi(\cdot \times \mathbb{R}^d) = \mu$, $\pi(\mathbb{R}^d \times \cdot) = \nu$. The set of
+all couplings is denoted $\Pi(\mu, \nu)$. The Wasserstein-2 distance between $\mu$ and
+$\nu$ is
+\begin{equation}
+    W_2(\mu, \nu) := \left( \inf_{\pi \in \Pi(\mu,\nu)} \int_{\mathbb{R}^d \times
+    \mathbb{R}^d} |x-y|^2\, \pi(dx,dy) \right)^{1/2}.
+    \label{eq:wasserstein-def}
+\end{equation}
+\end{definition}
+
+The infimum in \eqref{eq:wasserstein-def} is attained: there exists an optimal coupling
+$\pi^* \in \Pi(\mu,\nu)$ achieving the infimum (Villani, 2009, Theorem 5.10). The
+optimal $\pi^*$ is supported on the subdifferential of a convex function, the Brenier
+potential.
+
+\begin{theorem}[Brenier's Theorem, 1991]
+\label{thm:brenier}
+Let $\mu, \nu \in \mathcal{P}_2(\mathbb{R}^d)$ with $\mu$ absolutely continuous with
+respect to Lebesgue measure. Then there exists a unique (up to $\mu$-a.e.\ equality)
+convex function $\varphi : \mathbb{R}^d \to \mathbb{R}$ such that the map
+$T = \nabla \varphi$ satisfies $T_\# \mu = \nu$ (i.e., $\nu(A) = \mu(T^{-1}(A))$ for all
+$A$) and
+\[
+    W_2(\mu,\nu)^2 = \int_{\mathbb{R}^d} |x - \nabla\varphi(x)|^2\, \mu(dx).
+\]
+The optimal coupling is $\pi^* = (\mathrm{id} \times T)_\# \mu$, i.e., the law of
+$(X, T(X))$ when $X \sim \mu$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+The proof proceeds in three steps: (i) Kantorovich duality reduces the problem to
+finding a pair of conjugate convex functions $(\varphi, \varphi^*)$; (ii) the
+optimality condition $y \in \partial\varphi(x)$ for $\pi^*$-a.e.\ $(x,y)$ implies the
+transport is a gradient map; (iii) uniqueness follows from strict convexity of the cost
+$c(x,y) = |x-y|^2$. See Villani (2009, Ch.\ 9) for the complete argument.
+\end{proof}
+
+\begin{remark}[Discrete measures and regularisation]
+Brenier's Theorem requires absolute continuity of the source measure $\mu$. In
+financial applications (Chapter 9), the empirical market measure $\mu_t$ is a sum of
+Dirac masses, and the equilibrium measure $\mu_t^*$ is estimated from discrete data.
+The optimal transport between discrete measures is not uniquely given by a gradient of
+a convex function in the classical sense. The Sinkhorn algorithm
+(\Cref{sec:mp-sinkhorn}) bridges this gap: by adding an entropic penalty, the discrete
+measures are effectively ``blurred'' into continuous approximations, recovering a
+gradient-like structure and enabling stable computation.
+\end{remark}
+
+\begin{example}[One-dimensional case: sorted coupling]
+\label{ex:mp-1d-wasserstein}
+In $d=1$, the optimal transport has a particularly elegant form. For
+$\mu, \nu \in \mathcal{P}_2(\mathbb{R})$ with distribution functions $F_\mu, F_\nu$ and
+quantile functions $F_\mu^{-1}, F_\nu^{-1}$:
+\begin{equation}
+    W_2(\mu,\nu)^2 = \int_0^1 |F_\mu^{-1}(u) - F_\nu^{-1}(u)|^2\, du.
+    \label{eq:1d-wasserstein}
+\end{equation}
+The optimal map is $T(x) = F_\nu^{-1}(F_\mu(x))$ --- transport the $u$-quantile of $\mu$
+to the $u$-quantile of $\nu$ (sorted coupling). This is computed exactly in
+$O(N \log N)$ by sorting the particles. \textbf{The synchronous coupling used in
+Chapter 3 for common-noise cancellation can be explicitly constructed in 1-D via this
+quantile coupling.}
+\end{example}
+
+\subsection{The Sinkhorn Algorithm}
+\label{sec:mp-sinkhorn}
+
+For computational purposes, we regularise the Kantorovich problem with an entropic
+penalty:
+\begin{equation}
+    W_{2,\epsilon}(\mu,\nu)^2 := \inf_{\pi \in \Pi(\mu,\nu)} \int |x-y|^2 \pi +
+    \epsilon\, \mathrm{KL}(\pi \| \mu \otimes \nu),
+    \label{eq:sinkhorn-regularised}
+\end{equation}
+where $\mathrm{KL}(\pi\|\mu\otimes\nu) = \int \log\frac{d\pi}{d(\mu\otimes\nu)}\, d\pi$.
+The solution has the form
+$\pi_\epsilon^*(dx,dy) = u(x) K(x,y) v(y)\, \mu(dx)\nu(dy)$ where
+$K(x,y) = e^{-|x-y|^2/\epsilon}$ is the Gaussian kernel, and $(u,v)$ satisfies the
+Sinkhorn fixed-point equations:
+\begin{equation}
+    u_i = a_i \Big/ \sum_j K_{ij} v_j, \qquad v_j = b_j \Big/ \sum_i K_{ij} u_i,
+    \label{eq:sinkhorn-fixed-point}
+\end{equation}
+where $a_i = \mu(\{x_i\})$, $b_j = \nu(\{y_j\})$. This converges in $O(N^2/\epsilon^2)$
+operations (Cuturi, 2013). In Chapter 4, this regularised distance will be used to
+compute Wasserstein gradients efficiently.
+
+\subsection{Metric Space Structure}
+
+\begin{theorem}[$(\mathcal{P}_2(\mathbb{R}^d), W_2)$ is a Complete Separable Metric Space]
+\label{thm:wasserstein-metric-space}
+The Wasserstein-2 distance satisfies:
+\begin{enumerate}[label=(\roman*)]
+    \item Non-degeneracy: $W_2(\mu,\nu) = 0 \iff \mu = \nu$;
+    \item Symmetry: $W_2(\mu,\nu) = W_2(\nu,\mu)$;
+    \item Triangle inequality: $W_2(\mu,\rho) \leq W_2(\mu,\nu) + W_2(\nu,\rho)$;
+    \item Completeness: every Cauchy sequence in $(\mathcal{P}_2(\mathbb{R}^d), W_2)$
+    converges to an element of $\mathcal{P}_2(\mathbb{R}^d)$;
+    \item Separability: $\mathcal{P}_2(\mathbb{R}^d)$ contains a countable dense subset.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof of (iii) via gluing lemma]
+Given $\mu, \nu, \rho$, let $\pi_{12} \in \Pi(\mu,\nu)$ and $\pi_{23} \in \Pi(\nu,\rho)$
+be any couplings. By the gluing lemma (Villani, 2009, Lemma 7.6), there exists
+$\pi_{123} \in \mathcal{P}(\mathbb{R}^d \times \mathbb{R}^d \times \mathbb{R}^d)$ with
+marginals $(\pi_{12}, \pi_{23})$, i.e., the joint distribution of $(X,Y,Z)$ where
+$(X,Y) \sim \pi_{12}$, $(Y,Z) \sim \pi_{23}$. The marginal
+$\pi_{13} = (\mathrm{proj}_{13})_\# \pi_{123}$ is a coupling of $\mu$ and $\rho$. By
+Minkowski's inequality:
+\[
+    W_2(\mu,\rho) \leq \left( \int |x-z|^2 \pi_{13}(dx,dz) \right)^{1/2} =
+    \mathbb{E}[|X-Z|^2]^{1/2} \leq \mathbb{E}[|X-Y|^2]^{1/2} + \mathbb{E}[|Y-Z|^2]^{1/2}.
+\]
+Optimising over $\pi_{12}$ and $\pi_{23}$ gives the triangle inequality. The remaining
+properties are proved similarly.
+\end{proof}
+
+\subsection{Weak Convergence in $\mathcal{P}_2$}
+
+\begin{theorem}[Characterisation of $W_2$-convergence]
+\label{thm:w2-characterisation}
+The following are equivalent for $\mu_n, \mu \in \mathcal{P}_2(\mathbb{R}^d)$:
+\begin{enumerate}[label=(\roman*)]
+    \item $W_2(\mu_n, \mu) \to 0$;
+    \item $\mu_n \xrightarrow{w} \mu$ weakly and $\int |x|^2\, \mu_n(dx) \to
+    \int |x|^2\, \mu(dx)$;
+    \item For every continuous $f : \mathbb{R}^d \to \mathbb{R}$ with
+    $|f(x)| \leq C(1+|x|^2)$: $\int f\, d\mu_n \to \int f\, d\mu$.
+\end{enumerate}
+\end{theorem}
+
+Condition (ii) shows that $W_2$-convergence is strictly stronger than weak
+convergence: it additionally requires convergence of the second moment. \textbf{This
+is precisely the correct topology for the MFG analysis, since $\mu_t = \mathcal{L}(X_t)$
+and $\mathbb{E}[|X_t|^2]$ must remain finite and continuous in $t$.}
+
+\subsection{Geodesics and the Lions Derivative}
+
+The space $(\mathcal{P}_2(\mathbb{R}^d), W_2)$ has a rich geometric structure that
+motivates the Lions derivative used in the master equation.
+
+\begin{definition}[Wasserstein Geodesic]
+The geodesic (shortest path) from $\mu_0$ to $\mu_1$ in $(\mathcal{P}_2(\mathbb{R}^d), W_2)$
+is the curve
+\[
+    \mu_t := \big((1-t)\,\mathrm{id} + t T\big)_\# \mu_0, \qquad t \in [0,1],
+\]
+where $T = \nabla\varphi$ is the Brenier optimal transport map from $\mu_0$ to $\mu_1$.
+This interpolates linearly in position space: the $x$-atom of $\mu_0$ travels in a
+straight line to $T(x)$ at constant speed.
+\end{definition}
+
+\begin{proposition}[Geodesic is length-minimising]
+The path $(\mu_t)_{t \in [0,1]}$ satisfies $W_2(\mu_s, \mu_t) = |t-s|\, W_2(\mu_0,\mu_1)$
+for all $s,t \in [0,1]$.
+\end{proposition}
+
+The Lions derivative (or $L$-derivative) formalises differentiation of functionals
+$F : \mathcal{P}_2(\mathbb{R}^d) \to \mathbb{R}$ along such geodesics. Rather than
+being a pointwise derivative, it is a linear functional on the tangent space. For a
+functional $F$ that is Lions-differentiable, there exists a measurable function
+$D_\mu F(\mu) : \mathbb{R}^d \to \mathbb{R}^d$ (unique up to $\mu$-a.e.\ equality) such
+that for any $\nu \in \mathcal{P}_2(\mathbb{R}^d)$ with optimal transport map
+$T = \nabla\varphi$ from $\mu$ to $\nu$,
+\begin{equation}
+    \frac{d}{dt}\Big|_{t=0} F(\mu_t) = \int_{\mathbb{R}^d} D_\mu F(\mu)(x) \cdot (T(x) -
+    x)\, \mu(dx).
+    \label{eq:lions-derivative}
+\end{equation}
+In other words, the directional derivative of $F$ along a geodesic with initial
+velocity $v = T - \mathrm{id}$ is given by the $L^2(\mu)$ inner product of
+$D_\mu F(\mu)$ and $v$. For a comprehensive treatment, see Carmona and Delarue (2018,
+Vol.\ I, Chapter 5).
+
+\subsection{Law of Large Numbers in Wasserstein Distance}
+
+\begin{theorem}[LLN Rate in $W_2$, Fournier--Guillin, 2015]
+\label{thm:fournier-guillin}
+Let $\mu \in \mathcal{P}_2(\mathbb{R}^d)$ and $X_1, X_2, \dots$ be i.i.d.\ with law
+$\mu$. Define $\mu^N = \frac{1}{N}\sum_{i=1}^N \delta_{X_i}$.
+\begin{enumerate}[label=(\roman*)]
+    \item Almost-sure convergence: $W_2(\mu^N, \mu) \to 0$ a.s.\ as $N \to \infty$.
+    \item Rate: If $\int_{\mathbb{R}^d} |x|^q\, \mu(dx) < \infty$ for some $q > 4$, then
+    for $d=1$:
+    \[
+        \mathbb{E}[W_2(\mu^N,\mu)] \leq C_\mu \cdot N^{-1/2}.
+    \]
+    For $d \geq 3$: $\mathbb{E}[W_2(\mu^N,\mu)] \leq C_{\mu,d} \cdot N^{-1/d}$, under
+    appropriate moment conditions. (See Fournier and Guillin, 2015, Theorem 1 and
+    Corollary 2.)
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof of (i) in $d=1$]
+By the explicit formula \eqref{eq:1d-wasserstein}:
+\[
+    W_2(\mu^N,\mu)^2 = \int_0^1 |F_N^{-1}(u) - F^{-1}(u)|^2\, du.
+\]
+For fixed $u$, $F_N^{-1}(u) \to F^{-1}(u)$ a.s.\ by the Glivenko--Cantelli theorem.
+Since $|F_N^{-1}(u) - F^{-1}(u)|^2 \leq 4\max(|F^{-1}(u)|, |F_N^{-1}(u)|)^2$ and the
+right-hand side is uniformly integrable by the second moment assumption, the dominated
+convergence theorem gives $W_2(\mu^N,\mu)^2 \to 0$ a.s.
+\end{proof}
+
+\begin{remark}[Curse of dimensionality and mean-field mitigation]
+The rate $N^{-1/d}$ for $d \geq 3$ highlights the curse of dimensionality in
+Wasserstein space: for a portfolio of $d=50$ assets, the empirical measure converges
+exceedingly slowly. \textbf{In practice, the mean-field assumption --- coupled with the
+specific convex structure of the rewards and the contraction property established in
+Theorem 3.1 --- allows the RL architecture (Chapters 5--6) to circumvent this
+theoretical bottleneck.} The Wasserstein distance is used primarily as an analytical
+tool for stability, not as the primary object of high-dimensional statistical
+estimation.
+\end{remark}
+
+\begin{remark}[Significance for the thesis]
+\Cref{thm:fournier-guillin} justifies two central approximations: (a) replacing the
+$N$-player empirical measure $\mu_t^N$ by the mean-field distribution $\mu_t$ with
+error $O(N^{-1/2})$ (for $d=1$ under sufficient moments); (b) validating the
+block-bootstrap consistency in Theorem 9.1, where $B = 10{,}000$ samples give
+$O(10^{-2.5})$ estimation error.
+\end{remark}
+
+\subsection{Wasserstein Barycentre}
+
+\begin{definition}[Fr\'echet Mean / Barycentre]
+Given measures $\mu_1, \dots, \mu_K \in \mathcal{P}_2(\mathbb{R}^d)$ with weights
+$\lambda_k > 0$, $\sum_k \lambda_k = 1$, the Wasserstein barycentre is
+\[
+    \bar{\mu} = \argmin_{\nu \in \mathcal{P}_2} \sum_{k=1}^K \lambda_k W_2(\nu,\mu_k)^2.
+\]
+\end{definition}
+
+The barycentre exists and is unique when at least one $\mu_k$ is absolutely continuous
+(Agueh--Carlier, 2011). It is computed by the free-support Sinkhorn barycentre
+algorithm (Cuturi--Doucet, 2014). \textit{Note: this concept is included for
+completeness but is not directly used in the subsequent chapters.}
+
+
+\section{Brownian Motion and It\^o Calculus}
+\label{sec:mp-ito-calculus}
+
+\subsection{Brownian Motion: Construction and Properties}
+
+\begin{definition}[Standard Brownian Motion]
+A standard Brownian motion (Wiener process) $B = (B_t)_{t \geq 0}$ on a probability
+space $(\Omega, \mathcal{F}, \mathbb{P})$ is a continuous stochastic process satisfying:
+\begin{enumerate}[label=(\roman*)]
+    \item $B_0 = 0$ almost surely;
+    \item Independent increments: for $0 \leq s < t$, $B_t - B_s$ is independent of
+    $\mathcal{F}_s$;
+    \item Gaussian increments: $B_t - B_s \sim N(0, t-s)$ for all $0 \leq s < t$;
+    \item Continuous paths: $t \mapsto B_t(\omega)$ is continuous for
+    $\mathbb{P}$-almost every $\omega$.
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[Key path properties]
+Brownian motion paths are almost surely:
+\begin{enumerate}[label=(\roman*)]
+    \item H\"older continuous of order $\alpha < \tfrac{1}{2}$ (but not $\tfrac{1}{2}$);
+    \item Nowhere differentiable: $\lim_{h \to 0} \frac{B_{t+h} - B_t}{h}$ does not
+    exist for any $t$;
+    \item Of unbounded variation: $\sup_\Pi \sum_k |B_{t_k} - B_{t_{k-1}}| = \infty$
+    over all partitions $\Pi$;
+    \item Of finite quadratic variation: $[B,B]_t = t$ (see below).
+\end{enumerate}
+\end{proposition}
+
+\subsection{Quadratic Variation}
+
+\begin{definition}[Quadratic Variation]
+The quadratic variation of a semimartingale $M$ is the process $[M,M]_t$ defined as
+the limit in probability:
+\[
+    [M,M]_t = \lim_{|\Pi| \to 0} \sum_k (M_{t_k} - M_{t_{k-1}})^2,
+\]
+where the limit is over partitions $\Pi = \{0 = t_0 < t_1 < \dots < t_n = t\}$ as the
+mesh $|\Pi| = \max_k (t_k - t_{k-1}) \to 0$.
+\end{definition}
+
+\begin{proposition}[Quadratic variation of Brownian motion]
+For standard Brownian motion $B$: $[B,B]_t = t$ a.s.
+\end{proposition}
+
+\begin{proof}[Proof sketch]
+Let $V_n = \sum_{k=1}^n (B_{kh} - B_{(k-1)h})^2$ with $h = t/n$. Then
+$\mathbb{E}[V_n] = n \cdot h = t$ and $\mathrm{Var}(V_n) = n \cdot 2h^2 = 2t^2/n \to 0$.
+So $V_n \to t$ in $L^2$, and by Borel--Cantelli, a.s.\ along a subsequence.
+\end{proof}
+
+\begin{remark}[Why quadratic variation matters: the It\^o correction]
+The fact that $[B,B]_t = t \neq 0$ is the source of all the ``extra terms'' in
+stochastic calculus. For a smooth function $f$ and a smooth path $x$,
+$f(x_t) = f(x_0) + \int f'(x_s)\, dx_s$ (ordinary chain rule). But for a Brownian path,
+the Taylor remainder $\frac{1}{2}f''(B_s)(dB_s)^2$ contributes $\frac{1}{2}f''(B_s)\, ds$
+(not zero), because $(dB)^2 = dt$. This is It\^o's formula.
+\end{remark}
+
+\subsection{The It\^o Integral}
+
+The classical Riemann--Stieltjes integral $\int_0^T H_t\, dB_t$ is not well-defined
+pathwise because $B$ has unbounded variation. It\^o's construction extends it to
+square-integrable adapted integrands.
+
+\begin{definition}[It\^o Integral]
+Let $(\mathcal{F}_t)$ be the natural filtration of $B$, and $H = (H_t)_{t \in [0,T]}$
+be $(\mathcal{F}_t)$-adapted with $\mathbb{E}[\int_0^T H_t^2\, dt] < \infty$. The It\^o
+integral $\int_0^T H_t\, dB_t$ is the $L^2(\mathbb{P})$-limit of Riemann sums with left
+endpoints:
+\[
+    \int_0^T H_t\, dB_t := L^2\text{-}\lim_{n \to \infty} \sum_{k=0}^{n-1} H_{t_k}
+    (B_{t_{k+1}} - B_{t_k}).
+\]
+\end{definition}
+
+\begin{theorem}[It\^o Isometry]
+\label{thm:ito-isometry}
+For adapted square-integrable $H$:
+\begin{equation}
+    \mathbb{E}\left[ \left( \int_0^T H_t\, dB_t \right)^2 \right] = \mathbb{E}\left[
+    \int_0^T H_t^2\, dt \right].
+    \label{eq:ito-isometry}
+\end{equation}
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+For simple processes, the expectation of the square expands to
+$\sum_k \mathbb{E}[H_{t_k}^2] \Delta t_k$ by independence. The general case follows by
+approximation.
+\end{proof}
+
+\begin{remark}[Significance for Theorem 3.1]
+The It\^o isometry is used in the proof of Theorem 3.1: after deriving the Wasserstein
+distance ODE $d W_2^2 \leq C W_2^2\, dt + dM_t$, we take expectations and use
+$\mathbb{E}[M_t] = 0$ (since $M_t = \int_0^t Z_s\, dW_s^0$ is a martingale by It\^o
+isometry, as $\mathbb{E}[\int Z_s^2\, ds] < \infty$). This eliminates the stochastic
+term and allows the Gronwall inequality to close.
+\end{remark}
+
+\subsection{It\^o's Formula}
+
+\begin{theorem}[It\^o's Formula, one-dimensional]
+Let $f \in C^2(\mathbb{R})$ and $X_t = X_0 + \int_0^t b_s\, ds + \int_0^t \sigma_s\, dB_s$
+be an It\^o process. Then:
+\[
+    f(X_t) = f(X_0) + \int_0^t f'(X_s)\, dX_s + \frac{1}{2}\int_0^t f''(X_s)\, d[X,X]_s.
+\]
+Expanding $d[X,X]_s = \sigma_s^2\, ds$:
+\begin{equation}
+    f(X_t) = f(X_0) + \int_0^t f'(X_s) b_s\, ds + \int_0^t f'(X_s) \sigma_s\, dB_s +
+    \frac{1}{2}\int_0^t f''(X_s) \sigma_s^2\, ds.
+    \label{eq:ito-formula-1d}
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[It\^o's Formula, multidimensional]
+\label{thm:ito-multidim}
+Let $f \in C^2(\mathbb{R}^d)$ and let $X_t \in \mathbb{R}^d$ satisfy
+$dX_t = b_t\, dt + \sigma_t\, dW_t + \sigma_0\, dW_t^0$ (where $W_t \in \mathbb{R}^d$,
+$W_t^0 \in \mathbb{R}^{d_0}$, and $\sigma_t \in \mathbb{R}^{d \times d}$,
+$\sigma_0 \in \mathbb{R}^{d \times d_0}$). Then:
+\begin{align*}
+    f(X_t) &= f(X_0) + \int_0^t \nabla f(X_s) \cdot b_s\, ds + \int_0^t \nabla f(X_s)
+        \cdot \sigma_s\, dW_s + \int_0^t \nabla f(X_s) \cdot \sigma_0\, dW_s^0 \\
+    &\quad + \frac{1}{2}\int_0^t \mathrm{tr}(\sigma_s \sigma_s^\top D^2 f(X_s))\, ds +
+        \frac{1}{2}\int_0^t \mathrm{tr}(\sigma_0 \sigma_0^\top D^2 f(X_s))\, ds.
+\end{align*}
+\end{theorem}
+
+\begin{example}[Applying It\^o to a test function]
+\label{ex:mp-ito-test-function}
+Let $X_t^i$ be a single agent satisfying $dX_t^i = b_t\, dt + \sigma\, dW_t^i +
+\sigma_0\, dW_t^0$. Apply \Cref{thm:ito-multidim} with $f = \phi$ (a smooth test
+function):
+\[
+    d\phi(X_t^i) = \nabla\phi(X_t^i) \cdot b_t\, dt + \sigma \nabla\phi(X_t^i) \cdot
+    dW_t^i + \sigma_0 \nabla\phi(X_t^i) \cdot dW_t^0 + \frac{\sigma^2}{2}
+    \Delta\phi(X_t^i)\, dt + \frac{1}{2} \mathrm{tr}(\sigma_0 \sigma_0^\top D^2
+    \phi(X_t^i))\, dt.
+\]
+Averaging over $i = 1, \dots, N$ and writing
+$\langle \mu_t^N, \phi \rangle = \frac{1}{N}\sum_i \phi(X_t^i)$:
+\[
+    d\langle \mu_t^N, \phi \rangle = \left\langle \mu_t^N, b_t \cdot \nabla\phi +
+    \frac{\sigma^2}{2}\Delta\phi + \frac{1}{2}\mathrm{tr}(\sigma_0 \sigma_0^\top D^2
+    \phi) \right\rangle dt + \underbrace{\frac{\sigma}{N}\sum_i \nabla\phi(X_t^i)\,
+    dW_t^i}_{\to 0 \text{ as } N \to \infty} + \sigma_0 \langle \mu_t^N, \nabla\phi
+    \rangle\, dW_t^0.
+\]
+The idiosyncratic term vanishes in $L^2$ as $N \to \infty$ (mutual independence of
+$W^i$). The common noise term survives because $W_t^0$ is the same for all agents.
+Taking $N \to \infty$ yields the Fokker--Planck SPDE of \Cref{sec:mp-fokker-planck}.
+\end{example}
+
+\subsection{It\^o's Product Rule and Integration by Parts}
+
+\begin{proposition}[It\^o Product Rule]
+For It\^o processes $X_t$ and $Y_t$:
+\[
+    d(X_t Y_t) = X_t\, dY_t + Y_t\, dX_t + d[X,Y]_t,
+\]
+where $[X,Y]_t = \int_0^t \sigma_s^X \sigma_s^Y\, ds$ is the quadratic covariation
+(vanishes if driven by independent Brownians).
+\end{proposition}
+
+\begin{example}[Integration by parts for stochastic integrals]
+$B_t^2 = 2\int_0^t B_s\, dB_s + t$. (Verify: apply \eqref{eq:ito-formula-1d} with
+$f(x) = x^2$, $f'(x) = 2x$, $f''(x) = 2$.)
+\end{example}
+
+\subsection{Stochastic Differential Equations}
+
+\begin{theorem}[Existence and Uniqueness for SDEs]
+\label{thm:sde-existence-uniqueness}
+Let $b : [0,T] \times \mathbb{R}^d \to \mathbb{R}^d$ and
+$\sigma : [0,T] \times \mathbb{R}^d \to \mathbb{R}^{d \times m}$ satisfy for some
+$L > 0$:
+\begin{enumerate}[label=(\roman*)]
+    \item Lipschitz: $|b(t,x) - b(t,y)| + \|\sigma(t,x) - \sigma(t,y)\| \leq L|x-y|$;
+    \item Linear growth: $|b(t,x)| + \|\sigma(t,x)\| \leq L(1+|x|)$.
+\end{enumerate}
+Then for any $\mathcal{F}_0$-measurable $X_0$ with $\mathbb{E}[|X_0|^2] < \infty$, the
+SDE $dX_t = b(t,X_t)\, dt + \sigma(t,X_t)\, dW_t$ has a unique strong solution
+$(X_t)_{t \in [0,T]}$ satisfying
+\[
+    \mathbb{E}\Big[ \sup_{t \in [0,T]} |X_t|^2 \Big] \leq C(1+\mathbb{E}[|X_0|^2])
+    e^{CT}.
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch --- Picard iteration]
+Define $X_t^0 \equiv X_0$ and
+$X_t^{n+1} = X_0 + \int_0^t b(s,X_s^n)\, ds + \int_0^t \sigma(s,X_s^n)\, dW_s$. By
+It\^o isometry and the Lipschitz condition:
+\[
+    \mathbb{E}\Big[ \sup_{s \leq t} |X_s^{n+1} - X_s^n|^2 \Big] \leq C \int_0^t
+    \mathbb{E}\Big[ \sup_{r \leq s} |X_r^n - X_r^{n-1}|^2 \Big]\, ds.
+\]
+Gronwall's inequality gives
+$\mathbb{E}[\sup_{s \leq T} |X_s^n - X_s^{n-1}|^2] \leq C^n T^n / n! \to 0$. The Picard
+iterates converge in $L^2$ to a unique limit satisfying the SDE.
+\end{proof}
+
+
+\section{Fokker--Planck SPDE}
+\label{sec:mp-fokker-planck}
+
+\subsection{The Forward Equation}
+
+The Fokker--Planck equation (also called the Kolmogorov forward equation) governs the
+evolution of the law of a diffusion process. In the MFG setting with common noise, it
+becomes a stochastic PDE.
+
+\begin{definition}[Fokker--Planck Operator]
+For drift $b : \mathbb{R}^d \to \mathbb{R}^d$ and diffusion $\sigma > 0$, the
+Fokker--Planck operator is
+\[
+    \mathcal{L}^* \phi(x) := b(x) \cdot \nabla\phi(x) + \frac{\sigma^2}{2}
+    \Delta\phi(x), \qquad \phi \in C_c^\infty(\mathbb{R}^d).
+\]
+This is the formal $L^2$-adjoint of the generator
+$\mathcal{L} f(x) = b(x) \cdot \nabla f(x) + \frac{\sigma^2}{2}\Delta f(x)$:
+$\int (\mathcal{L}f)\, d\mu = \int f (\mathcal{L}^* \mu)$ for smooth $\mu$.
+\end{definition}
+
+\begin{theorem}[Fokker--Planck SPDE]
+\label{thm:fokker-planck-spde}
+Let $X_t$ satisfy the McKean--Vlasov SDE: $dX_t = b(t,X_t,\mu_t)\, dt + \sigma\, dW_t^i
++ \sigma_0\, dW_t^0$, $\mu_t = \mathcal{L}(X_t \mid \mathcal{F}_t^{W^0})$. Then $\mu_t$
+satisfies the following SPDE in the weak sense: for all $\phi \in C_c^\infty(\mathbb{R}^d)$:
+\begin{equation}
+    d\langle \mu_t, \phi \rangle = \langle \mu_t, \mathcal{L}_t^* \phi \rangle\, dt +
+    \sigma_0 \langle \mu_t, \nabla\phi \rangle\, dW_t^0, \qquad \langle \mu_0, \phi
+    \rangle = \int \phi(x)\, \mu_0(dx).
+    \label{eq:fp-spde-weak}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+This follows directly from \Cref{ex:mp-ito-test-function}. By It\^o's formula applied
+to $\phi(X_t)$:
+\[
+    \phi(X_t) - \phi(X_0) = \int_0^t \mathcal{L}_s^* \phi(X_s)\, ds + \sigma \int_0^t
+    \nabla\phi(X_s)\, dW_s^i + \sigma_0 \int_0^t \nabla\phi(X_s)\, dW_s^0.
+\]
+Take the conditional expectation given $\mathcal{F}_t^{W^0}$: the idiosyncratic term
+$\sigma \int \nabla\phi(X_s)\, dW_s^i$ has conditional expectation zero (since $W^i$ is
+independent of $W^0$). The common noise term $\sigma_0 \int \nabla\phi(X_s)\, dW_s^0$
+survives because $W^0$ is measurable with respect to $\mathcal{F}^{W^0}$. This gives
+the weak form \eqref{eq:fp-spde-weak}.
+\end{proof}
+
+\subsection{Strong Form: The SPDE in Density Form}
+
+When $\mu_t$ has a density $\rho_t(x)$ (i.e., $\mu_t(dx) = \rho_t(x)\, dx$), the SPDE
+\eqref{eq:fp-spde-weak} takes the strong form:
+\begin{equation}
+    d\rho_t = \big[-\nabla_x \cdot (b(t,x,\mu_t)\rho_t) + \frac{\sigma^2}{2}
+    \Delta_x \rho_t\big]\, dt + \sigma_0 \nabla_x \rho_t\, dW_t^0.
+    \label{eq:fp-spde-strong}
+\end{equation}
+
+\begin{remark}[Normalisation and the Kushner--Zakai distinction]
+Equation \eqref{eq:fp-spde-strong} is linear in $\rho_t$. This linearity is a
+consequence of two facts: (i) the SPDE describes the evolution of the conditional law
+of the state given the common noise, and (ii) the total mass is preserved because the
+drift and diffusion operators are in divergence form. Consequently, the normalisation
+constant remains identically one. This distinguishes the Fokker--Planck SPDE from the
+Kushner--Zakai equation of nonlinear filtering, which involves a stochastic
+normalisation factor arising from observations. The homogeneous common-noise exposure
+(constant $\sigma_0$) is sufficient but not necessary for this linearity; the key
+property is that the coefficients do not depend on the measure in a way that would
+introduce nonlinear feedback into the normalisation. See Chapter 4 of Carmona and
+Delarue (2018) for a detailed discussion.
+\end{remark}
+
+\subsection{Sobolev Regularity}
+
+\begin{definition}[Sobolev Spaces]
+For $k \in \mathbb{N}$ and $p \in [1,\infty)$:
+\[
+    W^{k,p}(\mathbb{R}^d) = \{ f \in L^p(\mathbb{R}^d) \mid \partial^\alpha f \in
+    L^p(\mathbb{R}^d) \text{ for all } |\alpha| \leq k \},
+\]
+with norm $\|f\|_{W^{k,p}}^p = \sum_{|\alpha| \leq k} \|\partial^\alpha f\|_{L^p}^p$.
+The Hilbert case $p=2$ gives $H^k(\mathbb{R}^d) = W^{k,2}(\mathbb{R}^d)$ with inner
+product $\langle f,g \rangle_{H^k} = \sum_{|\alpha| \leq k} \langle \partial^\alpha f,
+\partial^\alpha g \rangle_{L^2}$. The dual space is
+$H^{-1}(\mathbb{R}^d) = (H^1(\mathbb{R}^d))^*$.
+\end{definition}
+
+\begin{theorem}[Fokker--Planck Well-Posedness in Sobolev Space]
+\label{thm:fp-sobolev-wellposedness}
+Under Assumptions A1--A3 (Lipschitz drift, bounded coefficients, regularity), the SPDE
+\eqref{eq:fp-spde-weak} has a unique solution
+$\rho \in L^2(\Omega \times [0,T]; H^1(\mathbb{R}^d))$, and
+\begin{equation}
+    \mathbb{E}\Big[ \sup_{t \in [0,T]} \|\rho_t\|_{L^2}^2 \Big] + \mathbb{E}\left[
+    \int_0^T \|\nabla\rho_t\|_{L^2}^2\, dt \right] \leq C(1 + \|\rho_0\|_{H^1}^2).
+    \label{eq:fp-sobolev-bound}
+\end{equation}
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Apply the energy method: multiply \eqref{eq:fp-spde-strong} by $\rho_t$ and integrate
+over $\mathbb{R}^d$. Using It\^o's formula for $\|\rho_t\|_{L^2}^2$:
+\[
+    d\|\rho_t\|_{L^2}^2 = 2\langle \rho_t, d\rho_t \rangle + d[\langle\rho,\cdot\rangle,
+    \langle\rho,\cdot\rangle]_t.
+\]
+The deterministic part contributes $-\sigma^2 \|\nabla\rho_t\|_{L^2}^2\, dt$ (by
+integration by parts) plus a term bounded by
+$\|b\|_\infty \|\rho_t\|_{L^2} \|\nabla\rho_t\|_{L^2}\, dt$. The stochastic part
+contributes $\|\sigma_0\|_F^2 \|\nabla\rho_t\|_{L^2}^2\, dt$ (by It\^o isometry). Taking
+expectations and applying Gronwall gives \eqref{eq:fp-sobolev-bound}.
+\end{proof}
+
+\subsection{The Gelfand Triple}
+
+\begin{definition}[Gelfand Triple]
+A Gelfand triple (or rigged Hilbert space) is a triple of spaces
+$V \subset H \subset V^*$, where:
+\begin{itemize}
+    \item $V$ is a reflexive Banach space (e.g., $H^1(\mathbb{R}^d)$);
+    \item $H$ is a Hilbert space (e.g., $L^2(\mathbb{R}^d)$);
+    \item $V^*$ is the dual of $V$ (e.g., $H^{-1}(\mathbb{R}^d)$);
+    \item the inclusions are continuous and dense.
+\end{itemize}
+\end{definition}
+
+For the Fokker--Planck SPDE, the relevant Gelfand triple is
+$H^1(\mathbb{R}^d) \subset L^2(\mathbb{R}^d) \subset H^{-1}(\mathbb{R}^d)$. The
+Fokker--Planck operator $\mathcal{L}^* : H^1(\mathbb{R}^d) \to H^{-1}(\mathbb{R}^d)$ is
+bounded with norm $\|\mathcal{L}^*\| \leq L_b + \sigma^2$ (Lemma 4.2 of the thesis,
+proved via Hahn--Banach in \Cref{sec:mp-sobolev}). This is what makes the SPDE
+well-posed in $H^{-1}$.
+
+
+\section{Martingale Theory}
+\label{sec:mp-martingale}
+
+\subsection{Martingales and Stopping Times}
+
+\begin{definition}[Martingale]
+An adapted integrable process $(M_t)_{t \geq 0}$ is a martingale with respect to
+$(\mathcal{F}_t)$ if $\mathbb{E}[M_t \mid \mathcal{F}_s] = M_s$ $\mathbb{P}$-a.s.\ for
+all $0 \leq s \leq t$. It is a local martingale if there exist stopping times
+$\tau_n \uparrow \infty$ such that $(M_{t \wedge \tau_n})$ is a martingale for each $n$.
+\end{definition}
+
+\begin{theorem}[It\^o integrals are local martingales]
+If $H$ is adapted with $\int_0^t H_s^2\, ds < \infty$ a.s., then
+$M_t := \int_0^t H_s\, dB_s$ is a local martingale with $M_0 = 0$. If additionally
+$\mathbb{E}[\int_0^T H_s^2\, ds] < \infty$, then $M_t$ is a square-integrable
+martingale.
+\end{theorem}
+
+\begin{theorem}[Doob's Maximal Inequality]
+\label{thm:doob}
+For a non-negative submartingale $(M_t)$:
+\[
+    \mathbb{E}\Big[ \sup_{0 \leq t \leq T} M_t^2 \Big] \leq 4\, \mathbb{E}[M_T^2].
+\]
+\end{theorem}
+
+\begin{remark}
+This is used in Theorem 3.1: to bound the expected supremum
+$\mathbb{E}[\sup_t W_2^2(\mu_t^1,\mu_t^2)]$ by $4\mathbb{E}[W_2^2(\mu_T^1,\mu_T^2)]$,
+allowing the Gronwall bound to be applied.
+\end{remark}
+
+\begin{theorem}[Burkholder--Davis--Gundy (BDG) Inequality]
+\label{thm:bdg}
+For any continuous local martingale $M$ with $M_0 = 0$ and $p \geq 1$:
+\[
+    c_p\, \mathbb{E}\big[[M,M]_T^{p/2}\big] \leq \mathbb{E}\Big[ \sup_{t \leq T}
+    |M_t|^p \Big] \leq C_p\, \mathbb{E}\big[[M,M]_T^{p/2}\big].
+\]
+In particular, for $p=2$: $\mathbb{E}[\sup_t M_t^2] \leq 4\mathbb{E}[[M,M]_T]$.
+\end{theorem}
+
+\subsection{Martingale Representation Theorem}
+
+\begin{theorem}[Martingale Representation, Brownian Filtration]
+\label{thm:martingale-representation}
+Let $(\mathcal{F}_t)$ be the natural filtration of a $d$-dimensional Brownian motion
+$W$. Then every $(\mathcal{F}_t)$-martingale $M$ has the representation
+\[
+    M_t = M_0 + \int_0^t H_s\, dW_s
+\]
+for a unique $(\mathcal{F}_t)$-adapted process $H$ with
+$\mathbb{E}[\int_0^T |H_s|^2\, ds] < \infty$.
+\end{theorem}
+
+\begin{remark}[Connection to BSDE theory]
+The MRT is the existence theorem for solutions to backward SDEs. Given a terminal
+condition $\xi = p_T$, the MRT guarantees the existence of $(q_t, r_t)$ such that
+\[
+    p_T = p_t - \int_t^T \partial_x H_s\, ds + \int_t^T q_s\, dW_s^i + \int_t^T r_s\,
+    dW_s^0.
+\]
+This is the adjoint BSDE from Chapter 1.
+\end{remark}
+
+\subsection{The Novikov Condition and Girsanov's Theorem}
+
+\begin{theorem}[Girsanov's Theorem]
+\label{thm:girsanov}
+Let $\theta : [0,T] \times \Omega \to \mathbb{R}^d$ be adapted with
+$\mathbb{E}\big[\exp(\tfrac{1}{2}\int_0^T |\theta_t|^2\, dt)\big] < \infty$ (Novikov's
+condition). Define
+\[
+    Z_T = \exp\left( \int_0^T \theta_t\, dW_t - \frac{1}{2}\int_0^T |\theta_t|^2\, dt
+    \right).
+\]
+Then $Z_T$ is the Radon--Nikodym derivative of a probability measure $\mathbb{P}^*$
+with respect to $\mathbb{P}$: $d\mathbb{P}^*/d\mathbb{P} = Z_T$. Under $\mathbb{P}^*$,
+the process $\widetilde{W}_t = W_t - \int_0^t \theta_s\, ds$ is a Brownian motion.
+\end{theorem}
+
+\begin{remark}[Use in the thesis]
+Girsanov's theorem is a standard tool for change of measure in stochastic analysis. In
+the MFG setting, it may be applied to remove drift terms under certain monotonicity
+assumptions, but the primary analysis in Theorem 3.1 uses synchronous coupling rather
+than Girsanov.
+\end{remark}
+
+
+\section{Sobolev Spaces and Functional Analysis}
+\label{sec:mp-sobolev}
+
+\subsection{Sobolev Embedding Theorem}
+
+\begin{theorem}[Sobolev Embedding]
+\label{thm:sobolev-embedding}
+Let $\Omega \subset \mathbb{R}^d$ be bounded with smooth boundary.
+\begin{enumerate}[label=(\roman*)]
+    \item If $k > d/2$, then $H^k(\Omega) \hookrightarrow C^0(\bar\Omega)$ (continuous
+    embedding into continuous functions);
+    \item $H^1(\Omega) \hookrightarrow L^{2^*}(\Omega)$ where $2^* = 2d/(d-2)$ for
+    $d \geq 3$.
+\end{enumerate}
+In our setting $\Omega = \mathbb{R}^d$, $d=1$: $H^1(\mathbb{R}) \hookrightarrow
+C^{0,1/2}(\mathbb{R})$ (functions are H\"older-$\tfrac{1}{2}$ continuous).
+\end{theorem}
+
+\subsection{Hahn--Banach Extension Theorem}
+
+\begin{theorem}[Hahn--Banach]
+\label{thm:hahn-banach}
+Let $E$ be a real normed space, $F \subset E$ a subspace, and $\varphi : F \to
+\mathbb{R}$ a bounded linear functional. Then there exists $\widetilde\varphi : E \to
+\mathbb{R}$ with $\widetilde\varphi|_F = \varphi$ and
+$\|\widetilde\varphi\|_{E^*} = \|\varphi\|_{F^*}$.
+\end{theorem}
+
+\begin{remark}[Application in Lemma 4.2]
+The Hahn--Banach theorem is applied in Lemma 4.2 of the thesis to show that the
+Fokker--Planck operator $\mathcal{L}^*$, initially defined on smooth test functions (a
+dense subspace of $H^1$), extends to a bounded operator
+$\mathcal{L}^* : H^1(\mathbb{R}^d) \to H^{-1}(\mathbb{R}^d)$ with the same operator
+norm. This is essential for the Sobolev-space well-posedness of the SPDE.
+\end{remark}
+
+\subsection{Lumer--Phillips Theorem and Contraction Semigroups}
+
+\begin{definition}[Dissipative Operator]
+A linear operator $A : D(A) \subset H \to H$ on a Hilbert space $H$ is dissipative if
+$\mathrm{Re}\langle Au, u \rangle \leq 0$ for all $u \in D(A)$.
+\end{definition}
+
+\begin{theorem}[Lumer--Phillips]
+\label{thm:lumer-phillips}
+Let $A$ be a closed densely defined operator on a Banach space $X$. Then $A$ generates
+a $C_0$-contraction semigroup (i.e., $\|e^{tA}x\| \leq \|x\|$ for all $t \geq 0$,
+$x \in X$) if and only if:
+\begin{enumerate}[label=(\roman*)]
+    \item $A$ is dissipative, and
+    \item $(\mathrm{Id} - A)$ has dense range.
+\end{enumerate}
+\end{theorem}
+
+\begin{remark}[Application to Fokker--Planck]
+The Fokker--Planck operator $\mathcal{L}^*$ on $L^2(\mu^*)$ (where $\mu^*$ is the MFG
+equilibrium measure) is dissipative:
+$\langle \mathcal{L}^* \rho, \rho \rangle_{L^2(\mu^*)} = -\sigma^2 \|\nabla\rho\|_{L^2(\mu^*)}^2
+\leq 0$ (assuming boundary terms vanish). By Lumer--Phillips, $\mathcal{L}^*$ generates
+a contraction semigroup, and the spectral gap $\lambda_1 > 0$ (the smallest positive
+eigenvalue) gives the exponential decay rate in Theorem 5.2.
+\end{remark}
+
+\subsection{Spectral Gap and Log-Sobolev Inequality}
+
+\begin{definition}[Spectral Gap]
+The spectral gap of the Fokker--Planck operator $\mathcal{L}^*$ on $L^2(\mu^*)$ is
+\[
+    \lambda_1 := \inf \left\{ \frac{-\langle \mathcal{L}^* f, f \rangle_{L^2(\mu^*)}}
+    {\mathrm{Var}_{\mu^*}(f)} \;\middle|\; f \in D(\mathcal{L}^*), \;
+    \mathrm{Var}_{\mu^*}(f) > 0 \right\}.
+\]
+\end{definition}
+
+\begin{theorem}[Log-Sobolev Implies Spectral Gap]
+\label{thm:log-sobolev}
+If $\mu^*$ satisfies the log-Sobolev inequality with constant $C_{\mathrm{Lip}}$:
+\[
+    H(\mu \| \mu^*) \leq C_{\mathrm{Lip}}\, I(\mu \| \mu^*) \qquad \forall \mu \in
+    \mathcal{P}_2(\mathbb{R}^d),
+\]
+where $H(\mu\|\mu^*) = \int \log\frac{d\mu}{d\mu^*}\, d\mu$ and
+$I(\mu\|\mu^*) = \int |\nabla \log\frac{d\mu}{d\mu^*}|^2\, d\mu$, then
+$\lambda_1 \geq 1/C_{\mathrm{Lip}}$.
+\end{theorem}
+
+\begin{proof}
+The log-Sobolev inequality implies the Poincar\'e inequality
+$\mathrm{Var}_{\mu^*}(f) \leq C_{\mathrm{Lip}} \int |\nabla f|^2\, d\mu^*$ (take
+$\mu = f^2 \mu^*$, expand $H$ to second order). The Poincar\'e inequality is equivalent
+to $\lambda_1 \geq 1/C_{\mathrm{Lip}}$.
+\end{proof}
+
+\begin{remark}[Log-Sobolev in financial applications]
+The log-Sobolev inequality is a strong structural assumption; it typically requires the
+equilibrium measure $\mu^*$ to satisfy Bakry--\'Emery criteria (e.g., strictly
+log-concave density). \textbf{In financial markets, position distributions often
+exhibit heavy tails (power laws), which violate the LSI and satisfy only the weaker
+Poincar\'e inequality.} The LSI is used in Theorem 5.2 to establish an exponential
+convergence rate as a theoretical upper bound; in practice, one expects algebraic rates
+governed by the spectral gap. This limitation is acknowledged in the caveats of
+Theorem 5.2. Recent work on Lata\l a--Oleszkiewicz inequalities and non-convex
+isoperimetry (see Chapter 10) offers potential pathways to relax this assumption.
+\end{remark}
+
+
+\section{Stochastic Maximum Principle}
+\label{sec:mp-smp}
+
+\subsection{The Control Problem}
+
+We now state the stochastic optimal control problem precisely. Let $A \subset
+\mathbb{R}^k$ be the action space (convex compact). A control
+$\alpha = (\alpha_t)_{t \in [0,T]}$ is admissible if it is $(\mathcal{F}_t)$-adapted
+and $\mathbb{E}[\int_0^T |\alpha_t|^2\, dt] < \infty$. The state $X_t^\alpha \in
+\mathbb{R}^d$ satisfies:
+\begin{equation}
+    dX_t^\alpha = b(t, X_t^\alpha, \mu_t, \alpha_t)\, dt + \sigma\, dW_t^i + \sigma_0\,
+    dW_t^0, \qquad X_0^\alpha \sim \mu_0.
+    \label{eq:smp-state}
+\end{equation}
+The objective is to maximise:
+\begin{equation}
+    J(\alpha) = \mathbb{E}\left[ \int_0^T f(t, X_t^\alpha, \mu_t, \alpha_t)\, dt +
+    g(X_T^\alpha, \mu_T) \right].
+    \label{eq:smp-objective}
+\end{equation}
+
+\subsection{The Hamiltonian}
+
+\begin{definition}[Control Hamiltonian]
+The Hamiltonian associated with the control problem is
+\begin{equation}
+    H(t, x, \mu, p, \alpha) := p \cdot b(t,x,\mu,\alpha) + f(t,x,\mu,\alpha) \in
+    \mathbb{R},
+    \label{eq:hamiltonian-def}
+\end{equation}
+where $p \in \mathbb{R}^d$ is the costate variable (adjoint or shadow price). The
+maximised Hamiltonian is
+\[
+    H^*(t,x,\mu,p) := \sup_{\alpha \in A} H(t,x,\mu,p,\alpha).
+\]
+\end{definition}
+
+Under Assumption A5 (uniform concavity of $H$ in $\alpha$), $H^*$ is attained at a
+unique $\alpha^*(t,x,\mu,p)$.
+
+\begin{example}[Linear-quadratic Hamiltonian]
+\label{ex:mp-lq-hamiltonian}
+For $b = \kappa(\bar{x}-x) + \alpha$ and $f = -x^2 - \tfrac{\lambda}{2}\alpha^2$:
+\[
+    H(t,x,\mu,p,\alpha) = p(\kappa(\bar{x}-x) + \alpha) - x^2 - \frac{\lambda}{2}
+    \alpha^2.
+\]
+Maximising over $\alpha$: $\partial_\alpha H = p - \lambda\alpha = 0$, so
+$\alpha^*(x,\mu,p) = p/\lambda$ and $H^*(t,x,\mu,p) = p\kappa(\bar{x}-x) - x^2 +
+\frac{p^2}{2\lambda}$.
+\end{example}
+
+\subsection{The Adjoint Process and SMP}
+
+\begin{definition}[Adjoint BSDE]
+The adjoint process $(p_t, q_t, r_t)$ associated with an admissible control $\alpha$
+and state process $X_t^\alpha$ satisfies the backward SDE:
+\begin{equation}
+    -dp_t = \partial_x H(t, X_t^\alpha, \mu_t, p_t, \alpha_t)\, dt - q_t\, dW_t^i -
+    r_t\, dW_t^0, \qquad p_T = \partial_x g(X_T^\alpha, \mu_T).
+    \label{eq:smp-adjoint-bsde}
+\end{equation}
+Here $p_t \in \mathbb{R}^d$ is the costate, $q_t \in \mathbb{R}^{d \times d}$ accounts
+for idiosyncratic noise, and $r_t \in \mathbb{R}^{d \times d_0}$ accounts for common
+noise.
+\end{definition}
+
+\begin{theorem}[Stochastic Maximum Principle]
+\label{thm:smp}
+Let $\alpha^*$ be an optimal control for \eqref{eq:smp-objective} and $(p_t,q_t,r_t)$
+the associated adjoint process. Then:
+\[
+    H(t, X_t^*, \mu_t, p_t, \alpha_t^*) = H^*(t, X_t^*, \mu_t, p_t) \qquad
+    \mathbb{P}\text{-a.s., a.e.\ } t.
+\]
+Under Assumption A5 (strict concavity of $H$ in $\alpha$):
+\[
+    \alpha_t^* = \argmax_{\alpha \in A} H(t, X_t^*, \mu_t, p_t, \alpha) \qquad
+    \text{uniquely, } \mathbb{P}\text{-a.s.}
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch --- variational method]
+Let $\alpha^\epsilon = \alpha^* + \epsilon(\alpha - \alpha^*)$ be a perturbation. The
+optimality $J(\alpha^*) \geq J(\alpha^\epsilon)$ gives, after dividing by $\epsilon$ and
+taking $\epsilon \to 0$:
+\[
+    \mathbb{E}\left[ \int_0^T \big(\partial_\alpha H(t, X_t^*, \mu_t, p_t,
+    \alpha_t^*)\big) \cdot (\alpha_t - \alpha_t^*)\, dt \right] \geq 0
+\]
+for all admissible $\alpha$. Since $\alpha$ is arbitrary, $\partial_\alpha H = 0$
+$\mathbb{P}$-a.s.\ a.e.\ $t$. Under strict concavity (A5), this uniquely determines
+$\alpha_t^*$.
+\end{proof}
+
+\subsection{Connection to Hamilton--Jacobi--Bellman}
+
+The SMP and HJB equation are dual formulations of the same problem.
+
+\begin{theorem}[SMP--HJB Connection]
+\label{thm:smp-hjb}
+If the value function $u(t,x,\mu)$ is $C^{1,2}$ in $(t,x)$ and admits a Lions
+derivative in $\mu$, then:
+\begin{equation}
+    p_t = D_x u(t, X_t^*, \mu_t), \qquad q_t = \sigma D_x^2 u(t, X_t^*, \mu_t), \qquad
+    r_t = \sigma_0^\top \mathbb{E}\big[ D_\mu u(t, X_t^*, \mu_t)(\widetilde{X}_t) \mid
+    \mathcal{F}_t^{W^0} \big].
+    \label{eq:smp-hjb-connection}
+\end{equation}
+\end{theorem}
+
+Here $D_\mu u(t,x,\mu)(\widetilde{x})$ denotes the Lions derivative of $u$ with respect
+to the measure argument, evaluated at the independent copy $\widetilde{X}_t$. This
+derivative is defined via the ``lifting'' of functionals on $\mathcal{P}_2(\mathbb{R}^d)$
+to functionals on the Hilbert space $L^2(\Omega; \mathbb{R}^d)$; see
+Carmona--Delarue (2018, Vol.\ I, Chapter 5) for a comprehensive treatment. The HJB
+equation
+\[
+    -\partial_t u = H^*(t,x,\mu,D_x u) + \frac{\sigma^2}{2}\Delta_x u, \qquad
+    u(T,x,\mu) = g(x,\mu)
+\]
+is the PDE characterisation of the value function, and its unique solution (under
+Assumptions A1--A5) gives the adjoint variables via \eqref{eq:smp-hjb-connection}.
+
+\begin{remark}[Significance for the master equation]
+Equation \eqref{eq:smp-hjb-connection} reveals why the master equation $U(t,\mu)$
+contains derivatives in measure: the adjoint variable $r_t$ involves the Lions
+derivative $D_\mu U$, which measures how the value function changes when the measure
+$\mu_t$ is perturbed. \textbf{This is the analytical foundation for Chapter 6's
+hierarchical RL, where the slow actor learns $D_\mu U$ via the Wonham filter.}
+\end{remark}
+
+
+\section{Summary: Toolkit Reference}
+\label{sec:mp-summary}
+
+The following table maps each tool developed in this chapter to its first use in the
+thesis.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Toolkit Reference}
+\label{tab:toolkit-reference}
+\begin{tabular}{p{2.8cm}p{5cm}p{3.5cm}}
+\toprule
+\textbf{Tool} & \textbf{Content} & \textbf{First used} \\
+\midrule
+$\mathcal{P}_2(\mathbb{R}^d)$ & Probability measures with finite 2nd moment & Ch.\ 3
+    (state space for $\mu^*$) \\
+\addlinespace
+Wasserstein distance & $W_2(\mu,\nu) = (\inf_\pi \int |x-y|^2 \pi)^{1/2}$ & Ch.\ 3
+    (Theorem 3.1 LHS) \\
+\addlinespace
+Brenier's Theorem & Optimal transport map $T = \nabla\varphi$ & Ch.\ 3 (coupling in
+    Lemma 3.2) \\
+\addlinespace
+Metric space structure & $(\mathcal{P}_2, W_2)$ complete separable & Ch.\ 3 (Banach
+    FPT applies) \\
+\addlinespace
+$W_2$-convergence characterisation & $W_2 \to 0 \iff$ weak + 2nd moment & Ch.\ 3
+    (existence proof) \\
+\addlinespace
+Geodesic / Lions derivative & Linear functional on $L^2(\mu)$ & Ch.\ 8 (Lions
+    derivative) \\
+\addlinespace
+LLN rate (Fournier--Guillin) & $\mathbb{E}[W_2(\mu^N,\mu)] \leq CN^{-1/2}$ ($d=1$,
+    $q>4$) & Ch.\ 7 ($O(1/N)$ proof) \\
+\addlinespace
+1D Wasserstein formula & $W_2^2 = \int (F_\mu^{-1} - F_\nu^{-1})^2$ & Ch.\ 4 (numerical
+    computation) \\
+\addlinespace
+Brownian motion & Gaussian independent increments & Ch.\ 3 (SDE driving noise) \\
+\addlinespace
+Quadratic variation & $[B,B]_t = t$ a.s. & It\^o's formula \\
+\addlinespace
+It\^o isometry & $\mathbb{E}[(\int H dB)^2] = \mathbb{E}[\int H^2 dt]$ & Ch.\ 3 (Step
+    4: $\mathbb{E}[M]=0$) \\
+\addlinespace
+It\^o's formula & $df(X) = f' dX + \tfrac{1}{2}f'' d[X,X]$ & Fokker--Planck derivation \\
+\addlinespace
+SDE existence/uniqueness & Lipschitz $\Rightarrow$ unique strong solution & Ch.\ 3
+    (agent SDE) \\
+\addlinespace
+It\^o product rule & $d(XY) = X\, dY + Y\, dX + d[X,Y]$ & Ch.\ 3 (Lemma 3.2
+    derivation) \\
+\addlinespace
+Fokker--Planck SPDE & $d\langle\mu_t,\phi\rangle = \langle\mu_t,\mathcal{L}^*\phi\rangle
+    dt + \sigma_0\langle\mu_t,\nabla\phi\rangle dW^0$ & Ch.\ 3 (forward equation) \\
+\addlinespace
+Sobolev well-posedness & $\rho \in L^2(\Omega; H^1)$, energy estimate & Ch.\ 4 (error
+    analysis) \\
+\addlinespace
+Gelfand triple & $H^1 \subset L^2 \subset H^{-1}$ & Ch.\ 4 \\
+\addlinespace
+Doob's inequality & $\mathbb{E}[\sup M^2] \leq 4\mathbb{E}[M_T^2]$ & Ch.\ 3 (sup
+    bound) \\
+\addlinespace
+BDG inequality & $\mathbb{E}[\sup |M|^p] \sim \mathbb{E}[[M,M]^{p/2}]$ & Ch.\ 3 (moment
+    bounds) \\
+\addlinespace
+Martingale representation & Every martingale = It\^o integral & Ch.\ 3 (BSDE
+    existence) \\
+\addlinespace
+Girsanov's theorem & Change of measure, remove drift & Ch.\ 3 (alternative approach) \\
+\addlinespace
+Hahn--Banach & Norm-preserving extension & Ch.\ 4 (Lemma 4.2) \\
+\addlinespace
+Lumer--Phillips & Dissipative $\Rightarrow$ contraction semigroup & Ch.\ 5/6
+    (spectral gap) \\
+\bottomrule
+\end{tabular}
+\end{table}
