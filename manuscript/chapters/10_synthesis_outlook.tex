@@ -1,0 +1,573 @@
+% chapters/10_synthesis_outlook.tex
+
+\section{Overview}
+
+This final chapter synthesises the contributions of the thesis, critically evaluates
+its limitations, and charts directions for future research. The overarching aim of
+the thesis has been to develop a mathematically rigorous and computationally
+implementable framework for mean-field games with common noise, unifying SPDE
+theory, reinforcement learning, and quantitative finance. Chapters 1--9 have built
+this framework step by step: from the foundational theory (Chapters 2--3), through
+numerical methods (Chapter 4) and reinforcement learning algorithms (Chapters
+5--6), to financial applications in systemic risk (Chapter 7) and empirical asset
+pricing (Chapters 8--9).
+
+\Cref{sec:syn-contributions} provides a concise summary of the principal
+contributions, explicitly situating each within the existing literature and
+clarifying the incremental novelty. \Cref{sec:syn-limitations} discusses the
+limitations of the work, both mathematical and practical. \Cref{sec:syn-open}
+outlines six open problems that emerge naturally from the thesis and constitute
+promising avenues for future investigation, with each problem contextualised by a
+survey of recent relevant literature. \Cref{sec:syn-impact} reflects on the broader
+impact of the research for financial economics, reinforcement learning, and the
+practice of quantitative investment. \Cref{sec:syn-conclusion} concludes.
+
+
+\section{Summary of Contributions}
+\label{sec:syn-contributions}
+
+This section summarises the principal contributions of the thesis, organised by
+chapter. For each contribution, we explicitly state what was previously known in
+the literature and what the thesis adds. \Cref{tab:syn-contributions-summary}
+provides a condensed overview.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Summary of Principal Contributions and Their Novelty}
+\label{tab:syn-contributions-summary}
+\begin{tabular}{p{0.8cm}p{2.8cm}p{8cm}}
+\toprule
+\textbf{Ch.} & \textbf{Contribution} & \textbf{Incremental Novelty} \\
+\midrule
+3 & Quantitative well-posedness (Theorem~\ref{thm:wellposedness}) & Explicit
+    parameter-dependent contraction constant $C = 2L_b^2 + 2\|\sigma_0\|_F^2 +
+    C_{\mathrm{reg}}$ suitable for algorithm design; contraction in expectation,
+    not pathwise \\
+\addlinespace
+4 & Numerical convergence (Theorem~\ref{thm:numerical-convergence}) & Combined
+    Euler--Maruyama/particle/SPDE scheme with weak error $O(\Delta t^{1/2} +
+    \Delta x)$ and CFL condition for common-noise system \\
+\addlinespace
+5 & Three-timescale RL convergence (Theorem~\ref{thm:rl-subsequential}) &
+    Extension to continuous state-action spaces with explicit Wasserstein control;
+    subsequential convergence ($\liminf W_2 = 0$) \\
+\addlinespace
+5 & Exponential rate under entropy regularisation
+    (Theorem~\ref{thm:rl-exponential}) & Application to MFG setting; connection to
+    Wasserstein distance via Talagrand inequality; idealised benchmark under LSI \\
+\addlinespace
+6 & Hierarchical RL architecture (Proposition~\ref{prop:timescale-separation}) &
+    SPDE-grounded decomposition into SAC-PPO-TD3 (heuristic mapping); experimental
+    validation on continuous benchmarks \\
+\addlinespace
+7 & Systemic risk with optimal bailouts (closed-form LQ solution) & Stackelberg
+    formulation with common noise; explicit Riccati solution; quantification of
+    moral hazard trade-off \\
+\addlinespace
+8 & Alpha signals from MFG equilibrium (Proposition~\ref{prop:alpha-signals}) &
+    Four-signal framework; novel crowding measure $c_t = W_2(\mu_t, \mu_t^*)$
+    anchored to equilibrium; full pipeline to portfolio weights \\
+\addlinespace
+9 & Empirical validation on S\&P 500 (2000--2024) & Full out-of-sample trading
+    strategy; Sharpe 1.91 (conditional on model); incremental over na\"ive 13F;
+    extensive robustness checks \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Theoretical Foundations (Chapters 1--3)}
+
+The thesis began by formulating the $N$-player portfolio choice problem and its
+mean-field limit, emphasising the distinctive challenges introduced by common
+noise. We characterised the MFG equilibrium via a conditionally McKean--Vlasov
+FBSDE system \eqref{eq:fbsde-system}, which served as the central mathematical
+object throughout. Chapter 2 provided a self-contained toolkit in Wasserstein
+geometry, It\^o calculus, Fokker--Planck SPDEs, martingale theory, Sobolev spaces,
+and the Stochastic Maximum Principle.
+
+Chapter 3 proved Theorem~\ref{thm:wellposedness}, the quantitative well-posedness
+result. Prior to this work, Ahuja, Ren, and Yang (2019) had established existence
+and uniqueness for a class of common-noise MFGs with linear-convex structure and
+weak-monotonicity, using a continuation method for FBSDEs. Carmona and Delarue
+(2018) provided the comprehensive probabilistic characterisation.
+\textbf{The incremental contribution of Theorem~\ref{thm:wellposedness} is the
+explicit parameter-dependent contraction constant $C = 2L_b^2 + 2\|\sigma_0\|_F^2 +
+C_{\mathrm{reg}}$, derived via synchronous coupling and Lions derivative
+estimates.} This constant directly informs step-size selection in numerical
+schemes (Chapter 4) and learning rates in RL algorithms (Chapters 5--6). The
+$\varepsilon$-Nash property ($\varepsilon_N = O(N^{-1/2})$) was verified using
+propagation of chaos.
+
+\textbf{We emphasize that the contraction is established in expectation, not
+pathwise, and relies on the assumption of homogeneous common-noise exposure and
+absolute continuity of measures.} These limitations are discussed in
+\Cref{sec:syn-limitations}.
+
+\subsection{Numerical Methods (Chapter 4)}
+
+Chapter 4 developed numerical schemes for the FBSDE system. Prior work on
+numerical methods for McKean--Vlasov FBSDEs includes Chassagneux, Crisan, and
+Delarue (2019), who established convergence of a particle method for mean-field
+FBSDEs without common noise. Theorem~\ref{thm:numerical-convergence} established
+that a combined Euler--Maruyama / particle discretisation converges with weak
+error $O(\Delta t^{1/2} + \Delta x)$ under sufficient smoothness. The CFL
+condition \eqref{eq:cfl-condition} provided a practical stability guideline for the
+coupled stochastic system. The LQ benchmark validated the theoretical rates.
+
+\subsection{Reinforcement Learning (Chapters 5--6)}
+
+Chapter 5 proved convergence guarantees for a three-timescale actor-critic
+algorithm. Prior work includes Angiuli, Fouque, Lauri\`ere, and Zhang (2024), who
+proved convergence of a three-timescale Q-learning algorithm for mean-field control
+games with common noise in finite state-action spaces.
+Theorem~\ref{thm:rl-subsequential} extended the ODE method to continuous
+state-action spaces with explicit Wasserstein control, assuming compact Lipschitz
+function approximators. The convergence established is subsequential
+($\liminf W_2 = 0$), not full almost-sure convergence.
+Theorem~\ref{thm:rl-exponential} showed that entropy regularisation yields an
+exponential convergence rate under a log-Sobolev inequality for the policy class,
+connecting to recent work by Ma, Li, and Zhang (2024). This result serves as an
+idealised benchmark; the LSI assumption is strong and unlikely to hold for deep
+neural networks without explicit regularisation.
+
+Chapter 6 translated the mathematical structure into a practical algorithmic
+architecture. Proposition~\ref{prop:timescale-separation} formalised the timescale
+separation that canonically motivates a hierarchical RL design: a fast SAC critic
+for idiosyncratic diffusion, an intermediate PPO actor for mean-field interaction,
+and a slow TD3 meta-learner for common-noise adaptation. \textbf{The specific
+assignment of algorithms to operators is heuristic; the essential contribution is
+the hierarchical principle.} Experiments on the LQ benchmark and a multi-asset
+market simulation confirmed superior sample efficiency and stability. A control
+experiment with random timescale ratios isolated the contribution of the
+SPDE-guided separation.
+
+\subsection{Financial Applications (Chapters 7--9)}
+
+Chapter 7 applied the framework to systemic risk and optimal bailouts. The
+foundational model is due to Carmona, Fouque, and Sun (2015). \textbf{Our
+contribution is the Stackelberg formulation with common noise, the closed-form LQ
+solution (including the Riccati system for the government's policy), and the
+quantification of the $O(1/N)$ approximation error.} The quadratic approximation
+of the default penalty is a limitation (see \Cref{sec:syn-limitations}).
+
+Chapter 8 derived the four alpha signals. The trade crowding MFG was introduced by
+Cardaliaguet and Lehalle (2018), and extended to portfolio trading by Lehalle and
+Mouzouni (2019). Proposition~\ref{prop:alpha-signals} contributes the four-signal
+framework; \textbf{the novel contribution is the crowding measure
+$c_t = W_2(\mu_t, \mu_t^*)$.} The portfolio construction algorithm with crowding
+discount provides a complete implementation pipeline.
+
+Chapter 9 provided the empirical validation. The use of 13F holdings to predict
+returns was established by Chen, Hong, and Stein (2002). Lehalle and Mouzouni
+(2019) calibrated a portfolio MFG to 176 stocks. \textbf{Our contribution is a
+full out-of-sample trading strategy on the S\&P 500 universe (2000--2024),
+achieving a Sharpe ratio of 1.91 (net of costs) with a block-bootstrap $p$-value
+of 0.002.} The incremental contribution over a na\"ive 13F mean-reversion strategy
+(Sharpe 0.72) and a 13F residual momentum strategy (Sharpe 0.89) is substantial.
+Extensive robustness checks confirm stability across specifications. The Sharpe
+ratio is conditional on the LQ model specification; model risk is the dominant
+source of uncertainty.
+
+
+\section{Limitations}
+\label{sec:syn-limitations}
+
+Despite its breadth and depth, the thesis has several important limitations that
+must be acknowledged. We categorise them into mathematical, algorithmic, and
+empirical limitations.
+
+\subsection{Mathematical Limitations}
+
+\paragraph{Regularity assumptions.} The contraction estimate of
+Theorem~\ref{thm:wellposedness} relies on the stability of optimal transport maps,
+which requires absolute continuity of measures and bounded densities. In
+high-dimensional financial applications, empirical measures are discrete and
+noisy; the required regularity should be viewed as an approximation justified by
+smoothing or regularisation. Relaxing these assumptions to accommodate discrete
+empirical measures directly remains an open challenge.
+
+\paragraph{Common-noise cancellation.} The key structural insight --- that common
+noise cancels to first order in expectation under synchronous coupling --- depends
+critically on the assumption of homogeneous common-noise exposure (constant
+$\sigma_0$). If different agents have different sensitivities to aggregate shocks,
+the cancellation fails, and a more elaborate stability analysis is required.
+
+\paragraph{Log-Sobolev assumption.} Theorem~\ref{thm:rl-exponential}'s
+exponential convergence rate assumes a log-Sobolev inequality for the policy
+class, a strong condition that is not satisfied by standard deep neural networks
+without explicit regularisation. The result should be interpreted as an idealised
+benchmark rather than a generic guarantee. No algebraic rate is derived as a
+fallback under weaker conditions.
+
+\paragraph{Smoothness for numerical convergence.}
+Theorem~\ref{thm:numerical-convergence} requires $C^{2,4}$ coefficients. Many
+realistic financial models (e.g., those with non-smooth transaction costs) do not
+satisfy this. The convergence rate for less smooth coefficients is an open
+question.
+
+\paragraph{Quadratic approximation in systemic risk.} The replacement of the
+one-sided default penalty $(X_t^-)^2$ by a symmetric quadratic $x^2$ in Chapter 7
+is a modelling simplification. The approximation error is not quantified, and the
+parameters used in the numerical illustration ($\sigma_0 = 0.3$) are not in a
+small-noise regime.
+
+\paragraph{Contraction constant $C_{\mathrm{reg}}$ not fully explicit.} The term
+$C_{\mathrm{reg}}$ in Theorem~\ref{thm:wellposedness} depends on bounds of Lions
+derivatives and BSDE estimates. While these can be bounded in terms of the
+Lipschitz constants of the coefficients, a fully explicit expression is not
+provided for general nonlinear MFGs. In the LQ case, it can be computed
+explicitly.
+
+\subsection{Algorithmic Limitations}
+
+\paragraph{Function approximation.} The RL convergence guarantees
+(Theorems~\ref{thm:rl-subsequential} and \ref{prop:timescale-separation}) apply to
+regularised, compact function classes. Extending these results to
+overparameterised deep neural networks, which are not Lipschitz or compact in the
+required sense, remains an open problem. In practice, spectral normalisation and
+weight clipping are employed as heuristics.
+
+\paragraph{Subsequential convergence.} Theorem~\ref{thm:rl-subsequential}
+establishes only $\liminf W_2 = 0$, not full almost-sure convergence. Proving that
+the sequence stays near the equilibrium would require additional monotonicity or
+uniqueness-of-limit-point arguments.
+
+\paragraph{Scalability.} The particle method for the Fokker--Planck SPDE requires
+a number of particles that grows with the dimension $d$ to maintain a faithful
+empirical distribution. For large $d$ (e.g., $d=50$ assets), this becomes
+computationally prohibitive. The experiments are limited to $d=1$ and $d=5$.
+
+\paragraph{Timescale separation in practice.} The theoretical timescale
+separation requires step sizes satisfying $\beta_t/\gamma_t \to 0$ and
+$\eta_t/\beta_t \to 0$. In practice, fixed update frequencies are used, which
+approximate the asymptotic separation. The finite-time behaviour is not analysed.
+
+\paragraph{Hybrid on-policy/off-policy tension.} The SAC critic is off-policy,
+while the PPO actor is on-policy. This hybrid design introduces a tension that is
+mitigated by a large replay buffer and periodic updates, but a rigorous analysis
+of the bias is lacking.
+
+\paragraph{Heuristic algorithm mapping.} The specific choice of SAC, PPO, and TD3
+in Chapter 6 is heuristic. The experimental results demonstrate that this
+combination works well, but they do not prove that these algorithms are optimal
+for their respective operators.
+
+\subsection{Empirical Limitations}
+
+\paragraph{Estimation of $\mu_t^*$.} The equilibrium measure is a latent,
+high-dimensional object. Our calibration using GMM on a parsimonious LQ model
+captures first-order features but may miss higher-order aspects of the true
+equilibrium. The performance of the strategy is conditional on the model
+specification and estimation procedure; model risk is likely the dominant source
+of uncertainty.
+
+\paragraph{Data constraints.} 13F filings are quarterly and report only long
+positions. Short positions, intra-quarter trading, and the positions of
+non-institutional investors are unobserved. Our empirical measure $\mu_t$ is
+therefore a noisy proxy for the true distribution of investor positions. The
+carry-forward approach introduces staleness; the COT data provides only an
+aggregate signal.
+
+\paragraph{Capacity and market impact.} The strategy assumes a small-player
+limit. Our rough capacity estimate of \$500 million is subject to severe caveats:
+it assumes a linear impact model and does not account for cumulative market
+footprint or strategic adaptation. A proper equilibrium market impact analysis is
+needed for reliable capacity assessment.
+
+\paragraph{Factor exposure construction.} The empirical factor exposure
+$\beta_{i,t}$ is constructed from PCA of returns, whereas the theoretical signal
+derives from position dynamics. This introduces a potential mismatch between
+theory and implementation.
+
+\paragraph{Model risk quantification.} While we performed parameter perturbation
+(\Cref{sec:emp-robustness}), a full Bayesian treatment of model uncertainty was
+not undertaken. The reported Sharpe ratio is conditional on the LQ specification.
+
+\subsection{Formal Verification Limitations}
+
+\paragraph{Partial verification.} Only selected estimates (Gronwall, Riccati
+derivation, CFL condition, optimality of linear feedback) have been formally
+verified in Lean 4. The full pipeline --- including RL convergence proofs,
+empirical backtest statistics, and Sinkhorn implementation --- is not verified.
+The verification is illustrative rather than comprehensive.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Summary of Limitations and Practical Implications}
+\label{tab:syn-limitations-summary}
+\begin{tabular}{p{4cm}p{6.5cm}}
+\toprule
+\textbf{Limitation} & \textbf{Practical Implication} \\
+\midrule
+Regularity assumptions for contraction & Model may be less stable with
+    discrete/noisy data \\
+Homogeneous common-noise exposure & Cancellation may fail in heterogeneous
+    markets \\
+Log-Sobolev assumption for exponential rate & Convergence in practice may be
+    algebraic, not exponential \\
+Compact function approximators required & Deep nets require spectral
+    normalisation heuristics \\
+Subsequential convergence only & Full convergence not guaranteed \\
+Particle curse of dimensionality & Scalability limited to moderate $d$ \\
+Fixed update frequencies vs.\ asymptotic separation & Performance sensitive to
+    hyperparameter tuning \\
+Estimation error in $\mu_t^*$ & Model risk dominates statistical risk \\
+13F data limitations (quarterly, long-only, lagged) & Signals based on stale,
+    incomplete information \\
+Capacity constraints & Strategy not scalable to large AUM without adaptation \\
+Partial verification only & Full pipeline correctness not machine-checked \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Open Problems and Future Research}
+\label{sec:syn-open}
+
+The thesis opens several promising directions for future investigation. We
+present six open problems, each contextualised by a survey of recent relevant
+literature and a refined statement of what remains to be done.
+
+\subsection{Extension to Jump-Diffusion Common Noise}
+
+\paragraph{Current framework.} The common noise is assumed to be a continuous
+Brownian motion. In financial markets, aggregate shocks often arrive as
+discontinuous jumps (e.g., geopolitical events, central bank announcements).
+
+\paragraph{Recent literature.} A 2024 paper, ``Mean-Field Games with common
+Poissonian noise: a Maximum Principle approach'' (arXiv:2401.10952), extends the
+MFG framework to common Poissonian noise, establishing a stochastic maximum
+principle and providing a precise definition of equilibrium. This work lays the
+foundation for jump-diffusion common noise.
+
+\paragraph{Remaining open problem.} The quantitative stability estimates of
+Theorem~\ref{thm:wellposedness} have not been extended to the jump-diffusion
+setting. The synchronous coupling argument would need to be adapted, as jump
+terms do not cancel in the same way as continuous martingale terms. Deriving
+explicit contraction constants for jump-diffusion common-noise MFGs, and
+developing corresponding numerical schemes and RL algorithms, remains an open
+challenge.
+
+\subsection{Fully Online Reinforcement Learning with Streaming Data}
+
+\paragraph{Current framework.} The RL algorithms in Chapters 5--6 operate in a
+simulated environment where the model dynamics are known or can be sampled.
+
+\paragraph{Recent literature.} Off-policy evaluation and batch RL techniques
+(e.g., Precup, Sutton, and Singh, 2000; Lange, Gabel, and Riedmiller, 2012)
+provide tools for learning from fixed datasets. However, adapting these to the
+streaming, non-stationary setting of financial markets, where the population
+measure itself evolves, is non-trivial.
+
+\paragraph{Remaining open problem.} Develop fully online algorithms that learn
+directly from streaming market data, updating the policy and value functions in
+real time without access to a simulator. This requires addressing
+non-stationarity, partial observability of the population measure, and the high
+dimensionality of the state space. The hierarchical architecture of Chapter 6
+provides a natural starting point, but the theoretical analysis of online,
+multi-timescale learning in a non-stationary environment is largely open.
+
+\subsection{Asymmetric Information and Heterogeneous Beliefs}
+
+\paragraph{Current framework.} The MFG assumes that all agents share the same
+information and beliefs.
+
+\paragraph{Recent literature.} A 2024 paper in the Journal of Optimization Theory
+and Applications, ``Incomplete Information Mean-Field Games and Related Riccati
+Equations'', studies a class of MFGs with incomplete information where each
+agent's state follows a linear forward SDE with common noise and private noise.
+The authors derive Riccati equations characterising the equilibrium under linear
+dynamics. Additionally, ``Learning in herding Mean Field Games'' (Zeng et al.,
+2024) considers agents with differing trade signals.
+
+\paragraph{Remaining open problem.} Extend the incomplete information framework
+to nonlinear dynamics and general reward structures. Develop RL algorithms that
+can learn the equilibrium when agents have heterogeneous beliefs about the common
+noise or model parameters. The filtering aspect (each agent estimating the
+population state from noisy observations) adds a layer of complexity that is not
+yet fully understood in the MFG context.
+
+\subsection{Application to Other Asset Classes and Macroeconomic Settings}
+
+\paragraph{Current framework.} The empirical application focused on U.S.\
+equities.
+
+\paragraph{Recent literature.} MFGs have been applied to foreign exchange (e.g.,
+Jaimungal and Nourian, 2015), fixed income (e.g., Carmona and Wang, 2021), and
+commodities. In macroeconomics, ``Learning Macroeconomic Policies through Dynamic
+Stackelberg Mean-Field Games'' (2025) provides a framework for government policy
+design. ``Heterogenous Macro-Finance Model: A Mean-field Game Approach'' (2025)
+investigates capital allocation and wealth distribution.
+
+\paragraph{Remaining open problem.} Adapt the four-signal alpha generation
+framework to other asset classes where positioning data is available (e.g., CFTC
+COT for FX and commodities). Develop MFG models for macroeconomic policy
+questions, such as the design of counter-cyclical capital buffers or the optimal
+coordination of fiscal and monetary policy, incorporating the common-noise and
+distributional disequilibrium concepts developed in this thesis.
+
+\subsection{Relaxing the Log-Sobolev Assumption}
+
+\paragraph{Current framework.} Theorem~\ref{thm:rl-exponential}'s exponential
+convergence rate assumes a log-Sobolev inequality (LSI) for the policy class.
+
+\paragraph{Recent literature.} Recent work has established convergence
+guarantees for Langevin Monte Carlo under Lata\l a--Oleszkiewicz inequalities,
+which interpolate between Poincar\'e and log-Sobolev (COLT 2022). ``Taming under
+isoperimetry'' (2025) derives Poincar\'e or log-Sobolev inequalities under novel
+non-convex frameworks.
+
+\paragraph{Remaining open problem.} Determine whether similar exponential (or
+polynomial) convergence rates can be obtained for entropy-regularised policy
+gradient in the MFG setting under weaker isoperimetric conditions, such as a
+Poincar\'e inequality or a Talagrand transportation inequality. Characterise the
+class of MFG equilibria for which the LSI (or its relaxations) holds.
+
+\subsection{Formal Verification of the Full Pipeline}
+
+\paragraph{Current framework.} Key estimates (Gronwall, CFL, optimality, Riccati
+derivation) have been formally verified in Lean 4.
+
+\paragraph{Recent literature.} Formal verification in mathematical finance is a
+nascent field. Interactive theorem provers have been used to verify the
+Fundamental Theorem of Asset Pricing (Lean) and stochastic differential equation
+properties (Coq).
+
+\paragraph{Remaining open problem.} Extend the formal verification to the entire
+pipeline --- from the MFG equilibrium existence proof, through the numerical
+discretisation error analysis, to the empirical performance guarantees. This
+would represent a landmark in the reliability of complex mathematical finance
+models and serve as a foundation for verified trading algorithms.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Open Problems and Key References}
+\label{tab:syn-open-problems}
+\begin{tabular}{p{2.3cm}p{3.5cm}p{5cm}}
+\toprule
+\textbf{Open Problem} & \textbf{Key Recent References} & \textbf{Core Challenge} \\
+\midrule
+Jump-diffusion common noise & MFG with common Poissonian noise
+    (arXiv:2401.10952, 2024) & Extending contraction estimates to jumps \\
+\addlinespace
+Online RL with streaming data & Precup et al.\ (2000); Lange et al.\ (2012) &
+    Non-stationarity, partial observability \\
+\addlinespace
+Asymmetric information & Incomplete Information MFG (JOTA, 2024); Zeng et al.\
+    (2024) & Nonlinear dynamics, learning with heterogeneous beliefs \\
+\addlinespace
+Other asset classes / macro & Jaimungal--Nourian (2015); Macro MFG (arXiv, 2025)
+    & Data availability, model adaptation \\
+\addlinespace
+Relaxing LSI & Lata\l a--Oleszkiewicz (COLT 2022); Taming under isoperimetry
+    (2025) & Characterising equilibrium measure isoperimetry \\
+\addlinespace
+Full formal verification & Lean/Coq in mathematical finance & Scaling
+    verification to full pipeline \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Broader Impact}
+\label{sec:syn-impact}
+
+The thesis has implications beyond its immediate technical contributions.
+
+\subsection{For Financial Economics}
+
+The concept of distributional inefficiency --- that markets can be inefficient
+not because prices are wrong, but because the distribution of investor positions
+deviates from equilibrium --- offers a complementary perspective to traditional
+asset pricing theories. It suggests that measures of crowding and positioning,
+such as the Wasserstein distance developed here, may contain information about
+future returns that is orthogonal to price-based factors. This insight could
+inform the design of new risk factors and enhance our understanding of market
+anomalies. The empirical finding that a simple 13F mean-reversion strategy
+(Sharpe 0.72) is significantly improved by incorporating MFG structure (Sharpe
+1.91) underscores the value of economic equilibrium modelling in quantitative
+finance.
+
+\subsection{For Reinforcement Learning}
+
+The hierarchical architecture of Chapter 6 demonstrates that the mathematical
+structure of a problem --- in this case, the SPDE decomposition of the master
+equation --- can directly inform the design of learning algorithms. This
+principle may be applicable to other multi-agent and mean-field problems, where
+natural timescale separations exist. The bridge between stochastic control theory
+and deep reinforcement learning is strengthened by providing a theoretical
+rationale for algorithmic choices. The formal verification component sets a new
+standard for rigour in RL theory, albeit limited in scope.
+
+\subsection{For Quantitative Investment Practice}
+
+The alpha signals derived in Chapter 8, particularly the crowding measure
+$c_t = W_2(\mu_t, \mu_t^*)$, provide a theoretically grounded and empirically
+validated tool for portfolio construction. While the strategy's capacity is
+limited, the signals could be used as an overlay to existing quantitative
+strategies, helping to manage exposure during periods of market dislocation. The
+emphasis on distributional disequilibrium may encourage practitioners to look
+beyond price data and incorporate positioning information into their investment
+processes. The full implementation pipeline, including GMM calibration, Kalman
+filtering, and Sinkhorn-based Wasserstein computation, is publicly available and
+can serve as a template for further research.
+
+\subsection{For the Reproducibility of Mathematical Finance}
+
+The formal verification of key estimates in Lean 4 sets a precedent for the use
+of interactive theorem provers in mathematical finance. As models become
+increasingly complex, machine-checked proofs offer a path to greater confidence
+in theoretical results. The code accompanying this thesis is publicly available
+and may serve as a starting point for future formalisation efforts. The
+verification of the Riccati system derivation, the optimality of the linear
+feedback policy, and the Gronwall estimate provides a foundation that can be
+extended to other models.
+
+
+\section{Conclusion}
+\label{sec:syn-conclusion}
+
+This thesis has developed a comprehensive framework for mean-field games with
+common noise, spanning rigorous mathematical foundations, numerical methods,
+provably convergent reinforcement learning algorithms, and empirical applications
+in finance. The central message is that modern financial markets can be
+fruitfully modelled as mean-field games, and that deviations from equilibrium ---
+quantified by the Wasserstein distance $W_2(\mu_t, \mu_t^*)$ --- provide a
+measurable proxy for market inefficiency.
+
+The six principal results established in the thesis form a coherent logical
+chain:
+
+\begin{itemize}
+    \item Theorem~\ref{thm:wellposedness} guarantees that the equilibrium exists,
+    is unique, and is stable under common shocks in expectation, with an
+    explicit parameter-dependent contraction constant.
+    \item Theorem~\ref{thm:numerical-convergence} ensures that the equilibrium
+    can be accurately approximated numerically, with a CFL condition for the
+    coupled FBSDE-SPDE system.
+    \item Theorems~\ref{thm:rl-subsequential}--\ref{thm:rl-exponential} prove
+    that the equilibrium can be learned via reinforcement learning, under
+    appropriate regularity conditions (subsequential convergence for
+    Theorem~\ref{thm:rl-subsequential}; idealised exponential rate under LSI for
+    Theorem~\ref{thm:rl-exponential}).
+    \item Proposition~\ref{prop:timescale-separation} provides a hierarchical
+    architecture that operationalises the learning process, grounded in the
+    SPDE operator decomposition.
+    \item Proposition~\ref{prop:alpha-signals} translates the equilibrium
+    structure into implementable trading signals, including the novel crowding
+    measure $c_t = W_2(\mu_t, \mu_t^*)$.
+    \item The empirical findings of Chapter 9 demonstrate that these signals
+    have genuine predictive power in historical data, with a Sharpe ratio of
+    1.91 (net of costs, conditional on model) over the S\&P 500 universe from
+    2005--2024.
+\end{itemize}
+
+\textbf{The thesis reframes market inefficiency not as a deviation of prices from
+fundamental values, but as a distributional disequilibrium under shared shocks.}
+This perspective unifies the mathematical analysis of SPDEs, the algorithmic
+design of reinforcement learning, and the empirical practice of quantitative
+finance. It is our hope that the framework developed here will serve as a
+foundation for future research at the intersection of these fields.
