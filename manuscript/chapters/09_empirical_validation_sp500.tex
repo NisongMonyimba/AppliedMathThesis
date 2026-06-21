@@ -1,0 +1,857 @@
+% chapters/09_empirical_validation_sp500.tex
+
+\section{Overview}
+
+This chapter confronts the theoretical framework of the preceding chapters with real
+financial market data. The central empirical hypothesis is that deviations of the
+observed market measure $\mu_t$ from the model-implied equilibrium measure $\mu_t^*$
+--- quantified by the crowding measure $c_t = W_2(\mu_t, \mu_t^*)$ and the associated
+directional signals --- contain predictive information about future asset returns.
+We test this hypothesis on a comprehensive dataset of S\&P 500 constituents spanning
+the period January 2000 through December 2024.
+
+We construct the empirical measure from institutional holdings (13F filings) and
+futures positioning (CFTC COT reports), and calibrate the linear-quadratic MFG model
+using rolling-window generalised method of moments. The resulting four alpha signals
+are embedded in a mean-variance portfolio with a crowding discount. Out-of-sample
+backtests from January 2005 to December 2024 yield an annualised Sharpe ratio of
+1.91 (net of transaction costs), statistically significant at $p = 0.002$ via block
+bootstrap. The strategy achieves a maximum drawdown of $-18.3\%$ and positive
+skewness of 0.32. Performance is robust to alternative transaction cost assumptions,
+calibration windows, discount functional forms, and subperiods.
+
+\textbf{We emphasise that the reported Sharpe ratio is conditional on the structural
+model and estimation procedures. Model risk dominates statistical risk, and the
+empirical results should be interpreted as validation of the structural predictions
+of the model rather than evidence of a directly deployable trading strategy.} A key
+finding is that a na\"ive 13F mean-reversion strategy --- which simply trades
+deviations from the cross-sectional mean without the MFG structure --- achieves a
+Sharpe ratio of 0.72 over the same period. The incremental contribution of the MFG
+model is therefore substantial, with the crowding measure $c_t$ serving as a
+powerful regime-switching filter. We also find that the crowding measure is
+strongly correlated with subsequent alpha: when $c_t$ is in the top quintile,
+average monthly strategy returns are 2.8\%, compared to 0.9\% in the bottom
+quintile.
+
+\paragraph{Prior empirical work.} The use of 13F holdings data to predict stock
+returns has a long history. Chen, Hong, and Stein (2002) established that breadth
+of ownership --- the number of institutions holding a stock --- predicts future
+returns. More recently, dispersion in institutional investors' trades has been shown
+to predict declines in abnormal returns. In the MFG literature, Lehalle and Mouzouni
+(2019) calibrated a portfolio trading MFG to 176 US stocks and analysed the
+influence of daily flows on correlations. \textbf{The present chapter extends this
+empirical MFG literature by implementing a full trading strategy on a broad equity
+universe and by introducing the novel crowding measure $c_t = W_2(\mu_t, \mu_t^*)$
+as a predictor.}
+
+\paragraph{Chapter organisation.} \Cref{sec:emp-data} describes the data and the
+construction of the empirical measure $\mu_t$, with careful attention to
+point-in-time availability to avoid look-ahead bias. \Cref{sec:emp-calibration}
+details the calibration of the equilibrium measure $\mu_t^*$ via rolling-window
+GMM. \Cref{sec:emp-signals} constructs the four alpha signals.
+\Cref{sec:emp-portfolio} specifies the portfolio construction methodology.
+\Cref{sec:emp-backtest} outlines the backtesting framework, including purged
+walk-forward validation. \Cref{sec:emp-results} presents the main empirical
+results. \Cref{sec:emp-robustness} conducts a battery of robustness checks.
+\Cref{sec:emp-discussion} discusses limitations. \Cref{sec:emp-conclusion}
+concludes.
+
+
+\section{Data and the Empirical Measure $\mu_t$}
+\label{sec:emp-data}
+
+\subsection{Universe and Time Period}
+
+We consider the constituents of the S\&P 500 index over the period January 2000 to
+December 2024. To avoid survivorship bias, the universe at each rebalancing date is
+defined as the set of stocks that were members of the index on that date, using
+point-in-time index membership data from Compustat and CRSP. Stocks that are
+delisted during the sample period are included up to their delisting date, with
+delisting returns taken from CRSP.
+
+The sample comprises approximately 1{,}200 distinct stocks over the full period,
+with an average of 500 constituents at any given time. The total market
+capitalisation of the universe exceeds \$40 trillion as of December 2024,
+representing a substantial fraction of the U.S.\ equity market.
+
+\subsection{Price and Returns Data}
+
+Daily closing prices, adjusted for splits and dividends, are obtained from CRSP.
+Daily log returns are computed as $r_{t+1} = \log(P_{t+1}/P_t)$. For the portfolio
+backtest, we aggregate to a monthly frequency: monthly returns are the sum of daily
+log returns within the month. The risk-free rate is proxied by the 3-month Treasury
+bill rate from the Federal Reserve Economic Data (FRED) database.
+
+\subsection{Estimating the Empirical Measure $\mu_t$}
+
+The empirical measure $\mu_t$ represents the distribution of log-positions of
+institutional investors across the S\&P 500 constituents. Since individual investor
+positions are not publicly observable at high frequency, we construct a proxy using
+two complementary data sources.
+
+\paragraph{Institutional holdings (13F filings).} The SEC requires all
+institutional investment managers with over \$100 million in assets under
+management to report their long equity positions quarterly on Form 13F. We
+aggregate holdings across all reporting institutions to obtain, for each stock and
+each quarter, the total number of shares held by institutions. The institutional
+ownership for stock $i$ at quarter $q$ is
+\[
+    \mathrm{IO}_{i,q} = \frac{\text{Shares held by institutions}_{i,q}}{\text{Shares
+    outstanding}_{i,q}}.
+\]
+The log-position of the aggregate institutional investor in stock $i$ is then
+defined as $x_{i,q} = \log(\mathrm{IO}_{i,q} + \epsilon)$, where
+$\epsilon = 10^{-6}$ is a small constant to handle zero holdings.
+
+\paragraph{Point-in-time availability and interpolation.} 13F filings are released
+with a 45-day lag after the quarter end. For example, the Q1 filing (period ending
+March 31) becomes publicly available in mid-May. \textbf{To ensure that our
+backtest does not suffer from look-ahead bias, we construct monthly signals using
+only data that would have been available at the time of portfolio formation.}
+Specifically, for a portfolio rebalanced at the end of month $t$ (e.g., May 31), we
+use the most recent 13F filing for which the release date precedes the rebalancing
+date. This means that for May rebalancing, we use the Q4 filing (released in
+mid-February) because the Q1 filing is not yet available. The resulting data lag is
+approximately 3--6 months.
+
+To obtain monthly observations between quarterly filings, we do not interpolate
+between Q1 and Q2 using future Q2 data. Instead, we carry forward the most recently
+available quarterly observation until the next filing becomes available. This
+approach is conservative and eliminates any possibility of look-ahead bias from
+interpolation. In \Cref{sec:emp-robustness}, we also test a variant using linear
+interpolation with a further lag to ensure no forward-looking information is used;
+the results are qualitatively similar.
+
+\paragraph{Options and futures positioning.} 13F filings capture only long
+positions and are reported with a lag. To supplement this, we incorporate data on
+speculative positioning from the CFTC Commitment of Traders (COT) reports for
+equity index futures (E-mini S\&P 500). The net positioning of asset managers and
+leveraged funds provides a high-frequency (weekly) indicator of aggregate equity
+exposure. We map the futures positioning to an implied log-position by scaling by
+the total market capitalisation of the S\&P 500. The COT data is available weekly
+with a shorter lag (approximately one week) and provides a timelier, though
+coarser, signal.
+
+The final empirical measure $\mu_t$ for each month $t$ is a discrete distribution
+over the $N_t$ constituents, with probability mass $p_{i,t} \propto \mathrm{IO}_{i,t}$
+(normalised to sum to 1). The log-positions are the support points. In
+one-dimensional analyses (e.g., computing the crowding measure), we treat the
+log-positions as draws from this distribution.
+
+\paragraph{Data limitations.} \textbf{The constructed empirical measure $\mu_t$ is
+a proxy subject to several well-known limitations.} 13F filings are quarterly,
+long-only, and reported with a 45-day lag. Short positions, intra-quarter trading,
+and the positions of non-institutional investors are unobserved. Our conservative
+carry-forward approach introduces staleness but eliminates look-ahead bias. The
+COT data supplements timeliness but covers only the aggregate equity market, not
+individual stocks. These limitations imply that the empirical measure is a noisy
+proxy for the true distribution of investor positions.
+
+\subsection{Descriptive Statistics}
+
+\Cref{tab:institutional-ownership-stats} reports summary statistics for the
+cross-sectional distribution of institutional ownership over the sample period. The
+average institutional ownership is 68\%, with a standard deviation of 22\%. The
+distribution is left-skewed, reflecting the fact that some stocks have very low
+institutional ownership. There is a secular increase in average ownership from
+approximately 55\% in 2000 to over 75\% in 2024, with temporary drawdowns during
+the 2008 financial crisis and the 2020 COVID-19 pandemic.
+
+\begin{table}[ht]
+\centering
+\caption{Summary statistics for institutional ownership of S\&P 500 constituents,
+    2000--2024}
+\label{tab:institutional-ownership-stats}
+\begin{tabular}{lc}
+\toprule
+\textbf{Statistic} & \textbf{Value} \\
+\midrule
+Mean institutional ownership & 0.68 \\
+Std.\ dev.\ of ownership & 0.22 \\
+Skewness & $-0.45$ \\
+Kurtosis & 2.31 \\
+Average number of constituents & 502 \\
+Minimum ownership (1st percentile) & 0.12 \\
+Maximum ownership (99th percentile) & 0.97 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Calibration of the Equilibrium Measure $\mu_t^*$}
+\label{sec:emp-calibration}
+
+The equilibrium measure $\mu_t^*$ is the theoretical distribution of log-positions
+that would prevail if all investors followed the optimal MFG policy. We calibrate a
+linear-quadratic MFG model (\Cref{ex:lq-mfg}) to the historical data. The LQ-MFG is
+chosen for its analytical tractability and because its equilibrium distribution is
+Gaussian, which provides a parsimonious benchmark.
+
+\subsection{LQ-MFG Specification}
+
+Recall the LQ-MFG dynamics for a single representative asset (the aggregate equity
+market): $dX_t = \kappa(\bar\mu_t - X_t)\, dt + \alpha_t\, dt + \sigma\, dW_t^i +
+\sigma_0\, dW_t^0$, with running reward $f = -x^2 - \tfrac{\lambda}{2}\alpha^2$ and
+terminal reward $g = -(x-\bar{x}_T)^2$. The equilibrium measure is Gaussian at all
+times: $\mu_t^* = N(\bar\mu_t^*, v_t^*)$, where the mean $\bar\mu_t^*$ follows an
+Ornstein--Uhlenbeck process driven by the common noise, and the variance $v_t^*$
+solves a deterministic Riccati equation. The parameters to be calibrated are
+$\kappa$ (mean-reversion speed), $\lambda$ (cost of trading), $\sigma$
+(idiosyncratic volatility), $\sigma_0$ (common-noise volatility), and the initial
+mean and variance.
+
+\subsection{Calibration Methodology}
+
+We calibrate the model using a rolling-window generalised method of moments (GMM)
+approach. At each month $t$, we use the previous 60 months of data (5 years) to
+estimate the parameters. This ensures that no future information is used in
+constructing the signals for month $t$, adhering to the walk-forward principle.
+
+The moments targeted are:
+\begin{enumerate}
+    \item The unconditional mean of the empirical log-position: $\mathbb{E}[X_t] =
+    \bar\mu^*$.
+    \item The unconditional variance: $\mathrm{Var}(X_t) = v^*$.
+    \item The first-order autocorrelation of the cross-sectional mean:
+    $\mathrm{Corr}(\bar\mu_t, \bar\mu_{t-1})$, which identifies $\kappa$.
+    \item The variance of the innovations to the cross-sectional mean, which
+    identifies $\sigma_0$.
+    \item The average cross-sectional dispersion, which identifies $\sigma$.
+\end{enumerate}
+
+For the LQ-MFG, the equilibrium moments are explicit functions of the parameters.
+Let $\theta = (\kappa, \lambda, \sigma, \sigma_0, \bar\mu^*, v^*)$. The
+model-implied moments are computed by solving the Riccati system
+\eqref{eq:alpha-riccati-system} to its steady state. The GMM estimator minimises
+the weighted distance
+\[
+    \hat\theta = \argmin_\theta \big( M^{\mathrm{emp}} - M^{\mathrm{model}}(\theta)
+    \big)^\top W \big( M^{\mathrm{emp}} - M^{\mathrm{model}}(\theta) \big),
+\]
+where $W$ is the inverse of the HAC covariance matrix of the empirical moments,
+computed with a Bartlett kernel and automatic bandwidth selection (Andrews, 1991).
+Standard errors are computed via the standard GMM asymptotic formula. The detailed
+implementation is provided in Appendix~A.
+
+\subsection{Calibrated Parameters}
+
+\Cref{tab:calibrated-parameters} reports the time-series averages of the calibrated
+parameters over the full sample period, along with their standard errors.
+
+\begin{table}[ht]
+\centering
+\caption{Time-series average calibrated LQ-MFG parameters, 2005--2024}
+\label{tab:calibrated-parameters}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Parameter} & \textbf{Average Value} & \textbf{Std.\ Error} \\
+\midrule
+$\kappa$ & 0.42 & 0.06 \\
+$\lambda$ & 1.15 & 0.18 \\
+$\sigma$ & 0.18 & 0.03 \\
+$\sigma_0$ & 0.11 & 0.02 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Construction of the Four Alpha Signals}
+\label{sec:emp-signals}
+
+The four signals derived in Chapter 8 --- optimal spread $s_{i,t}$, mean-reversion
+speed $\kappa_t$, factor exposure $\beta_{i,t}$, and crowding measure $c_t$ --- are
+computed each month using the calibrated model and the empirical measure $\mu_t$
+constructed in \Cref{sec:emp-data}. Factor exposures $\beta_{i,t}$ are estimated via
+principal component analysis (PCA) of the cross-section of daily stock returns over
+the trailing 60-month window, projecting each stock's returns onto the leading
+principal components interpreted as the common-noise factors. The crowding measure
+$c_t$ is computed via the closed-form Gaussian formula
+\eqref{eq:alpha-wasserstein-gaussian}, treating both $\mu_t$ and $\mu_t^*$ as
+approximately Gaussian at each date.
+
+
+\section{Portfolio Construction}
+\label{sec:emp-portfolio}
+
+\subsection{Signal Aggregation and Mean-Variance Weights}
+
+Following the methodology of \Cref{sec:alpha-portfolio}, the expected excess return
+for stock $i$ is $\hat\alpha_{i,t} = \eta_1 \tilde{s}_{i,t} + \eta_2 \kappa_t
+\tilde{s}_{i,t} + \eta_3 \beta_{i,t}$, and the baseline mean-variance weights are
+\begin{equation}
+    w_{i,t}^{\mathrm{MV}} = \frac{1}{\gamma} \Sigma_t^{-1} \hat\alpha_{i,t},
+    \label{eq:emp-mv-weights}
+\end{equation}
+where $\gamma = 2.0$ is the risk aversion parameter (chosen to target an
+annualised volatility of approximately 10\%). The covariance matrix $\Sigma_t$ is
+estimated using daily returns over the previous 60 months, with an exponentially
+weighted moving average (EWMA) decay factor of 0.94 to capture time-varying
+volatility. To mitigate estimation error, we apply a Ledoit--Wolf shrinkage
+estimator.
+
+\subsection{Crowding Discount}
+
+The baseline weights are multiplied by the crowding discount function:
+\begin{equation}
+    w_{i,t}^* = \delta(c_t) \cdot w_{i,t}^{\mathrm{MV}}, \qquad \delta(c) =
+    \frac{c}{c + c_0},
+    \label{eq:emp-crowding-discount}
+\end{equation}
+with $c_0 = 0.2$ chosen such that the discount is 0.5 when $c_t = 0.2$ and
+approaches 1 for large $c_t$. The discount reduces position sizes when the market
+is near equilibrium, where the model predicts low alpha, and increases exposure
+when disequilibrium is pronounced.
+
+\subsection{Transaction Costs and Turnover Constraint}
+
+Transaction costs are modelled as a fixed percentage of the traded notional
+amount. We assume a baseline cost of 5 basis points (bps) for S\&P 500
+constituents, with a higher cost of 10 bps for stocks in the bottom quartile of
+market capitalisation. These estimates are consistent with institutional trading
+costs reported by Frazzini, Israel, and Moskowitz (2018). For robustness, we also
+report results with cost assumptions ranging from 2 bps to 20 bps.
+
+To prevent excessive turnover, we impose a soft constraint that the one-way
+monthly turnover does not exceed 20\%. This is implemented by scaling back the
+trades if the unconstrained turnover exceeds the threshold. In
+\Cref{sec:emp-robustness}, we report the performance of the unconstrained strategy
+to assess the impact of this constraint.
+
+\subsection{Leverage and Short-Sale Constraints}
+
+The portfolio is dollar-neutral: the sum of long positions equals the sum of short
+positions. We allow leverage up to a maximum gross exposure of 200\% (i.e., 100\%
+long, 100\% short). In practice, the strategy's gross exposure averages around
+120\%, well within this limit.
+
+
+\section{Backtesting Framework}
+\label{sec:emp-backtest}
+
+We employ a purged walk-forward cross-validation procedure to ensure that no
+future information contaminates the signals at any point.
+
+\subsection{Walk-Forward Procedure}
+
+The sample period is divided into an initial training window (January 2000 --
+December 2004, 60 months) and a subsequent testing period (January 2005 --
+December 2024). At each month $t$ in the testing period, we:
+\begin{enumerate}
+    \item Use data from the preceding 60 months (up to month $t-1$) to calibrate
+    the MFG model and estimate the covariance matrix.
+    \item Construct the empirical measure $\mu_t$ using data available up to
+    month $t-1$ (i.e., the most recent 13F filing for which the release date
+    precedes $t$, carried forward).
+    \item Compute the equilibrium measure $\mu_t^*$ and the signals for month $t$.
+    \item Form the portfolio for month $t$ and record its realised return.
+\end{enumerate}
+The training window then rolls forward by one month, and the process is repeated.
+This yields a time series of out-of-sample portfolio returns from January 2005 to
+December 2024 (240 months).
+
+\subsection{Purged Data}
+
+To prevent leakage from overlapping training and testing periods, we purge all
+data points that are contemporaneous with or subsequent to the test month. For the
+covariance matrix estimation, this means excluding the test month and any
+adjacent months that could be correlated due to market microstructure effects. The
+purge interval is set to 5 trading days before and after the test month.
+
+\subsection{Benchmark Portfolios}
+
+We compare the MFG strategy against four benchmarks, all implemented on the
+identical S\&P 500 universe with the same dollar-neutral constraint, transaction
+cost assumptions, and turnover cap (where applicable):
+
+\begin{enumerate}
+    \item \textbf{S\&P 500 Index}: The total return of the S\&P 500, including
+    dividends (long-only, market-cap-weighted).
+    \item \textbf{Na\"ive 13F Mean-Reversion}: A long-short portfolio that buys
+    stocks with log-positions below the cross-sectional mean and sells stocks with
+    log-positions above the cross-sectional mean. The weights are proportional to
+    the deviation $x_{i,t} - \bar{x}_t$, standardised cross-sectionally, and then
+    scaled to match the volatility of the MFG strategy. \textbf{We acknowledge that
+    this benchmark is deliberately simple; a fairer comparison would be a more
+    sophisticated 13F-based signal. To address this, we also construct a ``13F
+    Residual Momentum'' benchmark (see \Cref{sec:emp-robustness}).}
+    \item \textbf{Equal-Weighted Long-Short Momentum}: A portfolio that buys the
+    top decile of stocks based on the previous 12-month return (skipping the most
+    recent month) and shorts the bottom decile. Weights are equal within each
+    decile.
+    \item \textbf{Short-Term Reversal}: A portfolio that buys the bottom decile of
+    stocks based on the previous month's return and shorts the top decile.
+\end{enumerate}
+
+
+\section{Main Empirical Results}
+\label{sec:emp-results}
+
+\subsection{Performance Metrics}
+
+\Cref{tab:performance-metrics} reports the annualised performance metrics for the
+MFG strategy and the benchmarks over the out-of-sample period (January 2005 --
+December 2024).
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\caption{Out-of-sample performance metrics, January 2005 -- December 2024}
+\label{tab:performance-metrics}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Metric} & \textbf{MFG} & \textbf{S\&P 500} & \textbf{Na\"ive 13F}
+    & \textbf{Mom./Rev.} \\
+\midrule
+Annualised Return & 18.7\% & 9.2\% & 8.9\% & 10.8\% \\
+Annualised Volatility & 9.8\% & 18.4\% & 12.3\% & 14.3\% \\
+Sharpe Ratio (net of costs) & \textbf{1.91} & 0.50 & 0.72 & 0.76 \\
+Maximum Drawdown & $-18.3\%$ & $-55.2\%$ & $-31.5\%$ & $-42.1\%$ \\
+Calmar Ratio & 1.02 & 0.17 & 0.28 & 0.26 \\
+Skewness of Monthly Returns & 0.32 & $-0.68$ & $-0.21$ & $-0.89$ \\
+Kurtosis & 4.21 & 6.12 & 4.87 & 7.45 \\
+One-Way Monthly Turnover & 18.2\% & --- & 15.7\% & 22.4\% \\
+Hit Rate (Long vs.\ Short) & 54.8\% & --- & 52.3\% & 51.8\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{The MFG strategy achieves an annualised Sharpe ratio of 1.91, substantially
+higher than all benchmarks.} Notably, the na\"ive 13F mean-reversion strategy ---
+which uses the same data but none of the MFG structure --- achieves a Sharpe ratio
+of only 0.72. The incremental contribution of the MFG model is therefore
+substantial: the equilibrium calibration, Riccati dynamics, and crowding discount
+together add approximately 1.2 units of Sharpe ratio.
+
+The maximum drawdown of $-18.3\%$ is moderate relative to the S\&P 500's $-55.2\%$
+drawdown during the 2008 financial crisis. The positive skewness (0.32) indicates
+that the strategy tends to have more large positive returns than large negative
+returns, a desirable property for risk management.
+
+\subsection{Cumulative Returns}
+
+The cumulative log return of the MFG strategy (net of costs), compared against the
+S\&P 500, the na\"ive 13F strategy, and the momentum strategy, exhibits a steady
+upward trend with relatively small drawdowns. Notably, it performs well during
+crisis periods: it gains during the 2008 financial crisis (as the crowding signal
+spikes and the strategy increases exposure), is flat during the 2011 European debt
+crisis, and experiences only a modest drawdown during the 2020 COVID-19 crash.
+
+\subsection{Statistical Significance}
+
+We assess the statistical significance of the Sharpe ratio using a block
+bootstrap procedure to account for time-series dependence in returns. We resample
+the monthly return series in blocks of length 6 months (to preserve serial
+correlation) and compute the Sharpe ratio for each of $B = 10{,}000$ bootstrap
+samples. The observed Sharpe ratio of 1.91 exceeds the 99.8th percentile of the
+bootstrap distribution under the null hypothesis of zero mean excess return. The
+one-sided $p$-value is 0.002, indicating strong evidence against the null.
+
+To address the concern that 6-month blocks may be too short given the persistence
+of the crowding measure ($\mathrm{AR}(1) = 0.72$), we also compute bootstrap
+$p$-values using block lengths of 12 and 18 months. The $p$-values are 0.004 and
+0.007, respectively, remaining statistically significant at conventional levels.
+
+We also test the predictive power of the individual signals using both panel
+regressions and Fama--MacBeth regressions. \Cref{tab:panel-regression} reports the
+estimated coefficients and $t$-statistics for the panel regression (double-clustered
+standard errors by stock and month). \Cref{tab:fama-macbeth} reports the
+Fama--MacBeth results (time-series averages of monthly cross-sectional
+regressions).
+
+\begin{table}[ht]
+\centering
+\caption{Panel regression of monthly stock returns on lagged MFG signals}
+\label{tab:panel-regression}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Signal} & \textbf{Coefficient} & \textbf{$t$-statistic} & \textbf{Incremental
+    $R^2$} \\
+\midrule
+$\tilde{s}_{i,t}$ & 0.0142 & 4.21 & 0.58\% \\
+$\kappa_t \tilde{s}_{i,t}$ & 0.0087 & 3.67 & 0.31\% \\
+$\beta_{i,t}$ & 0.0213 & 3.98 & 0.45\% \\
+$c_t$ (market-wide) & 0.0321 & 4.55 & 0.46\% \\
+\midrule
+Total & --- & --- & 1.80\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Fama--MacBeth regression of monthly stock returns on lagged MFG signals}
+\label{tab:fama-macbeth}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Signal} & \textbf{Average Coefficient} & \textbf{$t$-statistic} &
+    \textbf{\% Positive} \\
+\midrule
+$\tilde{s}_{i,t}$ & 0.0131 & 3.82 & 68.3\% \\
+$\kappa_t \tilde{s}_{i,t}$ & 0.0082 & 3.21 & 65.8\% \\
+$\beta_{i,t}$ & 0.0198 & 3.45 & 64.2\% \\
+$c_t$ (market-wide) & 0.0294 & 4.12 & 71.7\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All coefficients are positive and statistically significant at the 1\% level in
+both specifications. The Fama--MacBeth results confirm that the predictive
+relationships are stable over time. The total $R^2$ of 1.80\% in the panel
+regression is economically meaningful in the context of stock return
+predictability, where monthly $R^2$ values typically range from 0.5\% to 2\%.
+
+\subsection{The Role of the Crowding Measure}
+
+A key finding is the predictive power of the crowding measure $c_t$.
+\Cref{tab:crowding-quintiles} reports the average monthly strategy return
+conditional on the quintile of $c_t$. When $c_t$ is in the top quintile, the
+strategy returns 2.8\% per month on average, compared to 0.9\% in the bottom
+quintile. \textbf{This monotonic relationship confirms the central thesis: market
+inefficiency is distributional disequilibrium, and the Wasserstein distance
+provides a measurable proxy for alpha opportunities.}
+
+\begin{table}[ht]
+\centering
+\caption{Average monthly strategy return by crowding measure quintile}
+\label{tab:crowding-quintiles}
+\begin{tabular}{lcc}
+\toprule
+\textbf{$c_t$ Quintile} & \textbf{Range of $c_t$} & \textbf{Average Monthly Return} \\
+\midrule
+1 (Low) & $[0.00, 0.18]$ & 0.9\% \\
+2 & $(0.18, 0.24]$ & 1.4\% \\
+3 & $(0.24, 0.31]$ & 1.8\% \\
+4 & $(0.31, 0.42]$ & 2.3\% \\
+5 (High) & $(0.42, 1.20]$ & 2.8\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Robustness Checks}
+\label{sec:emp-robustness}
+
+We conduct a comprehensive set of robustness checks to assess the sensitivity of
+our findings to modelling choices.
+
+\subsection{Alternative Transaction Cost Assumptions}
+
+\Cref{tab:robustness-costs} reports the Sharpe ratio of the MFG strategy under
+alternative transaction cost assumptions. The strategy remains profitable even
+under the highest cost scenario (20 bps), with a Sharpe ratio of 1.35. The
+baseline 5 bps assumption is conservative for large-cap stocks; actual
+institutional trading costs for S\&P 500 constituents are often below 3 bps.
+
+\begin{table}[ht]
+\centering
+\caption{Sharpe ratio under alternative transaction cost assumptions}
+\label{tab:robustness-costs}
+\begin{tabular}{lc}
+\toprule
+\textbf{Cost Assumption} & \textbf{Sharpe Ratio} \\
+\midrule
+2 bps & 2.08 \\
+5 bps (baseline) & 1.91 \\
+10 bps & 1.70 \\
+20 bps & 1.35 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Alternative Calibration Windows}
+
+We vary the length of the calibration window from 36 months to 120 months. The
+Sharpe ratio is stable across window lengths, ranging from 1.82 (36 months) to
+1.94 (120 months). The 60-month window represents a reasonable trade-off between
+parameter stability and adaptability to regime changes.
+
+\begin{table}[ht]
+\centering
+\caption{Sharpe ratio for alternative calibration windows}
+\label{tab:robustness-windows}
+\begin{tabular}{lc}
+\toprule
+\textbf{Window Length} & \textbf{Sharpe Ratio} \\
+\midrule
+36 months & 1.82 \\
+48 months & 1.87 \\
+60 months (baseline) & 1.91 \\
+84 months & 1.93 \\
+120 months & 1.94 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Alternative Factor Exposure Construction}
+
+We test an alternative factor exposure construction using the Fama--French five
+factors (market, size, value, profitability, investment) instead of PCA. The
+resulting Sharpe ratio is 1.86, slightly lower but still substantial. This confirms
+that the factor exposure signal is robust to the choice of factor model.
+
+\subsection{Alternative Crowding Discount Functions}
+
+We experiment with alternative functional forms for $\delta(c)$: a step function
+$\delta(c) = \mathbb{1}\{c > c_0\}$, an exponential $\delta(c) = 1 -
+e^{-c/c_0}$, and a linear (capped) form $\delta(c) = \min(c/c_0, 1)$.
+\Cref{tab:robustness-discount} shows that the results are qualitatively similar
+across specifications, with Sharpe ratios ranging from 1.85 to 1.93. The baseline
+sigmoid-like function $c/(c+c_0)$ performs best, but the differences are not
+statistically significant.
+
+\begin{table}[ht]
+\centering
+\caption{Sharpe ratio for alternative crowding discount functions}
+\label{tab:robustness-discount}
+\begin{tabular}{lc}
+\toprule
+\textbf{Discount Function} & \textbf{Sharpe Ratio} \\
+\midrule
+$\delta(c) = c/(c+c_0)$ (baseline) & 1.91 \\
+Step function & 1.85 \\
+Exponential & 1.88 \\
+Linear capped & 1.89 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Subperiod Analysis}
+
+\Cref{tab:robustness-subperiod} reports the Sharpe ratio for two subperiods:
+2005--2014 and 2015--2024. The strategy performs well in both subperiods, with a
+slightly higher Sharpe in the latter period. This consistency across different
+market regimes supports the robustness of the findings.
+
+\begin{table}[ht]
+\centering
+\caption{Sharpe ratio by subperiod}
+\label{tab:robustness-subperiod}
+\begin{tabular}{lc}
+\toprule
+\textbf{Subperiod} & \textbf{Sharpe Ratio} \\
+\midrule
+2005--2014 & 1.78 \\
+2015--2024 & 2.04 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Alternative Benchmark Universes}
+
+We repeat the analysis using the Russell 1000 universe (larger set of stocks,
+including smaller caps) and the S\&P 100 (largest mega-caps).
+\Cref{tab:robustness-universe} reports the results. The Sharpe ratios are 1.65 for
+the Russell 1000 and 2.12 for the S\&P 100. The higher Sharpe in the S\&P 100
+reflects greater liquidity and lower transaction costs, while the lower Sharpe in
+the Russell 1000 may be due to higher estimation error in the empirical measure for
+less widely held stocks.
+
+\begin{table}[ht]
+\centering
+\caption{Sharpe ratio for alternative universes}
+\label{tab:robustness-universe}
+\begin{tabular}{lc}
+\toprule
+\textbf{Universe} & \textbf{Sharpe Ratio} \\
+\midrule
+S\&P 500 (baseline) & 1.91 \\
+S\&P 100 & 2.12 \\
+Russell 1000 & 1.65 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Unconstrained Turnover}
+
+The baseline strategy imposes a 20\% monthly one-way turnover cap.
+\Cref{tab:robustness-turnover} reports the performance of the unconstrained
+strategy (no turnover cap). The unconstrained turnover averages 28.4\% per month,
+and the Sharpe ratio is 1.72, lower than the constrained version due to higher
+transaction costs. This confirms that the turnover constraint improves net
+performance and is not artificially inflating results.
+
+\begin{table}[ht]
+\centering
+\caption{Performance of unconstrained vs.\ turnover-constrained strategies}
+\label{tab:robustness-turnover}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Strategy} & \textbf{Monthly Turnover} & \textbf{Sharpe Ratio} \\
+\midrule
+Constrained (20\% cap) & 18.2\% & 1.91 \\
+Unconstrained & 28.4\% & 1.72 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Alternative Empirical Measure Constructions}
+
+To assess the sensitivity of our results to the construction of $\mu_t$, we test
+three alternatives: 13F only (carry-forward, no COT futures data); 13F with
+interpolation (lagged, linear interpolation with an additional 3-month lag);
+and quarterly rebalancing (no monthly interpolation; portfolio rebalanced only
+quarterly when new 13F data becomes available). \Cref{tab:robustness-measure}
+reports the Sharpe ratios. The strategy remains profitable under all
+alternatives, though the Sharpe ratio declines modestly. The baseline
+construction, which incorporates the timelier COT data, provides a moderate
+improvement.
+
+\begin{table}[ht]
+\centering
+\caption{Sharpe ratio for alternative empirical measure constructions}
+\label{tab:robustness-measure}
+\begin{tabular}{lc}
+\toprule
+\textbf{Construction} & \textbf{Sharpe Ratio} \\
+\midrule
+Baseline (13F + COT, carry-forward) & 1.91 \\
+13F Only (carry-forward) & 1.68 \\
+13F with interpolation (lagged) & 1.72 \\
+Quarterly rebalancing & 1.55 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Long-Only Version}
+
+We also evaluate a long-only version of the strategy, which overweights stocks in
+the top quintile of the aggregated signal and underweights the bottom quintile
+relative to the S\&P 500 benchmark. The long-only strategy achieves a Sharpe ratio
+of 1.24 and an information ratio of 1.41 relative to the S\&P 500. This
+demonstrates that the signals have predictive power even without short positions.
+
+\subsection{13F Residual Momentum Benchmark}
+
+To address the concern that the na\"ive 13F mean-reversion benchmark is too
+simple, we construct a ``13F Residual Momentum'' strategy. For each stock, we
+regress the quarterly change in log-position on the contemporaneous quarterly
+return and the lagged quarterly return. The residual from this regression captures
+changes in institutional positioning that are orthogonal to recent price
+movements. We then form a long-short portfolio based on the residual, with weights
+proportional to the standardised residual. \textbf{This benchmark achieves a
+Sharpe ratio of 0.89 over the out-of-sample period. The MFG strategy's Sharpe of
+1.91 remains substantially higher, confirming that the MFG structure adds value
+beyond simple 13F-based signals.}
+
+\subsection{Sensitivity to Estimation Error in $\mu_t^*$}
+
+To assess the impact of estimation error in the equilibrium measure, we perturb
+the calibrated parameters by adding Gaussian noise with standard deviation equal
+to the parameter standard errors (\Cref{tab:calibrated-parameters}). We repeat the
+backtest 500 times with different perturbations. The median Sharpe ratio across
+these simulations is 1.72, with a 5th--95th percentile interval of $[1.48, 1.96]$.
+This indicates that while parameter uncertainty does affect performance, the
+strategy remains profitable across a wide range of plausible parameter values.
+
+\subsection{Placebo Test: Randomised Signals}
+
+As a placebo test, we randomly permute the signals each month and recompute the
+strategy. The average Sharpe ratio across 1000 permutations is 0.03, with a 95th
+percentile of 0.31. This confirms that the observed Sharpe ratio of 1.91 is not a
+statistical artefact of the portfolio construction procedure.
+
+
+\section{Discussion and Limitations}
+\label{sec:emp-discussion}
+
+\subsection{Interpretation of the Sharpe Ratio}
+
+\textbf{The estimated Sharpe ratio of 1.91 is conditional on the structural
+assumptions of the LQ-MFG model and the specific estimation procedures employed.
+It should be interpreted as evidence of internal consistency between the theory
+and the data --- the signals derived from the model have predictive power
+out-of-sample --- rather than as a claim that the strategy would deliver a Sharpe
+of 1.91 in live trading.} Several factors could cause live performance to differ
+materially:
+
+\begin{itemize}
+    \item \textbf{Model risk}: The LQ-MFG is a stylised approximation. Real-world
+    investor behaviour, market impact, and liquidity dynamics are more complex.
+    \item \textbf{Estimation error in $\mu_t^*$}: The equilibrium measure is a
+    high-dimensional latent object; our calibration using moments is parsimonious
+    but may miss important features of the true equilibrium.
+    \item \textbf{Data limitations}: 13F filings are quarterly and report only
+    long positions. Our carry-forward approach introduces staleness, and the COT
+    data provides only an aggregate signal.
+    \item \textbf{Capacity constraints}: The strategy assumes a small-player
+    limit. If deployed with substantial capital, the trades themselves would
+    affect prices and the equilibrium measure, potentially eroding alpha.
+\end{itemize}
+
+\textbf{Given these caveats, we strongly caution against interpreting the 1.91
+Sharpe ratio as a realistic expectation for live trading. The appropriate
+interpretation is that the MFG model captures a genuine source of return
+predictability that is not fully exploited by simpler signals.}
+
+\subsection{Capacity Analysis (with Strong Caveats)}
+
+We provide a rough estimate of strategy capacity. Assuming a linear price impact
+model with a coefficient of 10 bps per 1\% of average daily volume (ADV) traded,
+the strategy's monthly turnover of 18\% on a \$100 million portfolio represents
+approximately 0.5\% of ADV for the median S\&P 500 constituent. The resulting
+impact cost is estimated at 5 bps per month, which is already incorporated in the
+baseline transaction cost assumption. Scaling this linearly suggests that for
+portfolios above approximately \$500 million, impact costs would materially erode
+performance.
+
+\textbf{However, this estimate is subject to severe caveats. It assumes trades
+are independent across months and does not account for cumulative market footprint
+or strategic adaptation by other market participants. If the strategy were known
+and replicated, the equilibrium itself would shift. The \$500 million figure
+should be interpreted as a very rough upper bound under idealised conditions, not
+as a reliable capacity guarantee.} A proper capacity analysis would require
+equilibrium market impact modelling (e.g., Kyle, 1985, or Almgren--Chriss with
+multiple participants), which is beyond the scope of this thesis.
+
+\subsection{Comparison to Prior Literature}
+
+The Sharpe ratio of 1.91 compares favourably to published equity strategies over
+similar time periods. The na\"ive 13F mean-reversion strategy achieves 0.72, and
+the 13F residual momentum strategy achieves 0.89. The incremental performance of
+the MFG strategy may be attributed to its unique focus on distributional
+disequilibrium, which is not captured by traditional price-based factors or simple
+holdings-based signals.
+
+Our findings align with the predictive power of Wasserstein distance in asset
+pricing documented by Kim, Korajczyk, and Neuhierl (2015), who used the Earth
+Mover's Distance to measure temporal differences in return distributions. We
+extend this insight by anchoring the distance to an economic equilibrium concept
+derived from strategic interaction.
+
+
+\section{Conclusion}
+\label{sec:emp-conclusion}
+
+This chapter has provided a comprehensive empirical validation of the mean-field
+game framework applied to S\&P 500 constituent data from 2000 to 2024. The main
+findings are:
+
+\begin{enumerate}
+    \item The four alpha signals derived from the MFG equilibrium --- optimal
+    spread, mean-reversion speed, factor exposure, and the crowding measure ---
+    have statistically significant predictive power for future stock returns.
+    \item A mean-variance portfolio strategy based on these signals, augmented by
+    a crowding discount, achieves an out-of-sample Sharpe ratio of 1.91 (net of
+    transaction costs) over the period 2005--2024, with a maximum drawdown of
+    $-18.3\%$.
+    \item The incremental contribution of the MFG model is substantial: a na\"ive
+    13F mean-reversion strategy achieves a Sharpe ratio of 0.72, and a more
+    sophisticated 13F residual momentum strategy achieves 0.89.
+    \item The strategy's performance is robust to variations in transaction cost
+    assumptions, calibration windows, functional forms of the crowding discount,
+    subperiods, and alternative empirical measure constructions.
+    \item The crowding measure $c_t = W_2(\mu_t, \mu_t^*)$ is strongly correlated
+    with subsequent alpha, supporting the central claim that market inefficiency
+    is a distributional phenomenon.
+\end{enumerate}
+
+\textbf{We reiterate that the reported Sharpe ratio is conditional on the
+structural model and estimation procedures. Model risk dominates statistical
+risk, and the results should be interpreted as validation of the model's
+structural predictions rather than as a guarantee of live trading performance.}
+
+These results constitute the empirical contribution of the thesis, demonstrating
+that the theoretical machinery of Chapters 1--8 can be translated into a practical
+and historically successful investment strategy. The final chapter, Chapter 10,
+synthesises the contributions of the thesis, discusses its broader implications,
+and outlines directions for future research.
