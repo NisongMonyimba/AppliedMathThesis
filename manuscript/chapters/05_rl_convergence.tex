@@ -1,0 +1,603 @@
+% chapters/05_rl_convergence.tex
+
+\section{Overview}
+
+This chapter establishes convergence guarantees for a class of multi-timescale
+actor-critic algorithms designed to learn the mean-field game equilibrium with common
+noise without prior knowledge of the model dynamics. While Chapter 3 proved that the
+equilibrium exists and is unique under appropriate regularity conditions, and Chapter
+4 provided numerical methods to compute it when the model is fully known, the present
+chapter addresses the setting where the drift $b$, the reward functions $f$ and $g$,
+or the equilibrium measure $\mu^*$ are unknown and must be learned from observed
+trajectories.
+
+The central contribution is twofold. First, we prove that a carefully designed
+three-timescale actor-critic algorithm converges along subsequences (in the sense of
+$\liminf W_2 = 0$) to the MFG equilibrium measure flow in the Wasserstein-2 topology,
+under strong regularity and compactness assumptions on the function approximators
+(Theorem~\ref{thm:rl-subsequential}). The proof adapts Borkar's (1997, 2008) ordinary
+differential equation (ODE) method for stochastic approximation to the measure-valued
+setting, leveraging the contraction property established in
+Theorem~\ref{thm:wellposedness}. \textbf{We emphasize that the convergence is only
+along subsequences; full almost-sure convergence would require additional uniqueness
+of limit points, which is not proved here.}
+
+Second, we show that when the policy is additionally regularised with an entropy
+term, the convergence can be strengthened to an exponential rate, provided the policy
+class satisfies a log-Sobolev inequality (Theorem~\ref{thm:rl-exponential}). While
+this assumption is restrictive and serves as an idealised benchmark, it illustrates
+the structural conditions under which fast convergence is achievable and provides a
+theoretical bridge between entropy-regularised RL and mean-field games.
+
+\paragraph{Prior work.} The application of reinforcement learning to MFGs has seen
+rapid progress. Angiuli, Fouque, and Lauriere (2022) introduced a unified
+two-timescale RL algorithm for MFGs and mean-field control. Hu and Lauri\`ere (2023)
+developed a two-timescale actor-critic method specifically for common-noise MFGs.
+Most relevantly, Angiuli, Fouque, Lauri\`ere, and Zhang (2024) proved convergence of a
+three-timescale Q-learning algorithm for mean-field control games with common noise,
+establishing that the multi-scale dynamics correctly capture the representative
+agent's viewpoint. \textbf{The present chapter extends this ODE-method approach to
+the continuous-time, continuous-space setting with explicit Wasserstein distance
+control. The proof structure closely follows that of Angiuli et al. (2024); the novel
+technical challenge is establishing tightness and convergence of the measure-valued
+component in the Wasserstein topology.} Other relevant works include the fictitious
+play algorithms of Perrin et al.\ (2022) and the mean-field actor-critic flow of Zhou,
+Zhou, and Hu (2025). \Cref{tab:rl-comparison} situates our contributions relative to
+this literature.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Comparison of RL for MFG Convergence Results}
+\label{tab:rl-comparison}
+\begin{tabular}{p{2.3cm}p{1.6cm}p{1.4cm}p{1.6cm}p{1.6cm}p{1.8cm}p{1.8cm}}
+\toprule
+\textbf{Work} & \textbf{Setting} & \textbf{Time-scales} & \textbf{Common Noise} &
+    \textbf{Wasser-stein Control} & \textbf{Function Class} & \textbf{Convergence
+    Type} \\
+\midrule
+Angiuli et al.\ (2022) & MFG/MFC & 2 & No & No & Finite & Almost-sure \\
+Hu \& Lauri\`ere (2023) & MFG & 2 & Yes & No & Finite & Almost-sure \\
+Angiuli et al.\ (2024) & MFC & 3 & Yes & No & Finite & Almost-sure \\
+Zhou et al.\ (2025) & MFG & Continuous & No & Yes & Parametric & Weak convergence \\
+\textbf{This thesis} (Thm~\ref{thm:rl-subsequential}) & MFG & 3 & Yes & Yes
+    ($\liminf$) & Compact Lipschitz & Subsequential a.s. \\
+\textbf{This thesis} (Thm~\ref{thm:rl-exponential}) & MFG & 3 & Yes & Yes
+    (exponential) & LSI policy class & Exponential rate \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Scope of the guarantees.} \textbf{The convergence results in Theorems
+\ref{thm:rl-subsequential} and \ref{thm:rl-exponential} are established for
+regularised, compact function classes and under strong structural assumptions
+(Lipschitz continuity, boundedness, stability of limiting ODEs, and log-Sobolev
+inequality for the exponential rate). These assumptions are restrictive and are not
+satisfied by arbitrary deep neural networks as commonly used in practice. The results
+should be interpreted as theoretical baselines --- existence and consistency proofs
+for a class of idealised algorithms --- rather than performance guarantees for
+unconstrained deep reinforcement learning implementations. Extending these guarantees
+to overparameterised networks remains an important open problem, discussed further in
+Chapter 10.}
+
+\paragraph{Chapter organisation.} \Cref{sec:rl-formulation} formulates the RL problem.
+\Cref{sec:rl-architecture} presents the three-timescale architecture.
+\Cref{sec:rl-theorems} states the main theorems. \Cref{sec:rl-proof-subsequential}
+proves subsequential almost-sure convergence via the ODE method.
+\Cref{sec:rl-entropy} analyses entropy regularisation and exponential convergence.
+\Cref{sec:rl-implementation} discusses practical implementation and limitations.
+\Cref{sec:rl-conclusion} concludes.
+
+
+\section{Reinforcement Learning Formulation of the MFG}
+\label{sec:rl-formulation}
+
+We recall the mean-field game setting from Chapter 1. A representative agent controls
+a state process $X_t \in \mathbb{R}^d$ evolving according to the McKean--Vlasov SDE
+$dX_t = b(t,X_t,\mu_t,\alpha_t)\, dt + \sigma\, dW_t^i + \sigma_0\, dW_t^0$, $X_0 \sim
+\mu_{\mathrm{init}}$, where $\alpha_t \in A \subset \mathbb{R}^k$ is the control
+(action), and $\mu_t = \mathcal{L}(X_t \mid \mathcal{F}_t^{W^0})$ is the conditional
+law of the state given the common noise. The agent aims to maximise the expected
+cumulative reward
+\[
+    J(\alpha; \mu) = \mathbb{E}\left[ \int_0^T f(t,X_t,\mu_t,\alpha_t)\, dt +
+    g(X_T,\mu_T) \right],
+\]
+taking the measure flow $\mu = (\mu_t)_{t \in [0,T]}$ as given. The MFG equilibrium is
+a pair $(\mu^*, \alpha^*)$ such that $\alpha^*$ is optimal for the agent given $\mu^*$,
+and $\mu_t^* = \mathcal{L}(X_t^* \mid \mathcal{F}_t^{W^0})$ where $X^*$ is the state
+process under $\alpha^*$.
+
+In the reinforcement learning setting, the agent does not have access to the
+functional forms of $b$, $f$, or $g$. Instead, it observes a stream of data: at
+discrete time steps $t_n = n\Delta t$, the agent observes the current state $X_n$,
+takes an action $\alpha_n$, receives a reward
+$R_n \approx f(t_n, X_n, \hat\mu_n, \alpha_n)\Delta t$, and observes the next state
+$X_{n+1}$. The measure flow $\hat\mu_n$ must also be estimated, either from a large
+population of agents or by maintaining an empirical distribution of historical
+states. The goal is to learn a policy
+$\pi : [0,T] \times \mathbb{R}^d \times \mathcal{P}_2(\mathbb{R}^d) \to A$ that
+approximates the optimal feedback control $\alpha_t^* = \alpha^*(t, X_t, \mu_t)$.
+
+By the Stochastic Maximum Principle (Theorem~\ref{thm:smp}), the optimal control is
+characterised by the Hamiltonian maximisation condition
+$\alpha_t^* = \argmax_{\alpha \in A} H(t, X_t, \mu_t, p_t, \alpha)$, where
+$p_t = D_x u(t, X_t, \mu_t)$ is the adjoint process. Thus, if the agent can learn the
+adjoint process $p_t$ (the critic) and the optimal policy (the actor), it can
+approximate the equilibrium. The presence of common noise introduces a third
+learning timescale: the measure flow $\mu_t$ evolves stochastically and must be
+tracked by a separate estimator (the common-noise filter).
+
+
+\section{Three-Timescale Actor-Critic Architecture}
+\label{sec:rl-architecture}
+
+We propose a three-timescale stochastic approximation algorithm consisting of the
+following components:
+
+\begin{enumerate}
+    \item \textbf{Critic (fastest timescale)}: Estimates the adjoint process $p_t$.
+    In the continuous-time limit, the critic solves the BSDE \eqref{eq:adjoint-bsde}.
+    \item \textbf{Actor (intermediate timescale)}: Updates the policy parameters to
+    maximise the Hamiltonian, using the critic's estimates.
+    \item \textbf{Common-noise filter (slowest timescale)}: Tracks the population
+    measure flow $\mu_t$, which evolves according to the Fokker--Planck SPDE
+    \eqref{eq:fp-spde-weak}.
+\end{enumerate}
+
+The timescale separation is essential: the critic must adapt quickly to changes in
+the policy and the measure; the actor updates more slowly, treating the critic's
+value estimates as approximately converged; the measure filter updates most slowly,
+reflecting the fact that the population distribution changes gradually relative to
+individual decisions.
+
+\subsection{Discrete-Time Algorithm}
+
+Let $\gamma_t, \beta_t, \eta_t$ be three positive step-size sequences satisfying the
+Robbins--Monro conditions
+\[
+    \sum_{t=0}^\infty \gamma_t = \sum_{t=0}^\infty \beta_t = \sum_{t=0}^\infty \eta_t =
+    \infty, \qquad \sum_{t=0}^\infty (\gamma_t^2 + \beta_t^2 + \eta_t^2) < \infty,
+\]
+and the timescale separation condition
+\begin{equation}
+    \lim_{t \to \infty} \frac{\beta_t}{\gamma_t} = 0, \qquad \lim_{t \to \infty}
+    \frac{\eta_t}{\beta_t} = 0.
+    \label{eq:timescale-separation}
+\end{equation}
+Condition \eqref{eq:timescale-separation} ensures that, relative to the critic, the
+actor and the filter evolve quasi-statically.
+
+We parametrise the critic as $p_\theta(t,x,\mu)$, the actor as a policy
+$\pi_\phi(t,x,\mu)$, and maintain an empirical measure $\hat\mu_t$ of the population
+state. The algorithm proceeds as follows at each discrete time step $n$:
+
+\begin{enumerate}
+    \item Observe current state $X_n$, action $\alpha_n$, reward $R_n$, and next
+    state $X_{n+1}$.
+    \item \textbf{Critic update (fast)}:
+    \[
+        \theta_{n+1} = \theta_n + \gamma_n \delta_n \nabla_\theta p_{\theta_n}(t_n,
+        X_n, \hat\mu_n),
+    \]
+    where $\delta_n$ is the temporal difference error for the adjoint process. In the
+    continuous-time limit, $\delta_n$ approximates the BSDE residual:
+    $\delta_n = p_{\theta_n}(t_{n+1}, X_{n+1}, \hat\mu_{n+1}) - p_{\theta_n}(t_n, X_n,
+    \hat\mu_n) + \partial_x H(t_n, X_n, \hat\mu_n, p_{\theta_n}, \alpha_n) \Delta t$.
+    \item \textbf{Actor update (intermediate)}:
+    \[
+        \phi_{n+1} = \phi_n + \beta_n \nabla_\phi H(t_n, X_n, \hat\mu_n, p_{\theta_n},
+        \pi_{\phi_n}) \cdot \nabla_\phi \pi_{\phi_n}(t_n, X_n, \hat\mu_n).
+    \]
+    \item \textbf{Measure filter update (slow)}:
+    \[
+        \hat\mu_{n+1} = (1-\eta_n)\hat\mu_n + \eta_n \delta_{X_{n+1}}.
+    \]
+    In practice, a finite window of recent states is maintained, or a parametric
+    density estimator is updated.
+    \item \textbf{Action selection}: $\alpha_{n+1} = \pi_{\phi_{n+1}}(t_{n+1},
+    X_{n+1}, \hat\mu_{n+1})$ (possibly with exploration noise).
+\end{enumerate}
+
+\subsection{Continuous-Time Limiting Dynamics}
+
+Under the timescale separation \eqref{eq:timescale-separation}, the coupled
+stochastic approximation can be analysed by considering three limiting ordinary
+differential equations (ODEs). As $\gamma_n \to 0$ faster than $\beta_n, \eta_n$, the
+critic parameters $\theta$ converge to the solution of a deterministic equation
+parameterised by the slower variables $\phi$ and $\hat\mu$. In turn, the actor
+parameters $\phi$ follow an ODE driven by the converged critic, and the measure
+$\hat\mu$ follows the slowest dynamics, the Fokker--Planck SPDE.
+
+Formally, let $\tau_\gamma, \tau_\beta, \tau_\eta$ denote the three timescales. Define
+the limiting critic ODE:
+\begin{equation}
+    \dot\theta = \mathbb{E}_{X \sim \hat\mu}\big[ \delta(\theta, \phi, \hat\mu)
+    \nabla_\theta p_\theta(X, \hat\mu) \big],
+    \label{eq:critic-ode}
+\end{equation}
+the limiting actor ODE:
+\begin{equation}
+    \dot\phi = \mathbb{E}_{X \sim \hat\mu}\big[ \nabla_\phi H(X, \hat\mu,
+    p_{\theta^*(\phi,\hat\mu)}, \pi_\phi) \cdot \nabla_\phi \pi_\phi(X, \hat\mu) \big],
+    \label{eq:actor-ode}
+\end{equation}
+where $\theta^*(\phi, \hat\mu)$ is the equilibrium of \eqref{eq:critic-ode}, and the
+measure evolution:
+\begin{equation}
+    d\hat\mu_t = \mathcal{L}_\phi^* \hat\mu_t\, dt + \sigma_0 \nabla \hat\mu_t\,
+    dW_t^0,
+    \label{eq:measure-filter-spde}
+\end{equation}
+where $\mathcal{L}_\phi^*$ is the Fokker--Planck operator under the policy $\pi_\phi$.
+The full derivation of these limiting dynamics is provided in Appendix~A.
+
+
+\section{Statement of Main Theorems}
+\label{sec:rl-theorems}
+
+We now state the principal convergence results for the three-timescale algorithm. The
+proofs are developed in \Cref{sec:rl-proof-subsequential} and \Cref{sec:rl-entropy},
+with detailed algebraic manipulations deferred to Appendix~A.
+
+\begin{theorem}[Subsequential Almost-Sure Convergence of Multi-Timescale Actor-Critic]
+\label{thm:rl-subsequential}
+Let Assumptions 1.13--1.19 hold. Assume that the function approximators $p_\theta$
+and $\pi_\phi$ belong to a compact parameter class $\Theta \times \Phi$ and are
+uniformly bounded and Lipschitz continuous in their parameters and inputs. Suppose
+the step-size sequences satisfy the Robbins--Monro conditions and the timescale
+separation \eqref{eq:timescale-separation}. Assume further that the limiting ODEs
+\eqref{eq:critic-ode}--\eqref{eq:actor-ode} possess globally asymptotically stable
+equilibria $\theta^*(\phi,\hat\mu)$ and $\phi^*(\hat\mu)$, respectively. Then, for
+almost all initialisations, the three-timescale algorithm converges
+$\mathbb{P}$-almost surely along subsequences in the following sense:
+\[
+    \liminf_{t \to \infty} W_2(\hat\mu_t, \mu_t^*) = 0 \qquad \mathbb{P}\text{-a.s.},
+\]
+where $\mu^*$ is the unique MFG equilibrium measure flow. Moreover, along any
+convergent subsequence, the policy parameters $\phi_n$ converge to a set of
+parameters inducing the optimal feedback control $\alpha^*$.
+\end{theorem}
+
+\begin{remark}[Function approximator assumptions]
+The assumptions of compactness and Lipschitz continuity are satisfied, for example, by
+linear combinations of bounded basis functions (e.g., Fourier features, radial basis
+functions) with coefficients constrained to a compact set, or by neural networks with
+bounded weights and spectral normalisation. \textbf{They are not satisfied by
+standard unconstrained deep neural networks.} The theorem provides a theoretical
+foundation for idealised algorithms; extending the proof to overparameterised
+networks is an open problem (see Chapter 10).
+\end{remark}
+
+\begin{remark}[Subsequential convergence]
+The theorem establishes $\liminf W_2 = 0$, not full convergence. This is a weaker
+result than almost-sure convergence to the unique equilibrium. The reason is that the
+stochastic approximation argument only guarantees that the iterates visit
+neighbourhoods of the equilibrium infinitely often; proving that the sequence
+eventually stays near the equilibrium requires additional monotonicity or
+uniqueness-of-limit-point arguments that are not available in the measure-valued
+setting. This limitation should be kept in mind when interpreting the result.
+\end{remark}
+
+\begin{remark}[Stability of limiting ODEs]
+The assumption that the limiting ODEs possess globally asymptotically stable
+equilibria is a strong but standard condition in stochastic approximation theory
+(Borkar, 2008, Chapter 2). In the LQ-MFG case, this stability can be verified
+explicitly (see Appendix~A). For general nonlinear MFGs, it remains an active area
+of research; recent work by Zhou, Zhou, and Hu (2025) establishes such stability for
+mean-field actor-critic flows under certain convexity conditions.
+\end{remark}
+
+\begin{theorem}[Exponential Convergence under Entropy Regularisation]
+\label{thm:rl-exponential}
+In addition to the hypotheses of Theorem~\ref{thm:rl-subsequential}, suppose that the
+policy is entropy-regularised with coefficient $\beta > 0$, so that the objective
+includes a term $-\beta\, \mathrm{KL}(\pi \| \pi_0)$. Assume further that the policy
+class satisfies a log-Sobolev inequality with constant $C_{\mathrm{Lip}}$ (e.g.,
+Gaussian policies or log-concave policy classes). Then the Wasserstein distance
+between the learned measure flow $\hat\mu_t$ and the equilibrium $\mu^*$ satisfies
+\[
+    W_2(\hat\mu_t, \mu^*) \leq C_0 e^{-\lambda t} W_2(\hat\mu_0, \mu^*), \qquad
+    \lambda = \frac{\beta}{2 C_{\mathrm{Lip}}},
+\]
+where $C_0$ depends on the initialisation and the model parameters. This
+exponential rate holds for the continuous-time limiting dynamics and provides an
+upper bound on the convergence speed of the discrete algorithm before discretisation
+errors dominate.
+\end{theorem}
+
+\begin{remark}[Log-Sobolev assumption]
+The log-Sobolev inequality is a strong structural condition that typically holds for
+Gaussian policies or policies that are strongly log-concave in the parameters. In the
+context of neural network policies, the LSI generally fails unless explicit
+regularisation (such as weight decay or spectral normalisation) is imposed. The
+theorem is intended to illustrate the idealised rate achievable under favourable
+geometric conditions and to connect entropy-regularised RL with the Wasserstein
+convergence literature. \textbf{No algebraic rate is derived as a fallback under
+weaker conditions; this remains an open problem.}
+\end{remark}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Summary of Assumptions and Their Implications}
+\label{tab:rl-assumptions}
+\begin{tabular}{p{2.5cm}p{2.2cm}p{2.5cm}p{4cm}}
+\toprule
+\textbf{Assumption} & \textbf{Required for} & \textbf{Practical Relevance} &
+    \textbf{Relaxation Possibility} \\
+\midrule
+Compact $\Theta, \Phi$ & Theorem~\ref{thm:rl-subsequential} & Violated by deep nets &
+    Spectral normalisation heuristics \\
+Lipschitz approximators & Theorem~\ref{thm:rl-subsequential} & Violated by ReLU nets
+    & Smooth activations (tanh, GELU) \\
+Stable limiting ODEs & Theorem~\ref{thm:rl-subsequential} & Plausible for LQ, unknown
+    for general & Lyapunov analysis \\
+Log-Sobolev inequality & Theorem~\ref{thm:rl-exponential} & Only for strongly
+    log-concave policies & Poincar\'e inequality may give algebraic rates \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Proof of Subsequential Almost-Sure Convergence}
+\label{sec:rl-proof-subsequential}
+
+The proof adapts Borkar's (1997, 2008) ODE method for two-timescale stochastic
+approximation to the three-timescale, measure-valued setting. The key steps are:
+
+\begin{enumerate}
+    \item \textbf{Tightness and compactness}: Show that the sequence of empirical
+    measures $\{\hat\mu_n\}$ is tight in $\mathcal{P}_2(\mathbb{R}^d)$ and that the
+    parameter sequences $\{\theta_n\}, \{\phi_n\}$ remain in compact sets almost
+    surely.
+    \item \textbf{Limiting ODE for the critic}: Prove that on the fast timescale,
+    with $\phi$ and $\hat\mu$ frozen, the critic parameters $\theta_n$ track the
+    solution of the ODE \eqref{eq:critic-ode}, converging to an equilibrium
+    $\theta^*(\phi, \hat\mu)$.
+    \item \textbf{Limiting ODE for the actor}: On the intermediate timescale, with
+    $\hat\mu$ frozen and the critic converged, the actor parameters $\phi_n$ track
+    the ODE \eqref{eq:actor-ode}.
+    \item \textbf{Limiting SPDE for the measure}: On the slowest timescale, the
+    empirical measure $\hat\mu_n$ converges weakly to the solution of the
+    Fokker--Planck SPDE \eqref{eq:measure-filter-spde}.
+    \item \textbf{Fixed-point argument}: The contraction property of the MFG map
+    $\Phi$ (Theorem~\ref{thm:wellposedness}) ensures that the coupled limiting
+    dynamics have a unique globally attracting fixed point, which is precisely the
+    MFG equilibrium. By the standard stochastic approximation theory, the discrete
+    algorithm converges almost surely to this attractor along subsequences.
+\end{enumerate}
+
+\subsection{Step 1: Compactness and Tightness}
+
+The boundedness of the function approximators and the Lipschitz properties of the
+coefficients ensure that the state process $X_n$ remains in a compact set with high
+probability. Specifically, under Assumptions 1.13--1.19, one can show that
+$\sup_n \mathbb{E}[|X_n|^2] < \infty$, which implies that the sequence of empirical
+measures $\{\hat\mu_n\}$ is tight in $\mathcal{P}_2(\mathbb{R}^d)$. By Prokhorov's
+theorem, every subsequence has a further subsequence converging weakly to some limit
+measure. The parameters $\theta_n, \phi_n$ are assumed to belong to a compact set
+$\Theta \times \Phi$, which can be enforced by projection.
+
+\subsection{Step 2: Critic Convergence (Fast Timescale)}
+
+Fix the actor parameters $\phi$ and the measure flow $\hat\mu$. The critic update is a
+standard stochastic approximation for solving the BSDE \eqref{eq:adjoint-bsde}.
+Define the vector field $h_\gamma(\theta) = \mathbb{E}_{X \sim \hat\mu}[\delta(\theta,
+\phi, \hat\mu) \nabla_\theta p_\theta(X, \hat\mu)]$. By the theory of stochastic
+approximation (Borkar, 2008, Chapter 2), if $h_\gamma$ is Lipschitz and the ODE
+$\dot\theta = h_\gamma(\theta)$ has a globally asymptotically stable equilibrium
+$\theta^*$, then $\theta_n \to \theta^*$ almost surely. The equilibrium $\theta^*$
+corresponds to the solution of the BSDE, i.e., the true adjoint process under the
+given policy and measure.
+
+The global asymptotic stability of the critic ODE follows from the contraction
+property of the BSDE (see El Karoui et al., 1997, or Zhang, 2017, Chapter 4). Under
+Lipschitz conditions on the coefficients, the BSDE solution is unique and depends
+continuously on the parameters. The temporal difference error $\delta(\theta, \phi,
+\hat\mu)$ is designed so that the ODE drives $\theta$ toward this solution.
+
+\subsection{Step 3: Actor Convergence (Intermediate Timescale)}
+
+With the critic converged to $\theta^*(\phi, \hat\mu)$, the actor update approximates
+the ODE $\dot\phi = \mathbb{E}_{X \sim \hat\mu}[\nabla_\phi H(X, \hat\mu, p_{\theta^*},
+\pi_\phi) \cdot \nabla_\phi \pi_\phi]$. This is a policy gradient ascent on the
+expected Hamiltonian. Under Assumption 3.5 (concavity of $H$ in $\alpha$), the
+objective is concave in the policy parameters (for appropriate policy
+parametrisations), guaranteeing convergence to the unique maximiser. The timescale
+separation $\beta_n/\gamma_n \to 0$ ensures that the critic tracking error vanishes,
+so the actor ODE is indeed the correct limiting dynamics.
+
+\subsection{Step 4: Measure Filter Convergence (Slowest Timescale)}
+
+The empirical measure update $\hat\mu_{n+1} = (1-\eta_n)\hat\mu_n + \eta_n
+\delta_{X_{n+1}}$ is a stochastic approximation for the conditional law of the state
+process. In the limit $\eta_n \to 0$, this converges weakly to the solution of the
+Fokker--Planck SPDE \eqref{eq:measure-filter-spde}. The convergence is in the sense of
+weak convergence of measure-valued processes; see, for example, the propagation of
+chaos results for interacting particle systems (Carmona and Delarue, 2018, Vol.\ I,
+Chapter 1) and the stochastic approximation results for measure-valued processes
+(Borkar, 2008, Chapter 7). The contraction property of the MFG map $\Phi$
+(Theorem~\ref{thm:wellposedness}) guarantees that the limiting measure is unique and
+that the discrete approximation converges to it along subsequences.
+
+\subsection{Step 5: Coupling and Subsequential Convergence}
+
+The three limiting dynamics \eqref{eq:critic-ode}, \eqref{eq:actor-ode}, and
+\eqref{eq:measure-filter-spde} are coupled. However, due to the timescale separation,
+we can analyse them sequentially. The key observation is that the MFG fixed-point map
+$\Phi$ is a contraction in the Wasserstein metric. Any fixed point of the coupled
+limiting system is precisely an MFG equilibrium. By Theorem~\ref{thm:wellposedness},
+this equilibrium is unique. Therefore, the stochastic approximation algorithm, which
+asymptotically tracks the limiting ODEs, must visit neighbourhoods of this
+equilibrium infinitely often. This yields the $\liminf$ convergence statement.
+
+\paragraph{Why only subsequential convergence?} The ODE method guarantees that the
+iterates converge to the internally chain recurrent set of the limiting ODE. In the
+presence of multiple attractors or a continuum of equilibria, the iterates may wander
+without converging to a single point. Here, the uniqueness of the MFG equilibrium
+(Theorem~\ref{thm:wellposedness}) ensures that the only attractor is the equilibrium
+itself. However, because the measure-valued component is only shown to converge
+weakly, and because the stochastic approximation is subject to persistent noise, we
+can only assert that the iterates return to arbitrarily small neighbourhoods of the
+equilibrium infinitely often. \textbf{Full almost-sure convergence would require
+proving that the sequence is eventually trapped in a neighbourhood, which typically
+requires a Lyapunov function with negative drift outside the equilibrium --- a
+stronger condition not verified here.}
+
+The subsequential almost-sure convergence statement in
+Theorem~\ref{thm:rl-subsequential} follows by combining these steps with the standard
+stochastic approximation convergence theorem (Borkar, 2008, Theorem 2.1). A detailed
+verification of the conditions of Borkar's theorem for the three-timescale,
+measure-valued setting is provided in Appendix~A.
+
+
+\section{Exponential Convergence under Entropy Regularisation}
+\label{sec:rl-entropy}
+
+We now prove that adding entropy regularisation leads to an exponential convergence
+rate under the log-Sobolev assumption.
+
+\subsection{Entropy-Regularised Objective}
+
+The entropy-regularised objective for the representative agent is
+\[
+    J_\beta(\alpha; \mu) = \mathbb{E}\left[ \int_0^T \big( f(t,X_t,\mu_t,\alpha_t) -
+    \beta \log \pi_t(\alpha_t \mid X_t, \mu_t) \big)\, dt + g(X_T,\mu_T) \right],
+\]
+where $\pi_t(\cdot \mid X_t, \mu_t)$ is the policy density with respect to a base
+measure on $A$. The corresponding entropy-regularised Hamiltonian is
+\[
+    H_\beta(t,x,\mu,p,\alpha) = p \cdot b(t,x,\mu,\alpha) + f(t,x,\mu,\alpha) - \beta
+    \log \pi(\alpha \mid x, \mu).
+\]
+The optimal policy satisfies a Gibbs distribution:
+\begin{equation}
+    \pi^*(\alpha \mid x, \mu) \propto \exp\left( \frac{1}{\beta} \big( p \cdot
+    b(t,x,\mu,\alpha) + f(t,x,\mu,\alpha) \big) \right).
+    \label{eq:gibbs-policy}
+\end{equation}
+
+\subsection{Log-Sobolev Inequality and Exponential Convergence}
+
+The log-Sobolev inequality (LSI) for the policy class states that for any two
+policies $\pi, \pi'$,
+\[
+    \mathrm{KL}(\pi \| \pi') \leq \frac{C_{\mathrm{Lip}}}{2} \mathbb{E}_{X \sim \mu}
+    \big[ \|\nabla_\phi \log \pi_\phi(X) - \nabla_{\phi'} \log \pi_{\phi'}(X)\|^2
+    \big],
+\]
+where $\phi, \phi'$ are the parameters of $\pi, \pi'$ respectively. This inequality
+implies that the policy gradient dynamics converge exponentially fast to the optimal
+policy. The connection between LSI and exponential convergence of Langevin dynamics
+and policy gradient methods is well established (see, e.g., Ma, Li, and Zhang, 2024).
+
+Under the LSI, the continuous-time actor dynamics satisfy
+\[
+    \frac{d}{dt} \mathrm{KL}(\pi_{\phi_t} \| \pi^*) \leq -2\lambda\,
+    \mathrm{KL}(\pi_{\phi_t} \| \pi^*),
+\]
+with $\lambda = \beta/(2C_{\mathrm{Lip}})$. By the Talagrand transportation
+inequality, which relates KL divergence to the Wasserstein distance (specifically,
+$W_2(\mu,\nu)^2 \leq 2 C_{\mathrm{Lip}}\, \mathrm{KL}(\mu\|\nu)$ for measures
+satisfying LSI), this translates to
+\[
+    \frac{d}{dt} W_2(\mu_t, \mu^*)^2 \leq -2\lambda W_2(\mu_t, \mu^*)^2.
+\]
+Applying Gronwall's inequality yields the exponential convergence claimed in
+Theorem~\ref{thm:rl-exponential}.
+
+\subsection{Discussion of the Log-Sobolev Assumption}
+
+The log-Sobolev inequality is a strong structural condition. It is satisfied, for
+example, by Gaussian policies or policies that are strongly log-concave in the
+parameters. In the context of neural network policies, the LSI typically fails
+unless explicit regularisation (such as weight decay or spectral normalisation) is
+imposed. Recent work on Lata\l a--Oleszkiewicz inequalities and non-convex
+isoperimetry (see Chapter 10) offers potential pathways to relax this assumption. The
+exponential rate in Theorem~\ref{thm:rl-exponential} provides a theoretical upper
+bound on what can be achieved under idealised conditions.
+
+
+\section{Practical Implementation Considerations and Limitations}
+\label{sec:rl-implementation}
+
+\subsection{Function Approximation}
+
+In practice, the critic $p_\theta$ and the actor $\pi_\phi$ are implemented as
+neural networks. To approximate the theoretical assumptions, one can use bounded
+activation functions (e.g., tanh) and constrain the weight matrices to have bounded
+spectral norm (e.g., via spectral normalisation). The parameter spaces are then
+compact, and the networks are Lipschitz continuous. While this does not fully
+satisfy the compactness assumption (which requires a finite-dimensional compact set),
+it provides a practical heuristic.
+
+\subsection{Computing the Wasserstein Distance}
+
+The critic and actor updates require evaluating the measure flow $\hat\mu_t$, which
+is an empirical distribution of particles. The Wasserstein distance
+$W_2(\hat\mu_t, \hat\mu_s)$ or gradients with respect to the measure can be
+approximated using the Sinkhorn algorithm (\Cref{sec:mp-sinkhorn}) or, in one
+dimension, via the quantile formula \eqref{eq:1d-wasserstein}. For high-dimensional
+problems, sliced Wasserstein distances or maximum mean discrepancies (MMD) can be
+used as computationally cheaper alternatives, though they do not enjoy the same
+theoretical guarantees.
+
+\subsection{Parallelisation and Scalability}
+
+The algorithm is naturally parallelisable: multiple agents can be simulated in
+parallel, each maintaining its own critic and actor, while sharing the population
+measure $\hat\mu_t$ via a centralised parameter server. The common noise $W^0$ must
+be identical across all agents to preserve the synchronous coupling required for the
+contraction property.
+
+\subsection{Learning Rate Schedules}
+
+In practice, the Robbins--Monro conditions are approximated by using constant
+learning rates with occasional decay. The timescale separation is enforced by
+choosing $\gamma \gg \beta \gg \eta$. Typical values are
+$\gamma = 10^{-3}, \beta = 10^{-4}, \eta = 10^{-5}$. \textbf{However, these fixed
+ratios do not satisfy the asymptotic condition $\beta_t/\gamma_t \to 0$; the
+finite-time behaviour may exhibit transient oscillations not captured by the
+theory.}
+
+\subsection{Limitations of the Theoretical Guarantees}
+
+The convergence guarantees in Theorems \ref{thm:rl-subsequential} and
+\ref{thm:rl-exponential} are subject to the following important caveats:
+
+\begin{itemize}
+    \item \textbf{Compactness and Lipschitz assumptions}: Not satisfied by standard
+    deep neural networks.
+    \item \textbf{Subsequential convergence}: Only $\liminf W_2 = 0$ is guaranteed,
+    not full convergence.
+    \item \textbf{Idealised LSI}: Exponential rate only under strong log-concavity,
+    unlikely to hold in practice.
+    \item \textbf{Asymptotic timescale separation}: Fixed learning rate ratios
+    violate the theoretical condition.
+\end{itemize}
+
+These limitations do not invalidate the theoretical contributions, but they
+underscore the gap between theory and practice. The experimental results in Chapter 6
+demonstrate that, despite these theoretical gaps, the proposed architecture achieves
+strong empirical performance.
+
+
+\section{Conclusion and Connection to Chapter 6}
+\label{sec:rl-conclusion}
+
+We have established convergence guarantees for a three-timescale actor-critic
+algorithm in the common-noise MFG setting. The subsequential almost-sure convergence
+(Theorem~\ref{thm:rl-subsequential}) relies on the contraction property of the MFG
+map (Theorem~\ref{thm:wellposedness}) and the ODE method for stochastic
+approximation. The exponential rate (Theorem~\ref{thm:rl-exponential}) under entropy
+regularisation and log-Sobolev inequality provides an idealised benchmark for fast
+convergence.
+
+These theoretical results form the foundation for the hierarchical architecture
+developed in Chapter 6. The three natural timescales --- idiosyncratic diffusion,
+mean-field interaction, and common-noise drift --- map directly to the critic,
+actor, and meta-learner components of a hierarchical RL system. In Chapter 6, we
+formalise this correspondence and demonstrate how state-of-the-art algorithms (SAC,
+PPO, TD3) can be orchestrated within this framework to achieve efficient learning in
+practice.
