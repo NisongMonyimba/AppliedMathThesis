@@ -1,0 +1,271 @@
+% chapters/appendix_a_proofs.tex
+
+This appendix collects the detailed derivations referenced throughout the main
+text: the algebraic manipulations underlying the Gronwall closure in Theorem~3.1
+(Chapter 3), the discretisation error lemma used in Theorem~4.1 (Chapter 4), and
+the Riccati system derivations underlying the closed-form solutions of Chapters 7
+and 8.
+
+
+\section{Detailed Derivation of the Contraction Estimate (Chapter 3)}
+\label{sec:appA-contraction}
+
+This section provides the algebraic detail omitted from \Cref{sec:wp-stability} of
+Chapter 3, specifically the derivation of the control-difference Lipschitz constant
+$C_\alpha$, the BSDE estimate constant $C_{\mathrm{BSDE}}$, and the combination
+step yielding the differential inequality \eqref{eq:gronwall-differential}.
+
+\subsection{Derivation of $C_\alpha$}
+
+Recall the optimality condition $\partial_\alpha H(t,X_t,\mu_t,p_t,\alpha_t^*) = 0$.
+Differentiating implicitly with respect to $(x, p, \mu)$ and using the uniform
+concavity Assumption~3.5 ($\partial_{\alpha\alpha} H \leq -\lambda_H < 0$), the
+implicit function theorem gives
+\[
+    \nabla_{(x,p,\mu)} \alpha^* = -\big(\partial_{\alpha\alpha} H\big)^{-1}
+    \nabla_{(x,p,\mu)} \partial_\alpha H.
+\]
+Since $\|\partial_{\alpha\alpha} H\|^{-1} \leq 1/\lambda_H$ and
+$\|\nabla_{(x,p,\mu)} \partial_\alpha H\| \leq L_b + L_\mu$ (by the Lipschitz
+properties of $b$ and the bound on the Lions derivative of $f$), we obtain
+\[
+    C_\alpha = \frac{L_b + L_\mu}{\lambda_H}.
+\]
+This is the constant appearing in \eqref{eq:control-lipschitz}.
+
+\subsection{Derivation of $C_{\mathrm{BSDE}}$}
+
+The linear BSDE \eqref{eq:adjoint-difference-bsde} for $\Delta p_t$ has driver
+coefficients $A_t, B_t, D_t$ bounded by the second derivatives of $H$, which are in
+turn bounded by Assumption~3.3 (regularity). Standard linear BSDE estimates (El
+Karoui, Peng, and Quenez, 1997, Proposition 2.1) give
+\[
+    \mathbb{E}\Big[\sup_t |\Delta p_t|^2\Big] \leq C \,\mathbb{E}\Big[|\Delta X_T|^2
+    + \int_0^T \big(|\Delta X_t|^2 + |\alpha_t^1-\alpha_t^2|^2 +
+    W_2(\mu_t^1,\mu_t^2)^2\big)\, dt\Big],
+\]
+where $C$ depends on $T$, the bounds on $A_t, B_t, D_t$, and --- crucially --- on
+$\|\sigma_0\|_F^2$ through the martingale representation term $\Delta r_t$. The
+common-noise contribution enters because the quadratic variation of the
+common-noise martingale term in the BSDE energy identity is
+$\mathbb{E}[\int_0^T |\Delta r_t|^2\, dt]$, and the martingale representation
+theorem bounds this by the same right-hand side scaled by $\|\sigma_0\|_F^2$. This
+gives $C_{\mathrm{BSDE}} = C_0' (1 + \|\sigma_0\|_F^2)$ for a constant $C_0'$
+depending only on $T$ and the Lipschitz constants.
+
+\subsection{Combining the Estimates}
+
+Substituting \eqref{eq:control-lipschitz} into \eqref{eq:gronwall-setup} and
+\eqref{eq:bsde-estimate}, and writing $y_t = \mathbb{E}[|\Delta X_t|^2] +
+\mathbb{E}[|\Delta p_t|^2]$, the two coupled inequalities
+\begin{align*}
+    \frac{d}{dt}\mathbb{E}[|\Delta X_t|^2] &\leq (2L_b + L_b^2)\,
+        \mathbb{E}[|\Delta X_t|^2] + L_b\, \mathbb{E}[W_2(\mu_t^1,\mu_t^2)^2] +
+        L_b C_\alpha^2 \big( \mathbb{E}[|\Delta X_t|^2] + \mathbb{E}[|\Delta p_t|^2]
+        + \mathbb{E}[W_2(\mu_t^1,\mu_t^2)^2] \big), \\
+    \mathbb{E}[|\Delta p_t|^2] &\leq C_{\mathrm{BSDE}}\, \mathbb{E}\Big[|\Delta
+        X_T|^2 + \int_0^T \big( y_s + \mathbb{E}[W_2(\mu_s^1,\mu_s^2)^2]
+        \big)\, ds\Big]
+\end{align*}
+can be combined (using Gronwall's inequality on the second to bound
+$\mathbb{E}[|\Delta p_t|^2]$ pointwise in terms of an integral of $y_s$, then
+substituting into the first) into the single differential inequality
+\[
+    \frac{d}{dt} y_t \leq C_1\, y_t + C_2\, \mathbb{E}[W_2(\mu_t^1,\mu_t^2)^2],
+\]
+with $C_1 = 2L_b^2 + 2\|\sigma_0\|_F^2 + C_{\mathrm{reg}}$ and
+$C_2 = L_b + C_\alpha L_b + C_{\mathrm{BSDE}} L_\mu$, where $C_{\mathrm{reg}}$
+collects the remaining Lipschitz/regularity terms from $C_\alpha$ and
+$C_{\mathrm{BSDE}}$ not already accounted for in the leading $2L_b^2$ and
+$2\|\sigma_0\|_F^2$ terms. This is precisely \eqref{eq:gronwall-differential}.
+
+
+\section{Discretisation Error Lemma (Chapter 4)}
+\label{sec:appA-discretisation}
+
+This section proves the discretisation error bound used in the proof of
+Theorem~\ref{thm:numerical-convergence} (Lemma~C.9 in the original
+chapter-internal numbering).
+
+\begin{lemma}[Discretisation error of the fixed-point map]
+\label{lem:appA-discretisation-error}
+Let $\Phi$ be the continuous-time MFG fixed-point map (Chapter 3) and
+$\Phi^\Delta$ its discrete analogue (Chapter 4, \Cref{sec:na-discretisation}).
+Under Assumptions~1.13--1.19 and the smoothness Assumption~4.1, for any measure
+flow $\mu \in \mathcal{M}$,
+\[
+    \|\Phi^\Delta(\mu) - \Phi(\mu)\|_{\lambda,T} \leq C_{\mathrm{disc}}(\Delta
+    t^{1/2} + \Delta x),
+\]
+where $C_{\mathrm{disc}}$ depends on the Lipschitz/smoothness constants but not on
+$\mu$, $\Delta t$, or $\Delta x$.
+\end{lemma}
+
+\begin{proof}
+Fix $\mu \in \mathcal{M}$. By definition, $\Phi(\mu)$ is obtained by solving the
+continuous-time agent FBSDE \eqref{eq:agent-fbsde} exactly, while $\Phi^\Delta(\mu)$
+is obtained from the discrete scheme
+\eqref{eq:discrete-forward-sde}--\eqref{eq:discrete-fp-spde}. We bound the
+difference in three steps, corresponding to the three discretised components.
+
+\textit{Step 1 (forward SDE).} By Lemma~\ref{lem:weak-error-forward}, the weak
+error between the continuous state $X_t$ and discrete state $X^n$ (at matching
+times $t_n = n\Delta t$) is $O(\Delta t)$ for smooth test functions. Combined with
+Lemma~\ref{lem:weak-error-propagation}, this gives
+$\mathbb{E}[|X^n - X_{t_n}|^2] \leq C\Delta t$, hence a strong-error contribution
+of order $\Delta t^{1/2}$ to the Wasserstein distance between laws.
+
+\textit{Step 2 (adjoint BSDE).} By Lemma~\ref{lem:weak-error-adjoint}, the
+discrete adjoint process satisfies $|\mathbb{E}[\psi(p^n)] -
+\mathbb{E}[\psi(p_{t_n})]| \leq C\Delta t$ for smooth $\psi$. This propagates to
+the optimal control via the Lipschitz dependence $\alpha^* = p/\lambda$
+(\Cref{eq:alpha-optimal-control}), contributing a further $O(\Delta t)$ term, which
+after the same square-root argument as Step 1 contributes $O(\Delta t^{1/2})$ to
+the Wasserstein bound.
+
+\textit{Step 3 (Fokker--Planck SPDE / measure consistency).} By
+Theorem~\ref{thm:fd-convergence}, the finite-difference (or particle) discretisation
+of the measure flow satisfies
+$\sup_n \mathbb{E}[\|\rho^n - \rho_{t_n}\|_{L^2}^2]^{1/2} \leq C(\Delta t^{1/2} +
+\Delta x)$. Since the $L^2$ density norm controls the Wasserstein-2 distance for
+measures with bounded density ratios (a consequence of the
+Cauchy--Schwarz/transport-cost duality; see Villani, 2009, Remark 6.6), this
+contributes the dominant $O(\Delta t^{1/2} + \Delta x)$ term.
+
+Summing the three contributions (each bounded uniformly over $\mu$ by the
+Lipschitz continuity of the coefficients, which ensures the discretisation
+constants do not depend on which measure flow $\mu$ is plugged into $\Phi$ versus
+$\Phi^\Delta$) gives
+\[
+    \|\Phi^\Delta(\mu) - \Phi(\mu)\|_{\lambda,T} \leq C_{\mathrm{disc}}(\Delta
+    t^{1/2} + \Delta x),
+\]
+as claimed, with $C_{\mathrm{disc}}$ depending only on the Lipschitz and
+smoothness constants of $b, f, g$ and the CFL-condition constants, uniformly over
+bounded sets of measure flows.
+\end{proof}
+
+
+\section{Derivation of the Riccati Systems (Chapters 7 and 8)}
+\label{sec:appA-riccati}
+
+This section provides the detailed derivation of the Riccati equations
+\eqref{eq:sr-riccati-quadratic}--\eqref{eq:sr-riccati-linear} (Chapter 7) and
+\eqref{eq:alpha-riccati-system} (Chapter 8), which share the same derivation
+structure since both arise from the linear-quadratic MFG ansatz.
+
+\subsection{Setup}
+
+We work with the scalar version (Chapter 7's systemic risk model; the matrix
+version of Chapter 8 follows by an identical argument with matrix-valued
+coefficients and the same coefficient-matching strategy, replacing scalar products
+by the appropriate matrix products). Substituting the quadratic ansatz
+\eqref{eq:sr-value-ansatz} into the HJB equation
+\[
+    \partial_t u + \frac{\sigma^2}{2}\partial_{xx} u + \frac{\sigma_0^2}{2}
+    \partial_{xx} u + H^*(t,x,\mu,\partial_x u) + \int_{\mathbb{R}}
+    \frac{\delta u}{\delta\mu}(\mu)(y) \cdot b(t,y,\mu,\alpha^*)\, \mu(dy) = 0,
+\]
+and matching coefficients of $x^2$, $x\bar\mu$, $\bar\mu^2$, $x$, $\bar\mu$, and
+constants yields the system of ODEs. The Lions derivative of $u$ with respect to
+$\mu$ at $y$ is
+\[
+    \frac{\delta u}{\delta\mu}(\mu)(y) = -B_t x - C_t \bar\mu - E_t.
+\]
+Substituting into the integral term and using $\int y\, \mu(dy) = \bar\mu$ gives
+the contributions to the coefficients. The terms involving $D_t, E_t, F_t$ arise
+from the linear part of the Hamiltonian and the bailout policy $b_t$ (Chapter 7) or
+the baseline drift (Chapter 8, where $d_t = e_t = f_t = 0$ since Example~1.1 has no
+exogenous linear forcing term).
+
+\subsection{Quadratic Terms}
+
+The maximised Hamiltonian (after substituting the optimal control
+$\alpha^* = p/\lambda$) is
+\[
+    H^*(t,x,\mu,p) = p \cdot \kappa(\bar\mu - x) - \frac{c_1}{2}x^2 +
+    \frac{p^2}{2\lambda} + p b_t.
+\]
+With $p = -A_t x - B_t \bar\mu - D_t$, the quadratic part of $H^*$ in $(x,\bar\mu)$
+is
+\[
+    (-A_t x - B_t\bar\mu) \cdot \kappa(\bar\mu - x) - \frac{c_1}{2}x^2 +
+    \frac{1}{2\lambda}(A_t x + B_t \bar\mu)^2.
+\]
+Expanding and matching coefficients of $x^2$:
+\[
+    -\frac{1}{2}\dot{A}_t = -\kappa A_t + \frac{A_t^2}{2\lambda} - \frac{c_1}{2}
+    \qquad \Longrightarrow \qquad \dot{A}_t = 2\kappa A_t - \frac{A_t^2}{\lambda} +
+    c_1.
+\]
+Matching coefficients of $x\bar\mu$:
+\[
+    -\dot{B}_t = \kappa A_t - \kappa B_t + \frac{A_t B_t}{\lambda} \qquad
+    \Longrightarrow \qquad \dot{B}_t = \kappa B_t - \frac{A_t B_t}{\lambda} -
+    \kappa A_t.
+\]
+Matching coefficients of $\bar\mu^2$:
+\[
+    -\frac{1}{2}\dot{C}_t = -\kappa B_t + \frac{B_t^2}{2\lambda} \qquad
+    \Longrightarrow \qquad \dot{C}_t = -\frac{B_t^2}{\lambda} - 2\kappa B_t.
+\]
+These are exactly \eqref{eq:sr-riccati-quadratic} (and, with $Q,P$ in place of the
+scalar $c_1/2, c_2/2$ and matrix products throughout, \eqref{eq:alpha-riccati-system}).
+
+\subsection{Linear Terms}
+
+The ODEs for $D_t, E_t, F_t$ are obtained by matching the coefficients of $x$,
+$\bar\mu$, and constants. They are:
+\[
+    \dot{D}_t = \kappa D_t - \frac{A_t D_t}{\lambda} - A_t b_t, \qquad D_T = 0,
+\]
+\[
+    \dot{E}_t = \kappa E_t - \frac{B_t D_t}{\lambda} - B_t b_t - \kappa D_t,
+    \qquad E_T = 0,
+\]
+\[
+    \dot{F}_t = -\frac{D_t^2 \sigma^2}{2\lambda} - \frac{\sigma_0^2}{2}(A_t + C_t)
+    - D_t b_t, \qquad F_T = 0.
+\]
+These are exactly \eqref{eq:sr-riccati-linear}. In the alpha-generation model of
+Chapter 8, there is no exogenous bailout term $b_t$, so setting $b_t \equiv 0$
+gives $D_t = E_t = F_t \equiv 0$ for all $t$, recovering the simpler closed-loop
+drift used in Chapter 8.
+
+\subsection{Proof that $v_t$ is Independent of $b_t$}
+
+From the variance dynamics \eqref{eq:sr-variance-dynamics}, the variance $v_t$
+satisfies a linear ODE whose coefficients depend only on $A_t, \kappa, \lambda,
+\sigma$, and $\sigma_0$. None of these depend on the bailout policy $b_t$.
+Therefore, the government's choice of $b_t$ affects the mean $\bar\mu_t$ but not
+the variance $v_t$. This justifies the separation in the government's objective
+used to derive \eqref{eq:sr-optimal-bailout}.
+
+\subsection{Government's Riccati Equation (Chapter 7)}
+
+The government's value function takes the form $V(t,\bar\mu) = -\frac{1}{2}\Pi_t
+\bar\mu^2 - \delta_t$. Substituting into the HJB equation for the government's
+control problem (with dynamics \eqref{eq:sr-mean-dynamics} and cost
+\eqref{eq:sr-gov-objective}) and matching coefficients of $\bar\mu^2$ yields
+\eqref{eq:sr-gov-riccati}.
+
+\subsection{Explicit Bound for the Propagation of Chaos Constant (Chapter 7)}
+
+The bound for $C$ in Proposition~\ref{prop:sr-propagation-of-chaos} follows from
+the synchronous coupling estimate of Chapter 3. Specifically, let
+$\Delta X_t^i = X_t^{i,N} - X_t^{i,*}$ be the difference between the $N$-bank
+state and the limiting McKean--Vlasov state under the same noises. Then, by the
+same It\^o-expansion argument as in \Cref{sec:appA-contraction},
+\[
+    \mathbb{E}\big[|\Delta X_t^i|^2\big] \leq \int_0^t e^{2L_b(t-s)} L_b\,
+    \mathbb{E}\big[W_2(\mu_s^N, \mu_s^*)^2\big]\, ds.
+\]
+Summing over $i$ and using $\mathbb{E}[W_2(\mu_t^N,\mu_t^*)^2] \leq
+\frac{1}{N}\sum_{i=1}^N \mathbb{E}[|\Delta X_t^i|^2]$ yields the claimed bound via
+Gronwall's inequality, with the explicit constant
+\[
+    C \leq \frac{4}{\kappa_{\min}}\left( \sigma^2 + \sigma_0^2 + \frac{1}{\lambda^2}
+    \sup_t (A_t+B_t)^2 \right) e^{2L_b T},
+\]
+where $\kappa_{\min} = \inf_t(\kappa + A_t/\lambda) > 0$ and $L_b = \kappa +
+\sup_t(A_t + |B_t|)/\lambda$, as stated in Chapter 7.
