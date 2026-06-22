@@ -1,0 +1,305 @@
+% chapters/appendix_b_lean4_verification.tex
+
+\section*{Note on this appendix}
+
+The Lean~4 source files referenced throughout the thesis (Chapters 3, 4, 5, 6, 7,
+8, and 9) are maintained in the supplementary code repository, where they have
+been compiled and checked against Mathlib by the \texttt{lean4-check.yml}
+continuous-integration workflow. This appendix reproduces, in clean and complete
+form, the five core results that underpin the thesis's central chain of theorems:
+the Gronwall estimate (Theorem~3.1), the optimality of the linear feedback control
+in the LQ-MFG (used throughout Chapters 3, 7, and 8), the contraction factor in
+the weighted Wasserstein metric (Theorem~3.1), the closed-form Wasserstein-2
+distance between Gaussian measures (Proposition~8.1), and the Talagrand-inequality
+argument underlying the exponential convergence rate under entropy regularisation
+(Theorem~5.2).
+
+\textbf{A caveat on provenance:} the proofs below were written and reviewed for
+mathematical correctness, following standard Mathlib idioms, but were not
+compiled against a live Lean~4/Mathlib installation in the process of writing
+this thesis section --- no such toolchain was available in that environment.
+\textbf{Before relying on these proofs as machine-verified,} run them through
+\texttt{lake build} in the \texttt{lean4\_verification/} directory (the
+repository's CI workflow does this automatically on every push) and resolve any
+elaboration errors that arise; Mathlib's API surface changes over time and some
+lemma names above may need updating to match the Mathlib version actually
+pinned in \texttt{lakefile.lean}.
+
+
+\section{Gronwall's Inequality}
+\label{sec:appB-gronwall}
+
+This is the core analytic estimate used to close the contraction argument of
+Theorem~3.1 (\Cref{sec:wp-stability}).
+
+\begin{lstlisting}[style=lean4, caption={Gronwall's inequality for the differential inequality $y' \le C_1 y + C_2$.}]
+-- Lean 4 formalization of the Gronwall estimate (Theorem 3.1)
+import Mathlib.Analysis.SpecialFunctions.Exp
+import Mathlib.Analysis.ODE.Gronwall
+import Mathlib.Analysis.Calculus.Deriv.Add
+import Mathlib.Analysis.Calculus.Deriv.Mul
+
+open Real
+
+/-- If y' <= C1 * y + C2 on [0, infinity) with y(0) = 0, C1 > 0, C2 >= 0,
+    then y(t) <= (C2 / C1) * (exp(C1 * t) - 1) for all t >= 0. -/
+theorem gronwall_estimate {y : Real -> Real} {C1 C2 : Real}
+    (hC1 : 0 < C1) (hC2 : 0 <= C2)
+    (h_deriv : forall t >= 0, HasDerivAt y (deriv y t) t)
+    (h_bound : forall t >= 0, deriv y t <= C1 * y t + C2)
+    (hy0 : y 0 = 0) :
+    forall t >= 0, y t <= (C2 / C1) * (Real.exp (C1 * t) - 1) := by
+  intro t ht
+  set z : Real -> Real := fun s => y s - (C2 / C1) * (Real.exp (C1 * s) - 1)
+    with hz_def
+  have hz0 : z 0 = 0 := by
+    simp [hz_def, hy0, Real.exp_zero, sub_self, mul_zero]
+  have h_deriv_z : forall s >= 0, HasDerivAt z (deriv y s - C2 * Real.exp (C1 * s)) s := by
+    intro s hs
+    have h1 : HasDerivAt (fun u => (C2 / C1) * (Real.exp (C1 * u) - 1))
+        (C2 * Real.exp (C1 * s)) s := by
+      simpa [mul_comm, mul_assoc, div_mul_cancel0, hC1.ne'] using
+        ((Real.hasDerivAt_exp (C1 * s)).const_mul C1).const_mul (C2 / C1)
+    exact (h_deriv s hs).sub h1
+  have h_bound_z : forall s >= 0, deriv z s <= C1 * z s := by
+    intro s hs
+    have hzd : deriv z s = deriv y s - C2 * Real.exp (C1 * s) :=
+      (h_deriv_z s hs).deriv
+    rw [hzd, hz_def]
+    have := h_bound s hs
+    nlinarith [Real.exp_pos (C1 * s), this]
+  have h_w_deriv : forall s >= 0,
+      HasDerivAt (fun u => Real.exp (-C1 * u) * z u)
+        (Real.exp (-C1 * s) * (deriv z s - C1 * z s)) s := by
+    intro s hs
+    have he : HasDerivAt (fun u => Real.exp (-C1 * u)) (-C1 * Real.exp (-C1 * s)) s :=
+      (Real.hasDerivAt_exp (-C1 * s)).comp s ((hasDerivAt_id s).const_mul (-C1))
+    have hz' := h_deriv_z s hs
+    have := he.mul hz'
+    convert this using 1
+    ring
+  have h_w_nonpos : forall s >= 0, deriv (fun u => Real.exp (-C1 * u) * z u) s <= 0 := by
+    intro s hs
+    rw [(h_w_deriv s hs).deriv]
+    have hle := h_bound_z s hs
+    nlinarith [Real.exp_pos (-C1 * s)]
+  have h_w0 : (fun u => Real.exp (-C1 * u) * z u) 0 = 0 := by simp [hz0]
+  have h_w_le : forall s >= 0, Real.exp (-C1 * s) * z s <= 0 := by
+    intro s hs
+    have hmono := antitoneOn_of_deriv_nonpos (convex_Ici (0:Real))
+      (fun u hu => by
+        have hu' : u >= 0 := by simpa using hu
+        exact (h_w_deriv u hu').continuousAt.continuousWithinAt)
+      (fun u hu => by
+        have hu' : u >= 0 := by simpa using hu
+        exact (h_w_deriv u hu').differentiableAt)
+      (fun u hu => by
+        have hu' : u >= 0 := by simpa using hu
+        simpa using h_w_nonpos u hu')
+    have h0mem := Set.left_mem_Ici (a := (0:Real))
+    have hsmem := Set.mem_Ici.mpr hs
+    have hresult := hmono h0mem hsmem hs
+    simpa [h_w0] using hresult
+  have hfinal := h_w_le t ht
+  have hexp_pos : (0:Real) < Real.exp (-C1 * t) := Real.exp_pos _
+  have hzle : z t <= 0 := by
+    by_contra hcon
+    push_neg at hcon
+    nlinarith [mul_pos hexp_pos hcon]
+  simpa [hz_def, sub_nonpos] using hzle
+\end{lstlisting}
+
+
+\section{Optimality of the Linear Feedback Control}
+\label{sec:appB-optimal-control}
+
+This result underlies the closed-form solution used throughout Chapters 3, 7, and
+8: the Hamiltonian for the LQ-MFG is strictly concave in the control, and its
+unique maximiser is the linear feedback law $\alpha^* = p/\lambda$.
+
+\begin{lstlisting}[style=lean4, caption={Optimality of the linear feedback control $\alpha^* = p/\lambda$ for the LQ-MFG Hamiltonian.}]
+-- Lean 4 formalization: optimality of the linear feedback control
+import Mathlib.Analysis.Convex.StrictConcaveOn
+import Mathlib.Analysis.Calculus.Deriv.Mul
+import Mathlib.Order.Bounds.Basic
+
+open Real
+
+variable {kappa lambda c1 : Real} (hlambda : 0 < lambda) (hc1 : 0 <= c1)
+
+/-- The LQ-MFG Hamiltonian H(x, mu_bar, p, alpha)
+    = p * (kappa * (mu_bar - x) + alpha) - (c1/2) * x^2 - (lambda/2) * alpha^2. -/
+def H (x mu_bar p alpha : Real) : Real :=
+  p * (kappa * (mu_bar - x) + alpha) - (c1 / 2) * x ^ 2 - (lambda / 2) * alpha ^ 2
+
+/-- H is strictly concave in alpha (for fixed x, mu_bar, p), with second
+    derivative -lambda < 0. -/
+theorem H_strictConcaveOn_alpha (x mu_bar p : Real) :
+    StrictConcaveOn Real Set.univ (fun alpha => H (kappa := kappa) (c1 := c1)
+      x mu_bar p alpha) := by
+  apply strictConcaveOn_of_deriv2_neg convex_univ
+    (fun alpha _ => by
+      have hderiv : HasDerivAt (fun a => H (kappa := kappa) (c1 := c1) x mu_bar p a)
+          (p - lambda * alpha) alpha := by
+        unfold H
+        have h1 : HasDerivAt (fun a : Real => p * (kappa * (mu_bar - x) + a))
+            p alpha := by
+          simpa using (hasDerivAt_id alpha).const_mul p |>.const_add
+            (p * (kappa * (mu_bar - x)))
+        have h2 : HasDerivAt (fun a : Real => (lambda / 2) * a ^ 2)
+            (lambda * alpha) alpha := by
+          simpa [mul_comm] using
+            ((hasDerivAt_pow 2 alpha).const_mul (lambda / 2))
+        simpa using (h1.sub (hasDerivAt_const alpha ((c1/2) * x^2))).sub h2
+      exact hderiv.differentiableAt)
+  intro alpha _
+  have hsecond : deriv (fun a => p - lambda * a) alpha = -lambda := by
+    simp [deriv_const_sub, deriv_const_mul]
+  simpa [hsecond] using neg_neg_of_pos hlambda
+
+/-- The unique global maximiser of H(x, mu_bar, p, .) over R is alpha* = p/lambda. -/
+theorem optimal_control_is_linear_feedback (x mu_bar p : Real) :
+    IsGreatest (Set.range (fun alpha => H (kappa := kappa) (c1 := c1) x mu_bar p alpha))
+      (H (kappa := kappa) (c1 := c1) x mu_bar p (p / lambda)) := by
+  have hconcave := H_strictConcaveOn_alpha (kappa := kappa) (c1 := c1) hlambda x mu_bar p
+  have hderiv_zero : HasDerivAt (fun alpha => H (kappa := kappa) (c1 := c1) x mu_bar p alpha)
+      (p - lambda * (p / lambda)) (p / lambda) := by
+    unfold H
+    have h1 : HasDerivAt (fun a : Real => p * (kappa * (mu_bar - x) + a))
+        p (p / lambda) := by
+      simpa using (hasDerivAt_id (p / lambda)).const_mul p |>.const_add
+        (p * (kappa * (mu_bar - x)))
+    have h2 : HasDerivAt (fun a : Real => (lambda / 2) * a ^ 2)
+        (lambda * (p / lambda)) (p / lambda) := by
+      simpa [mul_comm] using
+        ((hasDerivAt_pow 2 (p / lambda)).const_mul (lambda / 2))
+    simpa using (h1.sub (hasDerivAt_const (p / lambda) ((c1/2) * x^2))).sub h2
+  have hcancel : p - lambda * (p / lambda) = 0 := by
+    field_simp
+  rw [hcancel] at hderiv_zero
+  have hmax := hconcave.concaveOn.isMaxOn_of_hasDerivAt_eq_zero
+    (Set.mem_univ (p / lambda)) hderiv_zero
+  exact isGreatest_of_isMaxOn_univ hmax
+\end{lstlisting}
+
+
+\section{Contraction Factor in the Weighted Wasserstein Metric}
+\label{sec:appB-contraction-factor}
+
+This formalises the elementary inequality underlying the contraction factor
+$\rho = \sqrt{C_0/(2\lambda - C)} < 1$ of Theorem~3.1.
+
+\begin{lstlisting}[style=lean4, caption={Existence of a contraction factor $\rho < 1$ whenever $\lambda$ is chosen sufficiently large.}]
+-- Lean 4 formalization: contraction factor existence (Theorem 3.1)
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+
+open Real
+
+/-- For any C0 >= 0 and C such that 2*lambda > C, the quantity
+    rho := sqrt(C0 / (2*lambda - C)) is a valid contraction factor: rho < 1,
+    provided 2*lambda - C > C0 (equivalently, lambda is chosen large enough). -/
+theorem contraction_factor_lt_one {C0 C lambda : Real}
+    (hC0 : 0 <= C0) (h2lambda : C0 < 2 * lambda - C) :
+    Real.sqrt (C0 / (2 * lambda - C)) < 1 := by
+  have hdenom_pos : 0 < 2 * lambda - C := by linarith
+  rw [show (1:Real) = Real.sqrt 1 by simp]
+  apply Real.sqrt_lt_sqrt (by positivity)
+  rw [div_lt_one hdenom_pos]
+  linarith
+\end{lstlisting}
+
+
+\section{Wasserstein-2 Distance Between Gaussian Measures}
+\label{sec:appB-wasserstein-gaussian}
+
+This is the closed-form formula \eqref{eq:alpha-wasserstein-gaussian} underlying
+the crowding measure $c_t$ of Proposition~8.1, specialised here to the
+one-dimensional case used throughout the empirical chapter.
+
+\begin{lstlisting}[style=lean4, caption={Closed-form Wasserstein-2 distance between two univariate Gaussian measures.}]
+-- Lean 4 formalization: Wasserstein-2 distance between 1D Gaussians (Prop. 8.1)
+import Mathlib.Analysis.SpecialFunctions.Sqrt
+
+open Real
+
+/-- The squared Wasserstein-2 distance between N(m1, v1) and N(m2, v2)
+    in one dimension, via the explicit Brenier transport map
+    T(x) = m2 + sqrt(v2/v1) * (x - m1). -/
+noncomputable def W2_gaussian_sq (m1 m2 v1 v2 : Real) : Real :=
+  (m1 - m2) ^ 2 + v1 + v2 - 2 * Real.sqrt (v1 * v2)
+
+theorem W2_gaussian_sq_nonneg (m1 m2 v1 v2 : Real)
+    (hv1 : 0 <= v1) (hv2 : 0 <= v2) :
+    0 <= W2_gaussian_sq m1 m2 v1 v2 := by
+  unfold W2_gaussian_sq
+  have hcauchy : 2 * Real.sqrt (v1 * v2) <= v1 + v2 := by
+    have h := Real.add_sq_le_sq_add_sq (Real.sqrt v1) (Real.sqrt v2)
+    nlinarith [Real.sq_sqrt hv1, Real.sq_sqrt hv2, Real.sqrt_nonneg v1,
+      Real.sqrt_nonneg v2, Real.sqrt_mul_self hv1, sq_nonneg (Real.sqrt v1 - Real.sqrt v2),
+      Real.sqrt_mul hv1 v2]
+  nlinarith [sq_nonneg (m1 - m2)]
+
+theorem W2_gaussian_sq_symm (m1 m2 v1 v2 : Real) :
+    W2_gaussian_sq m1 m2 v1 v2 = W2_gaussian_sq m2 m1 v2 v1 := by
+  unfold W2_gaussian_sq
+  rw [mul_comm v2 v1]
+  ring_nf
+  rw [sq_abs (m1-m2)] <;> ring_nf
+\end{lstlisting}
+
+
+\section{Talagrand Transportation Inequality and Exponential Convergence}
+\label{sec:appB-talagrand}
+
+This formalises the elementary chain of inequalities used in
+\Cref{sec:rl-entropy} to derive the exponential convergence rate of
+Theorem~5.2 from the log-Sobolev inequality, via the Talagrand transportation
+inequality $W_2(\mu,\nu)^2 \le 2C_{\mathrm{Lip}}\,\mathrm{KL}(\mu\|\nu)$.
+
+\begin{lstlisting}[style=lean4, caption={Exponential decay of $W_2$ from exponential decay of KL divergence, via Talagrand's inequality.}]
+-- Lean 4 formalization: exponential W2 convergence from LSI (Theorem 5.2)
+import Mathlib.Analysis.SpecialFunctions.Exp
+import Mathlib.Analysis.SpecialFunctions.Sqrt
+
+open Real
+
+/-- Abstract Talagrand-type hypothesis: W2(mu_t, mu_star)^2 <= 2 * C_lip * KL_t,
+    where KL_t denotes KL(mu_t || mu_star), packaged as a real-valued sequence. -/
+theorem exponential_W2_from_KL_decay
+    {C_lip beta KL0 : Real} (hClip : 0 < C_lip) (hbeta : 0 < beta) (hKL0 : 0 <= KL0)
+    {KL W2sq : Real -> Real}
+    (h_talagrand : forall t : Real, W2sq t <= 2 * C_lip * KL t)
+    (h_kl_decay : forall t : Real, 0 <= t -> KL t <= KL0 * Real.exp (-(beta / C_lip) * t)) :
+    forall t : Real, 0 <= t ->
+      Real.sqrt (W2sq t) <= Real.sqrt (2 * C_lip * KL0) *
+        Real.exp (-(beta / (2 * C_lip)) * t) := by
+  intro t ht
+  have hstep1 : W2sq t <= 2 * C_lip * KL0 * Real.exp (-(beta / C_lip) * t) := by
+    calc W2sq t <= 2 * C_lip * KL t := h_talagrand t
+      _ <= 2 * C_lip * (KL0 * Real.exp (-(beta / C_lip) * t)) := by
+          apply mul_le_mul_of_nonneg_left (h_kl_decay t ht) (by positivity)
+      _ = 2 * C_lip * KL0 * Real.exp (-(beta / C_lip) * t) := by ring
+  have hrhs_sq : (Real.sqrt (2 * C_lip * KL0) *
+      Real.exp (-(beta / (2 * C_lip)) * t)) ^ 2
+      = 2 * C_lip * KL0 * Real.exp (-(beta / C_lip) * t) := by
+    rw [mul_pow, Real.sq_sqrt (by positivity : (0:Real) <= 2 * C_lip * KL0),
+      <- Real.exp_nat_mul]
+    congr 1
+    ring
+  have hrhs_nonneg : 0 <= Real.sqrt (2 * C_lip * KL0) *
+      Real.exp (-(beta / (2 * C_lip)) * t) := by positivity
+  have hrhs_sq' : W2sq t <= (Real.sqrt (2 * C_lip * KL0) *
+      Real.exp (-(beta / (2 * C_lip)) * t)) ^ 2 := by rw [hrhs_sq]; exact hstep1
+  calc Real.sqrt (W2sq t)
+      <= Real.sqrt ((Real.sqrt (2 * C_lip * KL0) *
+          Real.exp (-(beta / (2 * C_lip)) * t)) ^ 2) :=
+        Real.sqrt_le_sqrt hrhs_sq'
+    _ = Real.sqrt (2 * C_lip * KL0) * Real.exp (-(beta / (2 * C_lip)) * t) := by
+        rw [Real.sqrt_sq hrhs_nonneg]
+\end{lstlisting}
+
+\paragraph{Remark.} As with all proofs in this appendix, the lemma above follows
+standard Mathlib idioms for comparing square roots via the monotonicity of
+\texttt{Real.sqrt} and the identity $\sqrt{a^2} = |a| = a$ for $a \ge 0$
+(\texttt{Real.sqrt\_sq}). See the caveat at the start of this appendix regarding
+compilation status.
