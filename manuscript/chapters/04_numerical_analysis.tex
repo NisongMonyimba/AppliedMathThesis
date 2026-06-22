@@ -29,17 +29,15 @@ focuses on the weak convergence of the discretised measure flow to the true
 equilibrium measure, measured in the Wasserstein-2 distance.
 
 \paragraph{Prior work.} The numerical analysis of McKean--Vlasov FBSDEs has been
-studied by Chassagneux, Crisan, and Delarue (2019), who established convergence of a
+studied by \citep{chassagneuxcrisandelarue2019}, who established convergence of a
 particle method for a class of mean-field FBSDEs without common noise. The CEMRACS
-2017 project (see Angiuli et al., 2017) investigated numerical probabilistic methods
+2017 project (see \citep{angiulietal2024} investigated numerical probabilistic methods
 for MFGs, including tree-based and regression approaches. \textbf{The present chapter
 extends these techniques to the common-noise setting, where the measure flow is
 stochastic and the Fokker--Planck equation becomes an SPDE.} The finite-difference
-analysis builds on the work of Achdou and Porretta (2016) for deterministic MFG PDEs
-and on Lord, Powell, and Shardlow (2014) for SPDEs. The weak error analysis for
-particle discretisations of McKean--Vlasov SDEs follows the framework of Bencheikh
-(2020). The BSDE regression method is based on the foundational work of Gobet, Lemor,
-and Warin (2005) and Bouchard and Touzi (2004).
+analysis builds on the work of \citep{achdouporretta2016} for deterministic MFG PDEs
+and on \citep{lordpowellshardlow2014} for SPDEs. The weak error analysis for
+particle discretisations of McKean--Vlasov SDEs follows the framework of \citep{bencheikh2020}. The BSDE regression method is based on the foundational work of \citep{gobetlemorwarin2005} and \citep{bouchardtouzi2004}.
 
 \paragraph{Limitations and assumptions.} \textbf{The convergence results in this
 chapter rely on strong smoothness assumptions (coefficients of class $C^{2,4}$) that
@@ -99,8 +97,7 @@ $p^N = \partial_x g(X^N, \mu^N)$, we compute for $n = N-1, \dots, 0$:
 \end{equation}
 where $\mathbb{E}_n[\cdot]$ denotes the conditional expectation given the information
 at time $t_n$. In practice, this conditional expectation is approximated by
-nonparametric regression on a set of basis functions. Following Gobet, Lemor, and
-Warin (2005), we project the random variable inside the expectation onto a
+nonparametric regression on a set of basis functions. Following \citep{gobetlemorwarin2005}, we project the random variable inside the expectation onto a
 finite-dimensional function space spanned by basis functions $\{\psi_k(X^n)\}_{k=1}^K$.
 The regression coefficients are estimated by least squares on a set of $M$ simulated
 paths. The processes $q^n$ and $r^n$ can be obtained from the martingale
@@ -232,8 +229,7 @@ function $\psi$,
 
 \begin{proof}
 The Euler--Maruyama scheme for BSDEs has weak convergence order $O(\Delta t)$ when the
-terminal condition and the driver are sufficiently smooth (see Bouchard and Touzi,
-2004, or Gobet, Lemor, and Warin, 2005). The proof uses the fact that the BSDE can be
+terminal condition and the driver are sufficiently smooth (see \citep{bouchardtouzi2004}, or \citep{gobetlemorwarin2005}. The proof uses the fact that the BSDE can be
 represented as a conditional expectation, and the regression error in the conditional
 expectation is of order $O(\Delta t)$ when using appropriate basis functions. The
 coupling with the forward SDE and the measure flow is handled using the stability
@@ -301,8 +297,7 @@ condition
     \frac{1}{2\sigma^2}.
 \]
 The stochastic transport term introduces an additional restriction. By analysing the
-mean-square stability of the SPDE discretisation (see Lord, Powell, and Shardlow,
-2014, Chapter 10), we obtain the condition
+mean-square stability of the SPDE discretisation (see \citep{lordpowellshardlow2014}, Chapter 10), we obtain the condition
 \[
     \Delta t \leq C_{\mathrm{stoch}} \Delta x, \qquad C_{\mathrm{stoch}} =
     \frac{1}{2\|\sigma_0\|_F L_b},
@@ -333,7 +328,7 @@ implies convergence. The consistency error of the spatial discretisation is
 $O(\Delta x)$, and the temporal discretisation of the stochastic term introduces a
 strong error of $O(\Delta t^{1/2})$. The stability condition
 \eqref{eq:fp-stability-condition} ensures that errors do not amplify. A detailed proof
-for a similar SPDE is given in Lord, Powell, and Shardlow (2014, Theorem 10.7). The
+for a similar SPDE is given in \citep{lordpowellshardlow2014}, Theorem 10.7). The
 extension to the mean-field case, where the drift depends on the measure, follows from
 the Lipschitz property of $b$ and the contraction estimate of
 Theorem~\ref{thm:wellposedness}.

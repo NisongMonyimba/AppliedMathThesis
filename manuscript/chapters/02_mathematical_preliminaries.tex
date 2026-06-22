@@ -35,7 +35,7 @@ The chapter covers six interlocking topics:
 
 A summary table at the end of the chapter (\Cref{sec:mp-summary}) maps each tool to its
 first use in the thesis, serving as a quick reference. For readers seeking a deeper
-treatment, we recommend Villani (2009) for optimal transport, Carmona--Delarue (2018,
+treatment, we recommend \citep{villani2009} for optimal transport, \citep{carmonadelarue2018},
 Vol.\ I, Chapters 1--2) for Wasserstein analysis in the MFG context, and
 Karatzas--Shreve (1991) for stochastic calculus.
 
@@ -80,7 +80,7 @@ $\nu$ is
 \end{definition}
 
 The infimum in \eqref{eq:wasserstein-def} is attained: there exists an optimal coupling
-$\pi^* \in \Pi(\mu,\nu)$ achieving the infimum (Villani, 2009, Theorem 5.10). The
+$\pi^* \in \Pi(\mu,\nu)$ achieving the infimum (\citep{villani2009}, Theorem 5.10). The
 optimal $\pi^*$ is supported on the subdifferential of a convex function, the Brenier
 potential.
 
@@ -103,7 +103,7 @@ The proof proceeds in three steps: (i) Kantorovich duality reduces the problem t
 finding a pair of conjugate convex functions $(\varphi, \varphi^*)$; (ii) the
 optimality condition $y \in \partial\varphi(x)$ for $\pi^*$-a.e.\ $(x,y)$ implies the
 transport is a gradient map; (iii) uniqueness follows from strict convexity of the cost
-$c(x,y) = |x-y|^2$. See Villani (2009, Ch.\ 9) for the complete argument.
+$c(x,y) = |x-y|^2$. See \citep{villani2009}, Ch.\ 9) for the complete argument.
 \end{proof}
 
 \begin{remark}[Discrete measures and regularisation]
@@ -153,7 +153,7 @@ Sinkhorn fixed-point equations:
     \label{eq:sinkhorn-fixed-point}
 \end{equation}
 where $a_i = \mu(\{x_i\})$, $b_j = \nu(\{y_j\})$. This converges in $O(N^2/\epsilon^2)$
-operations (Cuturi, 2013). In Chapter 4, this regularised distance will be used to
+operations (\citep{cuturi2013}. In Chapter 4, this regularised distance will be used to
 compute Wasserstein gradients efficiently.
 
 \subsection{Metric Space Structure}
@@ -173,7 +173,7 @@ The Wasserstein-2 distance satisfies:
 
 \begin{proof}[Proof of (iii) via gluing lemma]
 Given $\mu, \nu, \rho$, let $\pi_{12} \in \Pi(\mu,\nu)$ and $\pi_{23} \in \Pi(\nu,\rho)$
-be any couplings. By the gluing lemma (Villani, 2009, Lemma 7.6), there exists
+be any couplings. By the gluing lemma (\citep{villani2009}, Lemma 7.6), there exists
 $\pi_{123} \in \mathcal{P}(\mathbb{R}^d \times \mathbb{R}^d \times \mathbb{R}^d)$ with
 marginals $(\pi_{12}, \pi_{23})$, i.e., the joint distribution of $(X,Y,Z)$ where
 $(X,Y) \sim \pi_{12}$, $(Y,Z) \sim \pi_{23}$. The marginal
@@ -241,12 +241,12 @@ $T = \nabla\varphi$ from $\mu$ to $\nu$,
 \end{equation}
 In other words, the directional derivative of $F$ along a geodesic with initial
 velocity $v = T - \mathrm{id}$ is given by the $L^2(\mu)$ inner product of
-$D_\mu F(\mu)$ and $v$. For a comprehensive treatment, see Carmona and Delarue (2018,
+$D_\mu F(\mu)$ and $v$. For a comprehensive treatment, see \citep{carmonadelarue2018},
 Vol.\ I, Chapter 5).
 
 \subsection{Law of Large Numbers in Wasserstein Distance}
 
-\begin{theorem}[LLN Rate in $W_2$, Fournier--Guillin, 2015]
+\begin{theorem}[LLN Rate in $W_2$, \citep{fournierguillin2015}]
 \label{thm:fournier-guillin}
 Let $\mu \in \mathcal{P}_2(\mathbb{R}^d)$ and $X_1, X_2, \dots$ be i.i.d.\ with law
 $\mu$. Define $\mu^N = \frac{1}{N}\sum_{i=1}^N \delta_{X_i}$.
@@ -258,7 +258,7 @@ $\mu$. Define $\mu^N = \frac{1}{N}\sum_{i=1}^N \delta_{X_i}$.
         \mathbb{E}[W_2(\mu^N,\mu)] \leq C_\mu \cdot N^{-1/2}.
     \]
     For $d \geq 3$: $\mathbb{E}[W_2(\mu^N,\mu)] \leq C_{\mu,d} \cdot N^{-1/d}$, under
-    appropriate moment conditions. (See Fournier and Guillin, 2015, Theorem 1 and
+    appropriate moment conditions. (See \citep{fournierguillin2015}, Theorem 1 and
     Corollary 2.)
 \end{enumerate}
 \end{theorem}
@@ -304,8 +304,8 @@ $\lambda_k > 0$, $\sum_k \lambda_k = 1$, the Wasserstein barycentre is
 \end{definition}
 
 The barycentre exists and is unique when at least one $\mu_k$ is absolutely continuous
-(Agueh--Carlier, 2011). It is computed by the free-support Sinkhorn barycentre
-algorithm (Cuturi--Doucet, 2014). \textit{Note: this concept is included for
+(\citep{aguehcarlier2011}. It is computed by the free-support Sinkhorn barycentre
+algorithm (\citep{cuturidoucet2014}. \textit{Note: this concept is included for
 completeness but is not directly used in the subsequent chapters.}
 
 
@@ -583,8 +583,7 @@ Kushner--Zakai equation of nonlinear filtering, which involves a stochastic
 normalisation factor arising from observations. The homogeneous common-noise exposure
 (constant $\sigma_0$) is sufficient but not necessary for this linearity; the key
 property is that the coefficients do not depend on the measure in a way that would
-introduce nonlinear feedback into the normalisation. See Chapter 4 of Carmona and
-Delarue (2018) for a detailed discussion.
+introduce nonlinear feedback into the normalisation. See Chapter 4 of \citep{carmonadelarue2018} for a detailed discussion.
 \end{remark}
 
 \subsection{Sobolev Regularity}
@@ -961,7 +960,7 @@ Here $D_\mu u(t,x,\mu)(\widetilde{x})$ denotes the Lions derivative of $u$ with 
 to the measure argument, evaluated at the independent copy $\widetilde{X}_t$. This
 derivative is defined via the ``lifting'' of functionals on $\mathcal{P}_2(\mathbb{R}^d)$
 to functionals on the Hilbert space $L^2(\Omega; \mathbb{R}^d)$; see
-Carmona--Delarue (2018, Vol.\ I, Chapter 5) for a comprehensive treatment. The HJB
+\citet[Vol.\ I, Chapter 5]{carmonadelarue2018} for a comprehensive treatment. The HJB
 equation
 \[
     -\partial_t u = H^*(t,x,\mu,D_x u) + \frac{\sigma^2}{2}\Delta_x u, \qquad

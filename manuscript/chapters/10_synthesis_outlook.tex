@@ -87,10 +87,9 @@ geometry, It\^o calculus, Fokker--Planck SPDEs, martingale theory, Sobolev space
 and the Stochastic Maximum Principle.
 
 Chapter 3 proved Theorem~\ref{thm:wellposedness}, the quantitative well-posedness
-result. Prior to this work, Ahuja, Ren, and Yang (2019) had established existence
+result. Prior to this work, \citep{ahujarenyang2019} had established existence
 and uniqueness for a class of common-noise MFGs with linear-convex structure and
-weak-monotonicity, using a continuation method for FBSDEs. Carmona and Delarue
-(2018) provided the comprehensive probabilistic characterisation.
+weak-monotonicity, using a continuation method for FBSDEs. \citep{carmonadelarue2018} provided the comprehensive probabilistic characterisation.
 \textbf{The incremental contribution of Theorem~\ref{thm:wellposedness} is the
 explicit parameter-dependent contraction constant $C = 2L_b^2 + 2\|\sigma_0\|_F^2 +
 C_{\mathrm{reg}}$, derived via synchronous coupling and Lions derivative
@@ -107,8 +106,7 @@ absolute continuity of measures.} These limitations are discussed in
 \subsection{Numerical Methods (Chapter 4)}
 
 Chapter 4 developed numerical schemes for the FBSDE system. Prior work on
-numerical methods for McKean--Vlasov FBSDEs includes Chassagneux, Crisan, and
-Delarue (2019), who established convergence of a particle method for mean-field
+numerical methods for McKean--Vlasov FBSDEs includes \citep{chassagneuxcrisandelarue2019}, who established convergence of a particle method for mean-field
 FBSDEs without common noise. Theorem~\ref{thm:numerical-convergence} established
 that a combined Euler--Maruyama / particle discretisation converges with weak
 error $O(\Delta t^{1/2} + \Delta x)$ under sufficient smoothness. The CFL
@@ -118,7 +116,7 @@ coupled stochastic system. The LQ benchmark validated the theoretical rates.
 \subsection{Reinforcement Learning (Chapters 5--6)}
 
 Chapter 5 proved convergence guarantees for a three-timescale actor-critic
-algorithm. Prior work includes Angiuli, Fouque, Lauri\`ere, and Zhang (2024), who
+algorithm. Prior work includes \citep{angiulietal2024}, who
 proved convergence of a three-timescale Q-learning algorithm for mean-field control
 games with common noise in finite state-action spaces.
 Theorem~\ref{thm:rl-subsequential} extended the ODE method to continuous
@@ -127,7 +125,7 @@ function approximators. The convergence established is subsequential
 ($\liminf W_2 = 0$), not full almost-sure convergence.
 Theorem~\ref{thm:rl-exponential} showed that entropy regularisation yields an
 exponential convergence rate under a log-Sobolev inequality for the policy class,
-connecting to recent work by Ma, Li, and Zhang (2024). This result serves as an
+connecting to recent work by \citep{malizhang2024}. This result serves as an
 idealised benchmark; the LSI assumption is strong and unlikely to hold for deep
 neural networks without explicit regularisation.
 
@@ -145,22 +143,20 @@ SPDE-guided separation.
 \subsection{Financial Applications (Chapters 7--9)}
 
 Chapter 7 applied the framework to systemic risk and optimal bailouts. The
-foundational model is due to Carmona, Fouque, and Sun (2015). \textbf{Our
+foundational model is due to \citep{carmonafouquesun2015}. \textbf{Our
 contribution is the Stackelberg formulation with common noise, the closed-form LQ
 solution (including the Riccati system for the government's policy), and the
 quantification of the $O(1/N)$ approximation error.} The quadratic approximation
 of the default penalty is a limitation (see \Cref{sec:syn-limitations}).
 
 Chapter 8 derived the four alpha signals. The trade crowding MFG was introduced by
-Cardaliaguet and Lehalle (2018), and extended to portfolio trading by Lehalle and
-Mouzouni (2019). Proposition~\ref{prop:alpha-signals} contributes the four-signal
+\citep{cardaliaguetlehalle2018}, and extended to portfolio trading by \citep{lehallemouzouni2019}. Proposition~\ref{prop:alpha-signals} contributes the four-signal
 framework; \textbf{the novel contribution is the crowding measure
 $c_t = W_2(\mu_t, \mu_t^*)$.} The portfolio construction algorithm with crowding
 discount provides a complete implementation pipeline.
 
 Chapter 9 provided the empirical validation. The use of 13F holdings to predict
-returns was established by Chen, Hong, and Stein (2002). Lehalle and Mouzouni
-(2019) calibrated a portfolio MFG to 176 stocks. \textbf{Our contribution is a
+returns was established by \citep{chenhongstein2002}. \citep{lehallemouzouni2019} calibrated a portfolio MFG to 176 stocks. \textbf{Our contribution is a
 full out-of-sample trading strategy on the S\&P 500 universe (2000--2024),
 achieving a Sharpe ratio of 1.91 (net of costs) with a block-bootstrap $p$-value
 of 0.002.} The incremental contribution over a na\"ive 13F mean-reversion strategy
@@ -356,7 +352,7 @@ challenge.
 simulated environment where the model dynamics are known or can be sampled.
 
 \paragraph{Recent literature.} Off-policy evaluation and batch RL techniques
-(e.g., Precup, Sutton, and Singh, 2000; Lange, Gabel, and Riedmiller, 2012)
+(e.g., \citep{precupsuttonsingh2000}; \citep{langegabelriedmiller2012}
 provide tools for learning from fixed datasets. However, adapting these to the
 streaming, non-stationary setting of financial markets, where the population
 measure itself evolves, is non-trivial.
@@ -374,13 +370,10 @@ multi-timescale learning in a non-stationary environment is largely open.
 \paragraph{Current framework.} The MFG assumes that all agents share the same
 information and beliefs.
 
-\paragraph{Recent literature.} A 2024 paper in the Journal of Optimization Theory
-and Applications, ``Incomplete Information Mean-Field Games and Related Riccati
-Equations'', studies a class of MFGs with incomplete information where each
+\paragraph{Recent literature.} \citet{incompleteinfomfg2024} study a class of MFGs with incomplete information where each
 agent's state follows a linear forward SDE with common noise and private noise.
 The authors derive Riccati equations characterising the equilibrium under linear
-dynamics. Additionally, ``Learning in herding Mean Field Games'' (Zeng et al.,
-2024) considers agents with differing trade signals.
+dynamics. Additionally, ``Learning in herding Mean Field Games'' (\citep{zengetal2024} considers agents with differing trade signals.
 
 \paragraph{Remaining open problem.} Extend the incomplete information framework
 to nonlinear dynamics and general reward structures. Develop RL algorithms that
@@ -395,10 +388,9 @@ yet fully understood in the MFG context.
 equities.
 
 \paragraph{Recent literature.} MFGs have been applied to foreign exchange (e.g.,
-Jaimungal and Nourian, 2015), fixed income (e.g., Carmona and Wang, 2021), and
-commodities. In macroeconomics, ``Learning Macroeconomic Policies through Dynamic
-Stackelberg Mean-Field Games'' (2025) provides a framework for government policy
-design. ``Heterogenous Macro-Finance Model: A Mean-field Game Approach'' (2025)
+\citep{jaimungalnourian2015}, fixed income (e.g., \citep{carmonawang2021}, and
+commodities. In macroeconomics, \citep{macromfg2025} provides a framework for government policy
+design. \citep{heteromacrofinance2025}
 investigates capital allocation and wealth distribution.
 
 \paragraph{Remaining open problem.} Adapt the four-signal alpha generation
@@ -415,8 +407,7 @@ convergence rate assumes a log-Sobolev inequality (LSI) for the policy class.
 
 \paragraph{Recent literature.} Recent work has established convergence
 guarantees for Langevin Monte Carlo under Lata\l a--Oleszkiewicz inequalities,
-which interpolate between Poincar\'e and log-Sobolev (COLT 2022). ``Taming under
-isoperimetry'' (2025) derives Poincar\'e or log-Sobolev inequalities under novel
+which interpolate between Poincar\'e and log-Sobolev \citep{latalaoleszkiewicz2022}. \citep{tamingisoperimetry2025} derives Poincar\'e or log-Sobolev inequalities under novel
 non-convex frameworks.
 
 \paragraph{Remaining open problem.} Determine whether similar exponential (or
@@ -456,14 +447,13 @@ Jump-diffusion common noise & MFG with common Poissonian noise
 Online RL with streaming data & Precup et al.\ (2000); Lange et al.\ (2012) &
     Non-stationarity, partial observability \\
 \addlinespace
-Asymmetric information & Incomplete Information MFG (JOTA, 2024); Zeng et al.\
+Asymmetric information & \citep{incompleteinfomfg2024,zengetal2024} &
     (2024) & Nonlinear dynamics, learning with heterogeneous beliefs \\
 \addlinespace
-Other asset classes / macro & Jaimungal--Nourian (2015); Macro MFG (arXiv, 2025)
+Other asset classes / macro & \citep{jaimungalnourian2015}; \citep{macromfg2025}
     & Data availability, model adaptation \\
 \addlinespace
-Relaxing LSI & Lata\l a--Oleszkiewicz (COLT 2022); Taming under isoperimetry
-    (2025) & Characterising equilibrium measure isoperimetry \\
+Relaxing LSI & Lata\l a--Oleszkiewicz \citep{latalaoleszkiewicz2022}; \citep{tamingisoperimetry2025} & Characterising equilibrium measure isoperimetry \\
 \addlinespace
 Full formal verification & Lean/Coq in mathematical finance & Scaling
     verification to full pipeline \\

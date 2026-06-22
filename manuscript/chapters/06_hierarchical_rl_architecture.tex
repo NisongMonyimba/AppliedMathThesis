@@ -45,9 +45,8 @@ experiment with randomly chosen timescale ratios to isolate the contribution of 
 SPDE-guided timescale separation.}
 
 \paragraph{Prior work.} The SPDE formulation of the master equation for common-noise
-MFGs originates from Carmona, Delarue, and Lachapelle (2014). The use of
-multi-timescale RL for MFGs has been explored by Angiuli, Fouque, Lauri\`ere, and
-Zhang (2024) for finite spaces, and by Zhou, Zhou, and Hu (2025) for continuous-time
+MFGs originates from \citep{carmonadelaruelachapelle2014}. The use of
+multi-timescale RL for MFGs has been explored by \citep{angiulietal2024} for finite spaces, and by \citep{zhouzhouhu2025} for continuous-time
 actor-critic flows. Zeng et al.\ (2024) proposed a single-loop algorithm with
 finite-time guarantees. The present chapter contributes a concrete hierarchical
 architecture (SAC-PPO-TD3) grounded in the SPDE operator decomposition and validated
@@ -71,7 +70,7 @@ concludes.
 Recall from Chapter 1 that the MFG equilibrium is characterised by the coupled FBSDE
 system \eqref{eq:fbsde-system}. The value function $U(t,\mu)$ of the representative
 agent, viewed as a function on the Wasserstein space, satisfies the master equation
-(Carmona, Delarue, and Lachapelle, 2014)
+(\citep{carmonadelaruelachapelle2014}
 \[
     \partial_t U + \frac{\sigma^2}{2} \int_{\mathbb{R}^d} \Delta_x \frac{\delta
     U}{\delta\mu}(\mu)(x)\, \mu(dx) + \int_{\mathbb{R}^d} H^*(t,x,\mu,D_x U)\,
@@ -187,7 +186,7 @@ estimating the value of individual states under the agent's own stochastic dynam
 independent of the population. This is precisely the role of a critic in
 actor-critic methods.
 
-We select Soft Actor-Critic (SAC) (Haarnoja et al., 2018) as the fast critic. SAC is
+We select Soft Actor-Critic (SAC) (\citep{haarnojaetal2018} as the fast critic. SAC is
 an off-policy, maximum-entropy RL algorithm that learns a stochastic policy and an
 associated soft Q-function. The entropy regularisation in SAC corresponds to the
 quadratic variation term in the It\^o expansion of the value function, making it
@@ -216,7 +215,7 @@ adapt to changes in the population distribution. This requires a policy gradient
 method that can stably update the actor in response to slowly varying population
 statistics.
 
-We select Proximal Policy Optimization (PPO) (Schulman et al., 2017) as the
+We select Proximal Policy Optimization (PPO) (\citep{schulmanetal2017} as the
 intermediate actor. PPO is an on-policy algorithm that constrains policy updates to a
 trust region, preventing catastrophic performance collapses due to distributional
 shift --- exactly the concern when the population measure evolves. The clipped
@@ -242,8 +241,7 @@ the entire population. Learning this operator requires adapting the policy and v
 functions to regime shifts induced by the common noise. Because common shocks are
 infrequent, this adaptation should occur on the slowest timescale.
 
-We select Twin Delayed Deep Deterministic Policy Gradient (TD3) (Fujimoto et al.,
-2018) as the slow meta-learner. TD3 is an off-policy algorithm designed for
+We select Twin Delayed Deep Deterministic Policy Gradient (TD3) (\citep{fujimotoetal2018} as the slow meta-learner. TD3 is an off-policy algorithm designed for
 continuous action spaces that addresses overestimation bias in Q-learning by using
 two critics and delayed policy updates. In our hierarchical architecture, TD3
 operates at the meta-level: it periodically adjusts the hyperparameters or the
@@ -337,7 +335,7 @@ for the critic parameters is
 where $\mathcal{T}^\pi$ is the soft Bellman operator. This ODE has a globally
 attracting fixed point $\theta^*(\phi, \hat\mu)$ corresponding to the soft Q-function
 of policy $\pi_\phi$ under the measure $\hat\mu$. By the theory of policy evaluation
-(Sutton and Barto, 2018), this fixed point is unique and stable.
+(\citep{suttonbarto2018}, this fixed point is unique and stable.
 
 \paragraph{Step 2: Actor (PPO) limiting ODE.} With the critic converged and the
 meta-learner frozen, the PPO actor performs a trust-region policy gradient ascent.
@@ -454,8 +452,7 @@ finite-dimensional summary statistics:
     - \bar{x})^\top$;
     \item The Wasserstein distance to a reference measure $W_2(\hat\mu,
     \mu_{\mathrm{init}})$;
-    \item Optionally, the first $K$ moments or the output of a set encoder (Zaheer
-    et al., 2017).
+    \item Optionally, the first $K$ moments or the output of a set encoder (\citep{zaheeretal2017}.
 \end{itemize}
 
 These summary statistics are concatenated with the individual state $s$ to form the

@@ -25,9 +25,9 @@ the common-noise coefficient $\|\sigma_0\|_F$, and bounds on Lions derivatives. 
 $\varepsilon$-Nash property for the finite-player game is also verified.
 
 While the existence and uniqueness of solutions to common-noise MFGs have been
-established under various conditions --- notably by Ahuja, Ren, and Yang (2019) under
+established under various conditions --- notably by \citep{ahujarenyang2019} under
 convexity and weak-monotonicity, and in the comprehensive probabilistic treatment of
-Carmona and Delarue (2018) --- the present contribution is the derivation of explicit
+\citep{carmonadelarue2018} --- the present contribution is the derivation of explicit
 parameter-dependent stability constants suitable for numerical analysis and
 reinforcement learning algorithms. These constants quantify precisely how the model
 parameters affect the contraction rate. \textbf{We emphasize that the contraction is
@@ -83,7 +83,7 @@ arguments with constants $L_f, L_g > 0$.
 \begin{assumption}[Additional regularity]
 \label{ass:wp-regularity}
 The functions $b, f, g$ are continuously differentiable in $x$ and Lions-differentiable
-in $\mu$ (in the sense of Carmona and Delarue, 2018, Chapter 5). Their Lions derivatives
+in $\mu$ (in the sense of \citep{carmonadelarue2018}, Chapter 5). Their Lions derivatives
 $D_\mu b, D_\mu f, D_\mu g$ are bounded and Lipschitz continuous in $x$ and $\mu$.
 Moreover, the second-order Lions derivatives are bounded when required.
 \end{assumption}
@@ -132,8 +132,7 @@ $\mu^1, \mu^2 \in \mathcal{M}$, the distance is
 \]
 
 \begin{remark}[Weighted norm]
-This weighted norm is equivalent to the standard norm used in Carmona and Delarue
-(2018) but is more convenient for extracting contraction factors. The exponential
+This weighted norm is equivalent to the standard norm used in \citep{carmonadelarue2018} but is more convenient for extracting contraction factors. The exponential
 discounting allows us to absorb the Gronwall growth factor.
 \end{remark}
 
@@ -224,8 +223,8 @@ where $H(t,x,\mu,p,\alpha) = p \cdot b(t,x,\mu,\alpha) + f(t,x,\mu,\alpha)$.
 
 The solution to \eqref{eq:agent-fbsde} exists and is unique for each fixed
 $\mu \in \mathcal{M}$; this follows from standard results for McKean--Vlasov FBSDEs
-with Lipschitz coefficients (see, e.g., Carmona \& Delarue, 2018, Vol.\ I, Chapter 4,
-and the monotone functional approach of Ahuja, Ren, and Yang, 2019). We denote the
+with Lipschitz coefficients (see, e.g., \citep{carmonadelarue2018}, Vol.\ I, Chapter 4,
+and the monotone functional approach of \citep{ahujarenyang2019}. We denote the
 unique optimal state process by $X^\mu$ and define the map
 \begin{equation}
     \Phi(\mu)_t := \mathcal{L}\big(X_t^\mu \mid \mathcal{F}_t^{W^0}\big), \qquad
@@ -327,7 +326,7 @@ applied to $\partial_\alpha H = 0$, there exists a constant $C_\alpha > 0$ such 
 \end{equation}
 The rigorous justification of this Lipschitz dependence relies on the Lions
 differentiability of $b$ and $f$ with respect to $\mu$ (\Cref{ass:wp-regularity}). By
-Carmona and Delarue (2018, Proposition 5.35), if a functional is Lions-differentiable
+\citep{carmonadelarue2018}, Proposition 5.35), if a functional is Lions-differentiable
 with bounded derivative, it is Lipschitz in the Wasserstein distance. The constant
 $C_\alpha$ can be bounded explicitly in terms of $\lambda_H, L_b$, and the bounds on
 the Lions derivatives. A detailed derivation is provided in Appendix~A.
@@ -359,7 +358,7 @@ constant $L_\mu$. Consequently,
     \|C_t \star (\mu_t^1 - \mu_t^2)\| \leq L_\mu W_2(\mu_t^1, \mu_t^2).
     \label{eq:lions-derivative-bound}
 \end{equation}
-Standard BSDE estimates (see, e.g., El Karoui et al., 1997, or Zhang, 2017, Theorem
+Standard BSDE estimates (see, e.g., El Karoui et al., 1997, or \citep{zhang2017}, Theorem
 4.3.1) yield
 \begin{equation}
     \mathbb{E}\left[\sup_{t \in [0,T]} |\Delta p_t|^2 + \int_0^T \big(|\Delta q_t|^2 +
@@ -479,7 +478,7 @@ Finally, we verify that the MFG strategy $\alpha^*$ provides an approximate Nash
 equilibrium for the $N$-player game. Consider the $N$-player system where all agents
 except agent $i$ follow the MFG strategy $\alpha^*$, while agent $i$ uses an arbitrary
 admissible control $\alpha^i$. Let $\mu_t^{N,-i}$ be the empirical measure of the other
-$N-1$ agents. By the conditional propagation of chaos (see Carmona \& Delarue, 2018,
+$N-1$ agents. By the conditional propagation of chaos (see \citep{carmonadelarue2018},
 Vol.\ II, Theorem 6.16), the empirical measure $\mu_t^{N,-i}$ converges to the MFG
 measure flow $\mu^*$ in the sense that
 \[
@@ -502,7 +501,7 @@ $(\alpha^*, \dots, \alpha^*)$ is an $\varepsilon_N$-Nash equilibrium. This compl
 the proof of Theorem~\ref{thm:wellposedness}.
 
 \begin{remark}[Verification of propagation of chaos conditions]
-The proof relies on the conditions of Carmona and Delarue (2018, Theorem 6.16), which
+The proof relies on the conditions of \citep{carmonadelarue2018}, Theorem 6.16), which
 are satisfied under Assumptions 1.13--1.19. In particular, the Lipschitz property of
 the drift and the boundedness of the diffusion coefficients ensure the conditional
 propagation of chaos holds.

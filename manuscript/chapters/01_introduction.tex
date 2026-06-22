@@ -56,7 +56,7 @@ Wasserstein dynamics; it does not extend to pathwise contraction or heterogeneou
 structures. The first-order stochastic terms cancel in expectation, and the contribution
 of the common noise enters only through quadratic variation terms in the It\^o expansion
 of optimally coupled processes. This cancellation is a second-moment phenomenon
-formalised in Theorem~B.9.
+formalised in Theorem~\ref{thm:wellposedness}.
 
 We prove that this model is mathematically stable (in the sense of a contraction in a
 weighted Wasserstein metric) even under common shocks, design regularised reinforcement
@@ -184,16 +184,14 @@ programming. These difficulties motivate the mean-field limit.
 
 \subsection{The Mean-Field Limit: $N \to \infty$}
 
-\paragraph{The Key Observation.} Lasry and Lions (2007) and independently Huang,
-Malham\'e, and Caines (2006) observed that as $N \to \infty$ the empirical measure
+\paragraph{The Key Observation.} \citep{lasrylions2007} and independently \citep{huangmalhamecaines2006} observed that as $N \to \infty$ the empirical measure
 $\mu_t^N$ concentrates on a (possibly random) measure flow $\mu_t$. By the conditional
 law of large numbers given the common noise $W^0$, and using conditional propagation of
 chaos,
 \[
     \mu_t^N \xrightarrow[N \to \infty]{W_2} \mu_t,
 \]
-with convergence rate $O(N^{-1/2})$ for sufficiently regular measures (Fournier and
-Guillin, 2015; see Chapter 2). Each investor then solves a single-agent control problem
+with convergence rate $O(N^{-1/2})$ for sufficiently regular measures (\citep{fournierguillin2015}; see Chapter 2). Each investor then solves a single-agent control problem
 against the aggregate measure flow $\mu = (\mu_t)_{t \in [0,T]}$.
 
 \begin{definition}[MFG Nash equilibrium]
@@ -212,7 +210,7 @@ A pair $(\mu^*, \alpha^*)$ is an MFG Nash equilibrium if:
 This is the fixed-point problem $\Phi(\mu) = \mu$ on the space of measure flows, where
 $\Phi(\mu) := \mathcal{L}(X^\mu \mid \mathcal{F}_T^{W^0})$. \textbf{All contraction
 statements in this thesis refer to the fixed-point map on measure flows, not to
-pathwise contraction of individual trajectories.} Theorem~B.9 establishes that, under
+pathwise contraction of individual trajectories.} Theorem~\ref{thm:wellposedness} establishes that, under
 monotonicity and sufficient regularity ensuring stability of optimal transport maps,
 $\Phi$ is a contraction locally in time in general, and globally under strengthened
 convexity conditions in the weighted Wasserstein-2 metric
@@ -221,15 +219,14 @@ $\|\mu^1 - \mu^2\|_{\lambda, T} := \sup_{t \leq T} e^{-\lambda t}
 
 \paragraph{The $\varepsilon$-Nash Property.} If all $N$ investors adopt $\alpha^*$,
 the resulting profile is an $\varepsilon_N$-Nash equilibrium with
-$\varepsilon_N = O(N^{-1/2})$ (Carmona and Delarue, 2018). Chapter 4 provides a
+$\varepsilon_N = O(N^{-1/2})$ (\citep{carmonadelarue2018}. Chapter 4 provides a
 quantitative bound calibrating this error against realistic transaction costs.
 
 \subsection{Why Common Noise Is Non-Trivial}
 
 \paragraph{Deterministic Case ($\sigma_0 = 0$).} The measure flow $\mu_t$ is
 deterministic and the MFG reduces to a coupled system of PDEs. Existence, uniqueness,
-and stability follow under monotonicity conditions (Lasry and Lions, 2007; Carmona and
-Delarue, 2018).
+and stability follow under monotonicity conditions (\citep{lasrylions2007}; \citep{carmonadelarue2018}.
 
 \paragraph{Common-Noise Case ($\sigma_0 > 0$): New Challenges.} When $\sigma_0 > 0$,
 the measure flow $\mu_t$ becomes a random element of $\mathcal{P}_2(\mathbb{R}^d)$,
@@ -252,7 +249,7 @@ cancellation.} The first-order stochastic differential cancels only after taking
 expectations, and the contribution of the common noise enters through Lipschitz
 estimates on the adjoint BSDE and the control difference, affecting the drift of the
 expected squared Wasserstein distance. This cancellation is a second-moment
-(in-expectation) phenomenon under synchronous coupling, formalised in Theorem~B.9.
+(in-expectation) phenomenon under synchronous coupling, formalised in Theorem~\ref{thm:wellposedness}.
 
 
 \section{The FBSDE Characterisation}
@@ -272,8 +269,7 @@ extracts tradable signals from it (Chapters 7--9).
 The dynamic programming principle yields a backward SPDE for the value function; the
 stochastic maximum principle gives the adjoint BSDE; the forward population evolution
 is governed by the Fokker--Planck SPDE; consistency closes the loop. Full rigorous
-derivation is provided in Chapter 2, following the probabilistic approach of Carmona
-and Delarue (2018).
+derivation is provided in Chapter 2, following the probabilistic approach of \citep{carmonadelarue2018}.
 
 \subsection{The Forward Equation: Population Measure Flow}
 
@@ -327,7 +323,7 @@ LQ example, $\alpha_t^* = p_t / \lambda$.
     \label{eq:consistency}
 \end{equation}
 where $X^*$ follows \eqref{eq:state-sde} with $\mu^N$ replaced by $\mu$ and control
-$\alpha^*$. This is proved simultaneously with existence in Theorem~B.9.
+$\alpha^*$. This is proved simultaneously with existence in Theorem~\ref{thm:wellposedness}.
 
 \subsection{The Complete FBSDE System}
 
@@ -348,7 +344,7 @@ iterate. The five coupled components are:
     \text{(Cons)} \quad & \mu_t = \mathcal{L}(X_t^* \mid \mathcal{F}_t^{W^0}). \notag
 \end{align}
 
-Theorem~B.9 establishes, under Assumptions A1--A7, existence, uniqueness, and a
+Theorem~\ref{thm:wellposedness} establishes, under Assumptions A1--A7, existence, uniqueness, and a
 quantitative stability estimate. Each component corresponds to an observable or
 estimable market quantity, enabling mapping to tradable signals (Chapter 8).
 
@@ -360,39 +356,38 @@ This section surveys the literature across three domains: mean-field game theory
 reinforcement learning for MFGs, and quantitative finance applications. We highlight
 both foundational results and recent advances, and we identify the specific gaps that
 this thesis addresses. Throughout, we emphasise that this thesis builds incrementally on
-recent work, particularly Carmona and Delarue (2018), Ahuja, Ren, and Yang (2019),
-Angiuli et al. (2024), and Cardaliaguet and Lehalle (2018).
+recent work, particularly \citep{carmonadelarue2018}, \citep{ahujarenyang2019},
+\citep{angiulietal2024}, and \citep{cardaliaguetlehalle2018}.
 
 \subsection{Mean-Field Game Theory}
 
 \paragraph{Foundations.} The mean-field game framework was introduced independently by
-Lasry and Lions (2007) and Huang, Malham\'e, and Caines (2006). Lasry and Lions
+\citep{lasrylions2007} and \citep{huangmalhamecaines2006}. Lasry and Lions
 established existence and uniqueness of solutions for deterministic MFGs under
 monotonicity conditions via PDE methods. The probabilistic formulation was developed by
-Carmona and Delarue (2018), who provided a comprehensive treatment using forward-backward
-SDEs and extended the theory to the common-noise setting. Cardaliaguet et al. (2019)
+\citep{carmonadelarue2018}, who provided a comprehensive treatment using forward-backward
+SDEs and extended the theory to the common-noise setting. \citep{cardaliaguetetal2019}
 introduced the master equation, a single equation on the Wasserstein space that encodes
 the entire MFG equilibrium, and developed the Lions derivative calculus necessary for
 its analysis.
 
 \paragraph{Common-noise MFGs.} The presence of common noise introduces substantial
-mathematical challenges. Ahuja, Ren, and Yang (2019) proved well-posedness for a class
+mathematical challenges. \citep{ahujarenyang2019} proved well-posedness for a class
 of common-noise MFGs with linear-convex structure and weak-monotone cost functions,
-using a continuation method for FBSDEs with monotone functionals. Cardaliaguet, Seeger,
-and Souganidis (2025) established SPDE regularity results for MFGs with common noise
+using a continuation method for FBSDEs with monotone functionals. \citep{cardaliaguetseegersouganidis2025} established SPDE regularity results for MFGs with common noise
 and degenerate idiosyncratic noise. \textbf{The contraction method used in this thesis
-builds directly on the probabilistic FBSDE framework of Carmona and Delarue (2018) and
-the monotone functional approach of Ahuja et al. (2019). The incremental contribution
+builds directly on the probabilistic FBSDE framework of \citep{carmonadelarue2018} and
+the monotone functional approach of \citep{ahujarenyang2019}. The incremental contribution
 is the derivation of explicit, parameter-dependent stability constants that are not
 readily available in the prior literature.}
 
-\paragraph{Trade crowding.} Cardaliaguet and Lehalle (2018) formulated the classical
+\paragraph{Trade crowding.} \citep{cardaliaguetlehalle2018} formulated the classical
 optimal liquidation problem as a mean-field game of controls, providing a closed-form
 solution and demonstrating that traders do not need instantaneous knowledge of the
-whole system but can learn by observing others' behaviour. Lehalle and Mouzouni (2019)
+whole system but can learn by observing others' behaviour. \citep{lehallemouzouni2019}
 extended this framework to portfolios of correlated instruments, deriving optimal
 trading flows and analysing their impact on perceived correlations using real data on
-176 US stocks. Neuman and Vo{\ss} (2023) studied a multi-player liquidation game with
+176 US stocks. \citep{neumanvoss2023} studied a multi-player liquidation game with
 common signals and proved convergence at rate $O(N^{-2})$. This thesis builds upon this
 line of work by incorporating common noise and deriving a richer set of trading signals,
 most notably the novel crowding measure $c_t = W_2(\mu_t, \mu_t^*)$.
@@ -400,27 +395,26 @@ most notably the novel crowding measure $c_t = W_2(\mu_t, \mu_t^*)$.
 \subsection{Reinforcement Learning for Mean-Field Games}
 
 \paragraph{Two-timescale methods.} The application of reinforcement learning to MFGs
-has seen rapid progress. Angiuli et al. (2022) introduced a unified two-timescale RL
+has seen rapid progress. \citep{angiulietal2024} introduced a unified two-timescale RL
 algorithm that solves either MFG or mean-field control problems depending on the ratio
-of learning rates. Hu and Lauri\`ere (2023) developed a two-timescale actor-critic
+of learning rates. \citep{hulauriere2023} developed a two-timescale actor-critic
 method specifically for common-noise MFGs. These works demonstrate convergence for
 finite state-action spaces under discretisation, but do not provide explicit
 Wasserstein control or extend to the continuous-time SPDE setting.
 
 \paragraph{Three-timescale methods and common noise.} Most relevant to this thesis,
-Angiuli, Fouque, Lauri\`ere, and Zhang (2024) proved the convergence of a
+\citep{angiulietal2024} proved the convergence of a
 three-timescale Q-learning algorithm for mean-field control games with common noise,
 establishing that the multi-scale dynamics correctly capture the representative agent's
-viewpoint. Their proof generalises Borkar's two-timescale approach to three timescales,
+viewpoint. Their proof generalises \citet{borkar1997,borkar2008}'s two-timescale approach to three timescales,
 but the setting is restricted to finite state and action spaces. \textbf{The present
 thesis extends this ODE-method approach to the continuous-time, continuous-space
 setting with explicit Wasserstein distance control. The proof structure follows that of
-Angiuli et al. (2024) closely; the novel technical challenge is establishing tightness
+\citep{angiulietal2024} closely; the novel technical challenge is establishing tightness
 and convergence of the measure-valued component in the Wasserstein topology.}
 
 \paragraph{Entropy regularisation and exponential convergence.} Recent work has
-established exponential convergence rates for entropy-regularised RL. Ma, Li, and
-Zhang (2024) proved that entropy-regularised policy gradient achieves exponential
+established exponential convergence rates for entropy-regularised RL. \citep{malizhang2024} proved that entropy-regularised policy gradient achieves exponential
 convergence under a log-Sobolev inequality. Theorem 5.2 of this thesis adapts this
 approach to the MFG setting, providing an exponential rate for the Wasserstein distance
 between learned and equilibrium measures. \textbf{The result holds under an idealised
@@ -432,13 +426,12 @@ practical deep RL implementations.}
 \paragraph{Factor models and crowding.} Classical factor models (Fama and French, 1993)
 lack equilibrium grounding. The crowding problem --- the tendency of quantitative
 strategies to become overcrowded and subsequently underperform --- has been documented
-by Khandani and Lo (2011), but lacked a theoretically derived measure of crowding. The
-optimal execution literature (Almgren and Chriss, 2000) is predominantly single-agent.
+by \citep{khandanilo2011}, but lacked a theoretically derived measure of crowding. The
+optimal execution literature (\citep{almgrenchriss2000} is predominantly single-agent.
 
-\paragraph{MFG applications in finance.} Beyond the trade crowding models of Cardaliaguet
-and Lehalle (2018) and Lehalle and Mouzouni (2019), several works have applied MFGs to
-financial problems. Carmona, Fouque, and Sun (2015) modelled systemic risk as a
-mean-field game of interbank borrowing and lending. Casgrain and Jaimungal (2020)
+\paragraph{MFG applications in finance.} Beyond the trade crowding models of \citep{cardaliaguetlehalle2018} and \citep{lehallemouzouni2019}, several works have applied MFGs to
+financial problems. \citep{carmonafouquesun2015} modelled systemic risk as a
+mean-field game of interbank borrowing and lending. \citep{casgrainjaimungal2020}
 studied algorithmic trading with price impact using MFG methods. This thesis
 contributes to this growing literature by providing a unified framework from MFG
 equilibrium to empirically validated trading signals, with a novel emphasis on
@@ -446,13 +439,9 @@ distributional disequilibrium measured by the Wasserstein distance.
 
 \subsection{Wasserstein Distance in Financial Applications}
 
-The use of the Wasserstein metric in finance has gained traction. Fournier and Guillin
-(2015) established the rate of convergence of the empirical measure in Wasserstein
-distance, providing the theoretical foundation for particle approximations. Esfahani
-and Kuhn (2018) developed distributionally robust optimisation using Wasserstein balls,
-providing tractable reformulations and performance guarantees. Blanchet, Kang, and
-Murthy (2019) applied Wasserstein profile inference to machine learning problems. Kim,
-Korajczyk, and Neuhierl (2015) showed that temporal differences in return distributions
+The use of the Wasserstein metric in finance has gained traction. \citep{fournierguillin2015} established the rate of convergence of the empirical measure in Wasserstein
+distance, providing the theoretical foundation for particle approximations. \citep{esfahanikuhn2018} developed distributionally robust optimisation using Wasserstein balls,
+providing tractable reformulations and performance guarantees. \citep{blanchetkangmurthy2019} applied Wasserstein profile inference to machine learning problems. \citep{kimkorajczykneuhierl2015} showed that temporal differences in return distributions
 measured by Wasserstein distance predict cross-sectional returns. The present thesis
 uses the Wasserstein distance in a novel way: as a measure of deviation from the MFG
 equilibrium, capturing distributional disequilibrium anchored to an economic
@@ -465,13 +454,13 @@ existing work:
 
 \begin{itemize}
     \item \textbf{Gap 1 (Theoretical)}: While existence and uniqueness of common-noise
-    MFGs have been established (Ahuja et al., 2019; Carmona and Delarue, 2018), explicit
+    MFGs have been established (\citep{ahujarenyang2019}; \citep{carmonadelarue2018}, explicit
     parameter-dependent stability bounds suitable for numerical analysis and learning
-    algorithms are not readily available. This thesis contributes Theorem~B.9, which
+    algorithms are not readily available. This thesis contributes Theorem~\ref{thm:wellposedness}, which
     provides such constants under additional regularity assumptions.
 
     \item \textbf{Gap 2 (Algorithmic)}: Existing RL frameworks for MFGs either assume
-    finite state-action spaces (Angiuli et al., 2024) or lack explicit Wasserstein
+    finite state-action spaces (\citep{angiulietal2024} or lack explicit Wasserstein
     control. No approach simultaneously provides convergence in the common-noise,
     continuous-space setting, explicit Wasserstein control, and a multi-timescale
     architecture aligned with the SPDE structure. This thesis contributes Theorems
@@ -481,7 +470,7 @@ existing work:
     \item \textbf{Gap 3 (Applied)}: A fully integrated pipeline combining MFG
     equilibrium solution, theoretically justified trading signals, and rigorous
     empirical validation on real equity data remains largely unexplored. The work of
-    Lehalle and Mouzouni (2019) provides an empirical analysis of correlations but does
+    \citep{lehallemouzouni2019} provides an empirical analysis of correlations but does
     not derive and test a full trading strategy. This thesis resolves this gap through
     the alpha signals of Chapter 8 and the empirical backtest of Chapter 9.
 \end{itemize}
@@ -490,15 +479,14 @@ existing work:
 \section{The Three Critical Gaps}
 
 \paragraph{Gap 1 (Theoretical).} Explicit parameter-dependent stability bounds suitable
-for numerical and learning algorithms are not readily available. While Ahuja, Ren, and
-Yang (2019) and Carmona and Delarue (2018) established well-posedness, they did not
+for numerical and learning algorithms are not readily available. While \citep{ahujarenyang2019} and \citep{carmonadelarue2018} established well-posedness, they did not
 provide the quantitative contraction constants needed for algorithmic design. Addressed
-by Theorem~B.9.
+by Theorem~\ref{thm:wellposedness}.
 
 \paragraph{Gap 2 (Algorithmic).} No existing RL framework simultaneously provides
 provable convergence to the equilibrium measure flow in the common-noise,
 continuous-space setting, with explicit Wasserstein control and a multi-timescale
-architecture aligned with the SPDE structure. Angiuli et al. (2024) proved
+architecture aligned with the SPDE structure. \citep{angiulietal2024} proved
 three-timescale convergence for finite spaces; this thesis extends the ideas to
 continuous spaces under compactness and Lipschitz assumptions. \textbf{The extension is
 not trivial, but the proof methodology follows the same ODE framework.} Addressed by
@@ -514,7 +502,7 @@ $\to$ Chapter 4 (numerics) $\to$ Chapter 8 (signals) $\to$ Chapter 9 (validation
 
 All results are subject to the standing assumptions of \Cref{sec:notation-assumptions}
 and additional structural conditions discussed in corresponding chapters. Each
-contribution is explicitly situated relative to prior work. \textbf{Theorem~B.9 is the
+contribution is explicitly situated relative to prior work. \textbf{Theorem~\ref{thm:wellposedness} is the
 central structural result; all subsequent results --- numerical stability, RL
 convergence, and empirical signal construction --- depend explicitly on its contraction
 estimate.}
@@ -537,8 +525,7 @@ depending on bounds of Lions derivatives of $b, f, g$. The $\varepsilon$-Nash pr
 holds with $\varepsilon_N = O(N^{-1/2})$. (Chapter 3)
 \end{theorem}
 
-\noindent\textit{Relation to prior work:} Extends Carmona--Delarue (2018) and Ahuja et
-al. (2019) by providing explicit parameter dependence in the contraction constant. The
+\noindent\textit{Relation to prior work:} Extends \citep{carmonadelarue2018} and \citep{ahujarenyang2019} by providing explicit parameter dependence in the contraction constant. The
 contraction is in expectation, not pathwise.
 
 \subsection*{Numerics}
@@ -549,8 +536,8 @@ smoothness, the weak error is $O(\Delta t^{1/2} + \Delta x)$. A CFL condition is
 derived. (Chapter 4)
 \end{theorem}
 
-\noindent\textit{Relation to prior work:} Builds on Chassagneux--Crisan--Delarue (2019)
-and Achdou--Porretta (2016), extending to the common-noise SPDE case.
+\noindent\textit{Relation to prior work:} Builds on \citep{chassagneuxcrisandelarue2019}
+and \citep{achdouporretta2016}, extending to the common-noise SPDE case.
 
 \subsection*{Learning}
 
@@ -559,11 +546,11 @@ A regularised multi-timescale actor-critic algorithm with learning rates satisfy
 Robbins--Monro and timescale separation, under bounded Lipschitz function approximators
 (e.g., regularised neural networks), converges $\mathbb{P}$-almost surely along
 subsequences (in the sense of $\liminf W_2 = 0$) to a fixed point of the limiting
-mean-field operator. Under uniqueness (Theorem~B.9), the limit is the MFG equilibrium.
+mean-field operator. Under uniqueness (Theorem~\ref{thm:wellposedness}), the limit is the MFG equilibrium.
 (Chapter 5)
 \end{theorem}
 
-\noindent\textit{Relation to prior work:} Extends Angiuli et al. (2024) from finite
+\noindent\textit{Relation to prior work:} Extends \citep{angiulietal2024} from finite
 spaces to continuous spaces with Wasserstein control; the subsequential convergence is
 a weaker result than full almost-sure convergence, which remains open.
 
@@ -578,7 +565,7 @@ policy iteration scheme satisfies
 (Chapter 5)
 \end{theorem}
 
-\noindent\textit{Relation to prior work:} Adapts Ma, Li, and Zhang (2024) to the MFG
+\noindent\textit{Relation to prior work:} Adapts \citep{malizhang2024} to the MFG
 setting; the LSI assumption limits practical applicability.
 
 \begin{proposition}[Hierarchical architecture]
@@ -595,8 +582,8 @@ algorithm choice; the specific algorithm mapping is heuristic, not proven optima
 The equilibrium structure implies four candidate signals: optimal spread,
 mean-reversion speed, factor exposure, and crowding measure
 $c_t = W_2(\mu_t, \mu_t^*)$. The optimal spread, mean-reversion speed, and factor
-exposure are adaptations of signals found in Cardaliaguet--Lehalle (2018) and
-Lehalle--Mouzouni (2019); the crowding measure $c_t$ is the novel contribution. Unlike
+exposure are adaptations of signals found in \citep{cardaliaguetlehalle2018} and
+\citep{lehallemouzouni2019}; the crowding measure $c_t$ is the novel contribution. Unlike
 prices, $\mu_t^*$ is not directly observable; estimation introduces model risk
 (addressed in Chapter 9). Mean-variance portfolio weights with crowding discount are
 provided. (Chapter 8)
@@ -618,7 +605,7 @@ rather than evidence of a directly deployable trading strategy. The strategy ass
 small-player limit; a capacity analysis is provided with strong caveats. (Chapter 9)
 \end{theorem}
 
-\paragraph{Formal verification.} The Gronwall estimate of Theorem~B.9, the Riccati
+\paragraph{Formal verification.} The Gronwall estimate of Theorem~\ref{thm:wellposedness}, the Riccati
 system derivation, the CFL condition of Theorem 1.7, and the optimality of the linear
 feedback control have been formally verified in Lean 4. The code is available in the
 supplementary repository and is excerpted in Appendix~B. \textbf{The verification is
@@ -632,25 +619,25 @@ partial; full verification of the entire pipeline remains future work.}
 \toprule
 \textbf{Contribution} & \textbf{Prior Work} & \textbf{Incremental Novelty} \\
 \midrule
-Theorem 3.1 (Quantitative well-posedness) & Carmona--Delarue (2018), Ahuja et al. (2019)
+Theorem 3.1 (Quantitative well-posedness) & \citep{carmonadelarue2018}, \citep{ahujarenyang2019}
     & Explicit parameter-dependent contraction constant; contraction in expectation \\
 \addlinespace
-Theorem 4.1 (Numerical convergence) & Chassagneux--Crisan--Delarue (2019),
-    Achdou--Porretta (2016) & Combined scheme with CFL condition for common-noise SPDE \\
+Theorem 4.1 (Numerical convergence) & \citep{chassagneuxcrisandelarue2019},
+    \citep{achdouporretta2016} & Combined scheme with CFL condition for common-noise SPDE \\
 \addlinespace
-Theorem 5.1 (RL convergence) & Angiuli et al. (2024) & Continuous-space extension with
+Theorem 5.1 (RL convergence) & \citep{angiulietal2024} & Continuous-space extension with
     Wasserstein control; subsequential convergence \\
 \addlinespace
-Theorem 5.2 (Exponential rate) & Ma--Li--Zhang (2024) & Application to MFG; idealised
+Theorem 5.2 (Exponential rate) & \citep{malizhang2024} & Application to MFG; idealised
     LSI benchmark \\
 \addlinespace
 Proposition 6.1 (Hierarchical architecture) & Hu--Lauri\`ere (2023) & SPDE-grounded
     timescale decomposition; heuristic SAC-PPO-TD3 mapping \\
 \addlinespace
-Proposition 8.1 (Alpha signals) & Cardaliaguet--Lehalle (2018), Lehalle--Mouzouni (2019)
+Proposition 8.1 (Alpha signals) & \citep{cardaliaguetlehalle2018}, \citep{lehallemouzouni2019}
     & Four-signal framework; novel crowding measure $c_t$ \\
 \addlinespace
-Empirical Finding 9.1 & Lehalle--Mouzouni (2019) & Full out-of-sample strategy on
+Empirical Finding 9.1 & \citep{lehallemouzouni2019} & Full out-of-sample strategy on
     S\&P 500; Sharpe 1.91 (conditional on model) \\
 \bottomrule
 \end{tabular}
@@ -688,7 +675,7 @@ $\to$ 8 $\to$ 9. All synthesised in Chapter 10.
 \begin{itemize}
     \item \textbf{Chapter 2}: Preliminaries (Wasserstein geometry, It\^o calculus,
     SPDEs, Lions derivative).
-    \item \textbf{Chapter 3}: Quantitative well-posedness (Theorem~B.9).
+    \item \textbf{Chapter 3}: Quantitative well-posedness (Theorem~\ref{thm:wellposedness}).
     \item \textbf{Chapter 4}: Numerical analysis (Theorem 1.7).
     \item \textbf{Chapter 5}: RL convergence (Theorems D.1, D.5).
     \item \textbf{Chapter 6}: Hierarchical architecture (Proposition E.2).
@@ -786,10 +773,8 @@ implementation requires regularisation and model risk quantification.
 
 \section{Why This Problem, Why Now}
 
-Three developments converged in 2023--2025: mathematical maturity (Cardaliaguet, Seeger,
-and Souganidis 2025 resolved SPDE regularity for common-noise MFGs; Ahuja, Ren, and Yang
-2019 established well-posedness for monotone functionals), computational feasibility
-(GPU-accelerated optimal transport via the Sinkhorn algorithm of Cuturi (2013), mature
+Three developments converged in 2023--2025: mathematical maturity (\citep{cardaliaguetseegersouganidis2025} resolved SPDE regularity for common-noise MFGs; \citep{ahujarenyang2019} established well-posedness for monotone functionals), computational feasibility
+(GPU-accelerated optimal transport via the Sinkhorn algorithm of \citep{cuturi2013}, mature
 RL libraries), and market structure (post-COVID concentrated participation, common
 shocks, crowding events).
 

@@ -13,23 +13,21 @@ measuring and exploiting distributional disequilibrium: the Wasserstein distance
 between the actual and equilibrium distributions.
 
 \paragraph{Prior work and positioning.} The use of mean-field games to model trade
-crowding and derive optimal execution strategies was pioneered by Cardaliaguet and
-Lehalle (2018), who formulated the classical optimal liquidation problem as an MFG of
-controls and provided a closed-form solution. Lehalle and Mouzouni (2019) extended
+crowding and derive optimal execution strategies was pioneered by \citep{cardaliaguetlehalle2018}, who formulated the classical optimal liquidation problem as an MFG of
+controls and provided a closed-form solution. \citep{lehallemouzouni2019} extended
 this framework to portfolios of correlated instruments, deriving optimal trading
 flows and analysing their impact on perceived correlations using real data on 176 US
-stocks. Neuman and Vo{\ss} (2023) studied a multi-player liquidation game with common
+stocks. \citep{neumanvoss2023} studied a multi-player liquidation game with common
 signals. \textbf{The present chapter builds upon this line of work by incorporating
 common noise and deriving a richer set of trading signals. Importantly, three of the
 four signals --- optimal spread, mean-reversion speed, and factor exposure --- are
-direct adaptations of signals present in Cardaliaguet and Lehalle (2018) and Lehalle
-and Mouzouni (2019). The novel contribution is the crowding measure
+direct adaptations of signals present in \citep{cardaliaguetlehalle2018} and \citep{lehallemouzouni2019}. The novel contribution is the crowding measure
 $c_t = W_2(\mu_t, \mu_t^*)$, which quantifies distributional disequilibrium in a
 mathematically coherent way.}
 
 The use of the Wasserstein metric in financial optimisation has substantial
-precedent. Esfahani and Kuhn (2018) developed distributionally robust optimisation
-using Wasserstein balls. Kim, Korajczyk, and Neuhierl (2015) showed that temporal
+precedent. \citep{esfahanikuhn2018} developed distributionally robust optimisation
+using Wasserstein balls. \citep{kimkorajczykneuhierl2015} showed that temporal
 differences in return distributions measured by Wasserstein distance predict
 cross-sectional returns. \textbf{The present chapter contributes a novel
 application: using the Wasserstein-2 distance to measure deviation from the MFG
@@ -43,11 +41,10 @@ The main contributions of this chapter are:
     We derive explicit formulas for four signals from the linear-quadratic MFG
     equilibrium:
     \begin{itemize}
-        \item Optimal spread $s_t = \bar\mu_t^* - X_t$, adapted from Cardaliaguet and
-        Lehalle (2018).
+        \item Optimal spread $s_t = \bar\mu_t^* - X_t$, adapted from \citep{cardaliaguetlehalle2018}.
         \item Mean-reversion speed $\kappa_t = \kappa + A_t/\lambda$, adapted from
-        Lehalle and Mouzouni (2019).
-        \item Factor exposure $\beta_t$, adapted from Lehalle and Mouzouni (2019).
+        \citep{lehallemouzouni2019}.
+        \item Factor exposure $\beta_t$, adapted from \citep{lehallemouzouni2019}.
         \item Crowding measure $c_t = W_2(\mu_t, \mu_t^*)$, the novel contribution of
         this thesis.
     \end{itemize}
@@ -179,7 +176,7 @@ the optimal spread signal for asset $i$ as
 where $x_{i,t}$ is the current log-position of asset $i$ in the investor's
 portfolio. A positive spread indicates underweight relative to equilibrium (buy
 signal); negative indicates overweight (sell signal). \textbf{This signal is a
-direct adaptation of the spread in Cardaliaguet and Lehalle (2018).}
+direct adaptation of the spread in \citep{cardaliaguetlehalle2018}.}
 
 \subsection{Mean-Reversion Speed}
 \label{sec:alpha-reversion}
@@ -197,7 +194,7 @@ quickly individual positions are pulled toward the population mean. It is comput
 directly from the Riccati solution $A_t$. Higher $\kappa_t$ implies that deviations
 from equilibrium are corrected more rapidly, suggesting shorter-lived alpha
 opportunities. \textbf{This signal is an adaptation of the effective reversion
-coefficient present in Lehalle and Mouzouni (2019).}
+coefficient present in \citep{lehallemouzouni2019}.}
 
 \subsection{Factor Exposure}
 \label{sec:alpha-factor}
@@ -216,7 +213,7 @@ this simplifies to
 The factor exposure signal $\beta_t$ measures how the marginal value of the
 position changes with common shocks. In practice, the common factors are estimated
 via principal component analysis (PCA) of asset returns. \textbf{This signal
-follows the approach in Lehalle and Mouzouni (2019).}
+follows the approach in \citep{lehallemouzouni2019}.}
 
 \subsection{Crowding Measure}
 \label{sec:alpha-crowding}
@@ -239,8 +236,7 @@ Pukelsheim, 1982)
     \Sigma_1^{1/2}\big)^{1/2} \right).
     \label{eq:alpha-wasserstein-gaussian}
 \end{equation}
-For general empirical measures, we compute $c_t$ via the Sinkhorn algorithm (Cuturi,
-2013). In one dimension, the quantile formula \eqref{eq:1d-wasserstein} provides an
+For general empirical measures, we compute $c_t$ via the Sinkhorn algorithm (\citep{cuturi2013}. In one dimension, the quantile formula \eqref{eq:1d-wasserstein} provides an
 exact and efficient computation. The detailed algorithms are provided in
 Appendix~A.
 
@@ -248,8 +244,7 @@ Appendix~A.
 distributional disequilibrium. When $c_t$ is small, the market is close to
 equilibrium and alpha opportunities are scarce. When $c_t$ is large, the
 distribution of positions is dislocated, predicting profitable mean-reversion
-trades. This interpretation aligns with the findings of Kim, Korajczyk, and Neuhierl
-(2015), who showed that temporal differences in return distributions (measured by
+trades. This interpretation aligns with the findings of \citep{kimkorajczykneuhierl2015}, who showed that temporal differences in return distributions (measured by
 Wasserstein distance) predict cross-sectional returns. \textbf{Our contribution is
 to anchor the distance to an economic equilibrium concept derived from strategic
 interaction.}
@@ -265,16 +260,14 @@ interaction.}
     Model} & \textbf{Prior Work} \\
 \midrule
 Optimal spread & $s_{i,t} = \bar\mu_t^* - x_{i,t}$ & Deviation from equilibrium mean
-    & Optimal control \eqref{eq:alpha-optimal-control} & Cardaliaguet--Lehalle
-    (2018) \\
+    & Optimal control \eqref{eq:alpha-optimal-control} & \citep{cardaliaguetlehalle2018} \\
 \addlinespace
 Mean-reversion speed & $\kappa_t = \kappa + A_t/\lambda$ & Speed of correction &
-    Linearised drift \eqref{eq:alpha-mean-reversion-speed} & Lehalle--Mouzouni
-    (2019) \\
+    Linearised drift \eqref{eq:alpha-mean-reversion-speed} & \citep{lehallemouzouni2019} \\
 \addlinespace
 Factor exposure & $\beta_t = \sigma_0^\top(B_t^\top X_t + C_t \bar\mu_t + e_t)$ &
     Sensitivity to common shocks & Adjoint BSDE \eqref{eq:alpha-factor-exposure} &
-    Lehalle--Mouzouni (2019) \\
+    \citep{lehallemouzouni2019} \\
 \addlinespace
 Crowding measure & $c_t = W_2(\mu_t, \mu_t^*)$ & Distributional disequilibrium &
     Equilibrium consistency & \textbf{Novel contribution} \\
@@ -582,8 +575,7 @@ tradable signals. The four alpha signals --- optimal spread, mean-reversion spee
 factor exposure, and the crowding measure --- arise directly from the LQ-MFG
 structure and provide a theoretically grounded basis for quantitative portfolio
 management. \textbf{The optimal spread, mean-reversion speed, and factor exposure
-are adaptations of signals from Cardaliaguet and Lehalle (2018) and Lehalle and
-Mouzouni (2019); the crowding measure $c_t = W_2(\mu_t, \mu_t^*)$ is the novel
+are adaptations of signals from \citep{cardaliaguetlehalle2018} and \citep{lehallemouzouni2019}; the crowding measure $c_t = W_2(\mu_t, \mu_t^*)$ is the novel
 contribution of this thesis.} It offers a mathematically coherent quantification of
 distributional disequilibrium.
 

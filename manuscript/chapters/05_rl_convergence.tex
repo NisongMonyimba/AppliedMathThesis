@@ -15,7 +15,7 @@ The central contribution is twofold. First, we prove that a carefully designed
 three-timescale actor-critic algorithm converges along subsequences (in the sense of
 $\liminf W_2 = 0$) to the MFG equilibrium measure flow in the Wasserstein-2 topology,
 under strong regularity and compactness assumptions on the function approximators
-(Theorem~\ref{thm:rl-subsequential}). The proof adapts Borkar's (1997, 2008) ordinary
+(Theorem~\ref{thm:rl-subsequential}). The proof adapts \citet{borkar1997,borkar2008}'s (1997, 2008) ordinary
 differential equation (ODE) method for stochastic approximation to the measure-valued
 setting, leveraging the contraction property established in
 Theorem~\ref{thm:wellposedness}. \textbf{We emphasize that the convergence is only
@@ -30,19 +30,18 @@ the structural conditions under which fast convergence is achievable and provide
 theoretical bridge between entropy-regularised RL and mean-field games.
 
 \paragraph{Prior work.} The application of reinforcement learning to MFGs has seen
-rapid progress. Angiuli, Fouque, and Lauriere (2022) introduced a unified
-two-timescale RL algorithm for MFGs and mean-field control. Hu and Lauri\`ere (2023)
+rapid progress. \citep{angiulietal2022} introduced a unified
+two-timescale RL algorithm for MFGs and mean-field control. \citep{hulauriere2023}
 developed a two-timescale actor-critic method specifically for common-noise MFGs.
-Most relevantly, Angiuli, Fouque, Lauri\`ere, and Zhang (2024) proved convergence of a
+Most relevantly, \citep{angiulietal2024} proved convergence of a
 three-timescale Q-learning algorithm for mean-field control games with common noise,
 establishing that the multi-scale dynamics correctly capture the representative
 agent's viewpoint. \textbf{The present chapter extends this ODE-method approach to
 the continuous-time, continuous-space setting with explicit Wasserstein distance
-control. The proof structure closely follows that of Angiuli et al. (2024); the novel
+control. The proof structure closely follows that of \citep{angiulietal2024}; the novel
 technical challenge is establishing tightness and convergence of the measure-valued
 component in the Wasserstein topology.} Other relevant works include the fictitious
-play algorithms of Perrin et al.\ (2022) and the mean-field actor-critic flow of Zhou,
-Zhou, and Hu (2025). \Cref{tab:rl-comparison} situates our contributions relative to
+play algorithms of Perrin et al.\ (2022) and the mean-field actor-critic flow of \citep{zhouzhouhu2025}. \Cref{tab:rl-comparison} situates our contributions relative to
 this literature.
 
 \begin{table}[ht]
@@ -282,9 +281,9 @@ setting. This limitation should be kept in mind when interpreting the result.
 \begin{remark}[Stability of limiting ODEs]
 The assumption that the limiting ODEs possess globally asymptotically stable
 equilibria is a strong but standard condition in stochastic approximation theory
-(Borkar, 2008, Chapter 2). In the LQ-MFG case, this stability can be verified
+(\citep{borkar2008}, Chapter 2). In the LQ-MFG case, this stability can be verified
 explicitly (see Appendix~A). For general nonlinear MFGs, it remains an active area
-of research; recent work by Zhou, Zhou, and Hu (2025) establishes such stability for
+of research; recent work by \citep{zhouzhouhu2025} establishes such stability for
 mean-field actor-critic flows under certain convexity conditions.
 \end{remark}
 
@@ -343,7 +342,7 @@ Log-Sobolev inequality & Theorem~\ref{thm:rl-exponential} & Only for strongly
 \section{Proof of Subsequential Almost-Sure Convergence}
 \label{sec:rl-proof-subsequential}
 
-The proof adapts Borkar's (1997, 2008) ODE method for two-timescale stochastic
+The proof adapts \citet{borkar1997,borkar2008}'s (1997, 2008) ODE method for two-timescale stochastic
 approximation to the three-timescale, measure-valued setting. The key steps are:
 
 \begin{enumerate}
@@ -385,14 +384,14 @@ Fix the actor parameters $\phi$ and the measure flow $\hat\mu$. The critic updat
 standard stochastic approximation for solving the BSDE \eqref{eq:adjoint-bsde}.
 Define the vector field $h_\gamma(\theta) = \mathbb{E}_{X \sim \hat\mu}[\delta(\theta,
 \phi, \hat\mu) \nabla_\theta p_\theta(X, \hat\mu)]$. By the theory of stochastic
-approximation (Borkar, 2008, Chapter 2), if $h_\gamma$ is Lipschitz and the ODE
+approximation (\citep{borkar2008}, Chapter 2), if $h_\gamma$ is Lipschitz and the ODE
 $\dot\theta = h_\gamma(\theta)$ has a globally asymptotically stable equilibrium
 $\theta^*$, then $\theta_n \to \theta^*$ almost surely. The equilibrium $\theta^*$
 corresponds to the solution of the BSDE, i.e., the true adjoint process under the
 given policy and measure.
 
 The global asymptotic stability of the critic ODE follows from the contraction
-property of the BSDE (see El Karoui et al., 1997, or Zhang, 2017, Chapter 4). Under
+property of the BSDE (see El Karoui et al., 1997, or \citep{zhang2017}, Chapter 4). Under
 Lipschitz conditions on the coefficients, the BSDE solution is unique and depends
 continuously on the parameters. The temporal difference error $\delta(\theta, \phi,
 \hat\mu)$ is designed so that the ODE drives $\theta$ toward this solution.
@@ -415,9 +414,9 @@ The empirical measure update $\hat\mu_{n+1} = (1-\eta_n)\hat\mu_n + \eta_n
 process. In the limit $\eta_n \to 0$, this converges weakly to the solution of the
 Fokker--Planck SPDE \eqref{eq:measure-filter-spde}. The convergence is in the sense of
 weak convergence of measure-valued processes; see, for example, the propagation of
-chaos results for interacting particle systems (Carmona and Delarue, 2018, Vol.\ I,
+chaos results for interacting particle systems (\citep{carmonadelarue2018}, Vol.\ I,
 Chapter 1) and the stochastic approximation results for measure-valued processes
-(Borkar, 2008, Chapter 7). The contraction property of the MFG map $\Phi$
+(\citep{borkar2008}, Chapter 7). The contraction property of the MFG map $\Phi$
 (Theorem~\ref{thm:wellposedness}) guarantees that the limiting measure is unique and
 that the discrete approximation converges to it along subsequences.
 
@@ -447,8 +446,8 @@ stronger condition not verified here.}
 
 The subsequential almost-sure convergence statement in
 Theorem~\ref{thm:rl-subsequential} follows by combining these steps with the standard
-stochastic approximation convergence theorem (Borkar, 2008, Theorem 2.1). A detailed
-verification of the conditions of Borkar's theorem for the three-timescale,
+stochastic approximation convergence theorem (\citep{borkar2008}, Theorem 2.1). A detailed
+verification of the conditions of \citet{borkar1997,borkar2008}'s theorem for the three-timescale,
 measure-valued setting is provided in Appendix~A.
 
 
@@ -490,7 +489,7 @@ policies $\pi, \pi'$,
 where $\phi, \phi'$ are the parameters of $\pi, \pi'$ respectively. This inequality
 implies that the policy gradient dynamics converge exponentially fast to the optimal
 policy. The connection between LSI and exponential convergence of Langevin dynamics
-and policy gradient methods is well established (see, e.g., Ma, Li, and Zhang, 2024).
+and policy gradient methods is well established (see, e.g., \citep{malizhang2024}.
 
 Under the LSI, the continuous-time actor dynamics satisfy
 \[
