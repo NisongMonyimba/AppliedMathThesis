@@ -1,0 +1,213 @@
+% chapters/appendix_c_additional_results.tex
+
+This appendix consolidates two pieces of reference material that are useful when
+reading the thesis non-linearly: a complete index of every numbered theorem,
+proposition, and lemma across all ten chapters (\Cref{sec:appC-index}), and an
+expanded notation glossary that supplements the brief table in Section~1.9
+(\Cref{sec:appC-notation}).
+
+
+\section{Index of Numbered Results}
+\label{sec:appC-index}
+
+\Cref{tab:appC-theorem-index-ch2,tab:appC-theorem-index-ch2b,tab:appC-theorem-index-ch3to8}
+list every theorem, proposition, and named lemma in the thesis, in order of
+appearance, together with the chapter in which it is proved and a one-line
+statement for quick lookup.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Index of numbered results: Chapter 2 (mathematical toolkit)}
+\label{tab:appC-theorem-index-ch2}
+\begin{tabular}{p{1.3cm}p{3.3cm}p{8cm}}
+\toprule
+\textbf{Chapter} & \textbf{Result} & \textbf{One-line statement} \\
+\midrule
+2 & Theorem~\ref{thm:brenier} (Brenier) & Optimal transport map between absolutely
+    continuous measures is the gradient of a convex function. \\
+\addlinespace
+2 & Theorem~\ref{thm:wasserstein-metric-space} & $(\mathcal{P}_2(\mathbb{R}^d), W_2)$
+    is a complete separable metric space. \\
+\addlinespace
+2 & Theorem~\ref{thm:w2-characterisation} & $W_2$-convergence $\iff$ weak
+    convergence + second-moment convergence. \\
+\addlinespace
+2 & Theorem~\ref{thm:fournier-guillin} (Fournier--Guillin) & Empirical measure
+    converges to $\mu$ in $W_2$ at rate $N^{-1/2}$ ($d=1$) or $N^{-1/d}$
+    ($d \geq 3$). \\
+\addlinespace
+2 & Theorem~\ref{thm:ito-isometry} (It\^o isometry) & $\mathbb{E}[(\int H\,dB)^2] =
+    \mathbb{E}[\int H^2\, dt]$. \\
+\addlinespace
+2 & Theorem~\ref{thm:ito-multidim} (It\^o's formula) & Multidimensional chain rule
+    for It\^o processes with idiosyncratic and common noise. \\
+\addlinespace
+2 & Theorem~\ref{thm:sde-existence-uniqueness} & Lipschitz + linear growth
+    $\Rightarrow$ unique strong solution to the SDE. \\
+\addlinespace
+2 & Theorem~\ref{thm:fokker-planck-spde} & The conditional law of a
+    McKean--Vlasov SDE solves the Fokker--Planck SPDE. \\
+\addlinespace
+2 & Theorem~\ref{thm:fp-sobolev-wellposedness} & The Fokker--Planck SPDE is
+    well-posed in $L^2(\Omega; H^1)$. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Index of numbered results: Chapter 2 (continued)}
+\label{tab:appC-theorem-index-ch2b}
+\begin{tabular}{p{1.3cm}p{3.3cm}p{8cm}}
+\toprule
+\textbf{Chapter} & \textbf{Result} & \textbf{One-line statement} \\
+\midrule
+2 & Theorem~\ref{thm:doob} (Doob) & $\mathbb{E}[\sup_t M_t^2] \leq 4\mathbb{E}[M_T^2]$
+    for non-negative submartingales. \\
+\addlinespace
+2 & Theorem~\ref{thm:bdg} (Burkholder--Davis--Gundy) &
+    $\mathbb{E}[\sup_t |M_t|^p] \sim \mathbb{E}[[M,M]_T^{p/2}]$. \\
+\addlinespace
+2 & Theorem~\ref{thm:martingale-representation} & Every martingale in a Brownian
+    filtration is an It\^o integral. \\
+\addlinespace
+2 & Theorem~\ref{thm:girsanov} (Girsanov) & Change-of-measure formula removing a
+    drift via an exponential martingale. \\
+\addlinespace
+2 & Theorem~\ref{thm:sobolev-embedding} & $H^k \hookrightarrow C^0$ for $k > d/2$. \\
+\addlinespace
+2 & Theorem~\ref{thm:hahn-banach} (Hahn--Banach) & Norm-preserving extension of a
+    bounded linear functional. \\
+\addlinespace
+2 & Theorem~\ref{thm:lumer-phillips} (Lumer--Phillips) & Dissipative + dense range
+    $\Rightarrow$ generates a contraction semigroup. \\
+\addlinespace
+2 & Theorem~\ref{thm:log-sobolev} & Log-Sobolev inequality implies a spectral gap
+    lower bound. \\
+\addlinespace
+2 & Theorem~\ref{thm:smp} (Stochastic Maximum Principle) & Optimal control
+    maximises the Hamiltonian pointwise. \\
+\addlinespace
+2 & Theorem~\ref{thm:smp-hjb} & SMP adjoint variables equal derivatives of the
+    HJB value function. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Index of numbered results: Chapters 3--8 (main theoretical and applied contributions)}
+\label{tab:appC-theorem-index-ch3to8}
+\begin{tabular}{p{1.3cm}p{3.3cm}p{8cm}}
+\toprule
+\textbf{Chapter} & \textbf{Result} & \textbf{One-line statement} \\
+\midrule
+3 & \textbf{Theorem~\ref{thm:wellposedness}} (Quantitative Well-Posedness) &
+    Unique MFG equilibrium exists; $\Phi$ is a contraction in weighted $W_2$ with
+    explicit constant $C = 2L_b^2 + 2\|\sigma_0\|_F^2 + C_{\mathrm{reg}}$. \\
+\addlinespace
+4 & \textbf{Theorem~\ref{thm:numerical-convergence}} (Numerical Convergence) &
+    Combined Euler--Maruyama/particle/SPDE scheme converges with weak error
+    $O(\Delta t^{1/2} + \Delta x)$. \\
+\addlinespace
+4 & Theorem~\ref{thm:fd-convergence} & Finite-difference Fokker--Planck scheme
+    converges at the same rate under a CFL condition. \\
+\addlinespace
+5 & \textbf{Theorem~\ref{thm:rl-subsequential}} (Subsequential RL Convergence) &
+    Three-timescale actor-critic converges $\liminf W_2 = 0$ a.s.\ under compact
+    Lipschitz function classes. \\
+\addlinespace
+5 & \textbf{Theorem~\ref{thm:rl-exponential}} (Exponential Convergence) &
+    Entropy regularisation + log-Sobolev policy class $\Rightarrow$ exponential
+    $W_2$ convergence rate $\lambda = \beta/(2C_{\mathrm{Lip}})$. \\
+\addlinespace
+6 & \textbf{Proposition~\ref{prop:timescale-separation}} (Hierarchical
+    Architectural Principle) & SPDE operator decomposition justifies a
+    fast-critic/intermediate-actor/slow-meta-learner timescale separation. \\
+\addlinespace
+7 & Proposition~\ref{prop:sr-propagation-of-chaos} & $O(1/N)$ propagation of
+    chaos and $\varepsilon_N = O(N^{-1/2})$-Nash property for the systemic risk
+    model. \\
+\addlinespace
+8 & \textbf{Proposition~\ref{prop:alpha-signals}} (Four Alpha Signals) & Optimal
+    spread, mean-reversion speed, factor exposure, and crowding measure
+    $c_t = W_2(\mu_t,\mu_t^*)$ are explicit functions of the LQ-MFG equilibrium. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Reading guide.} The three results in \textbf{bold} (Theorems 3.1, 4.1,
+5.1, 5.2, and Propositions 6.1, 8.1) form the central logical chain summarised in
+the conclusion of Chapter 10: well-posedness $\to$ numerical approximability
+$\to$ learnability $\to$ practical architecture $\to$ tradable signals.
+
+
+\section{Expanded Notation Glossary}
+\label{sec:appC-notation}
+
+\Cref{tab:appC-notation} expands on the brief notation table of Section~1.9.1,
+adding symbols introduced in later chapters (the systemic-risk and alpha-signal
+notation of Chapters 7--9 in particular).
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Expanded notation glossary}
+\label{tab:appC-notation}
+\begin{tabular}{p{2.6cm}p{9.5cm}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} \\
+\midrule
+$X_t, X_t^i$ & State (log-position / bank reserve) of the representative or
+    $i$-th agent \\
+$\mu_t, \mu_t^N$ & Population measure flow; empirical measure of $N$ agents \\
+$\mu_t^*$ & MFG equilibrium measure flow \\
+$\bar\mu_t, \bar{x}_t$ & Population mean (first moment of $\mu_t$) \\
+$\alpha_t, \alpha_t^*$ & Control (trading rate / capital-raising effort);
+    optimal control \\
+$b_t$ & Government bailout rate (Chapter 7 only) \\
+$p_t, q_t, r_t$ & Adjoint (costate) process and its idiosyncratic/common-noise
+    volatility components \\
+$\kappa$ & Mean-reversion speed \\
+$\lambda$ & Cost-of-control (trading cost / effort cost) parameter \\
+$\gamma$ & Cost-of-bailout parameter (Ch.\ 7) or risk-aversion parameter (Ch.\ 8) \\
+$\sigma, \sigma_0$ & Idiosyncratic and common-noise volatility \\
+$A_t, B_t, C_t$ & Quadratic Riccati coefficients (value-function ansatz) \\
+$D_t, E_t, F_t$ & Linear/constant Riccati coefficients (Ch.\ 7--8) \\
+$\Gamma_t, \Pi_t$ & Effective mean-reversion rate and government Riccati
+    coefficient (Ch.\ 7) \\
+$c_t$ & Crowding measure, $c_t = W_2(\mu_t, \mu_t^*)$ \\
+$s_{i,t}$ & Optimal spread signal for asset $i$ \\
+$\kappa_t$ & (Overloaded in Ch.\ 8) model-implied mean-reversion speed signal,
+    $\kappa + A_t/\lambda$ \\
+$\beta_{i,t}$ & Factor exposure signal for asset $i$ \\
+$\delta(c_t)$ & Crowding discount function applied to portfolio weights \\
+$w_t^{\mathrm{MV}}, w_t^*$ & Baseline mean-variance weights; crowding-discounted
+    final weights \\
+$\theta$ & Generic vector of LQ-MFG model parameters to be calibrated \\
+$\hat\theta$ & GMM estimator of $\theta$ \\
+$\gamma_t, \beta_t, \eta_t$ & (Ch.\ 5--6, overloaded with the risk-aversion
+    $\gamma$ of Ch.\ 8) fast/intermediate/slow RL learning-rate sequences \\
+$\theta_t, \phi_t, \psi_t$ & Critic, actor, and meta-learner parameters
+    (Ch.\ 5--6) \\
+$\mathcal{L}_{\mathrm{idio}}, \mathcal{L}_{\mathrm{mf}}, \mathcal{L}_{\mathrm{common}}$
+    & SPDE operators for idiosyncratic diffusion, mean-field interaction, and
+    common-noise transport (Ch.\ 6) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[Notational overload]
+A small number of symbols are deliberately reused across chapters with related
+but distinct meanings, mirroring the source material: $\kappa_t$ denotes the
+mean-reversion \emph{signal} in Chapter 8 but the effective mean-reversion
+\emph{rate} $\kappa + A_t/\lambda$ wherever it appears in Chapters 3--7; $\gamma$
+denotes a bailout cost in Chapter 7 but a risk-aversion coefficient in Chapter 8;
+and the RL learning-rate sequence $\gamma_t$ (Chapters 5--6) is unrelated to the
+portfolio risk-aversion parameter $\gamma$ (Chapter 8). Context disambiguates in
+every case, but readers jumping directly to a single chapter should consult
+\Cref{tab:appC-notation} rather than assuming global consistency.
+\end{remark}
