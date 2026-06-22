@@ -30,7 +30,7 @@ from typing import Optional
 
 import numpy as np
 
-from euler_maruyama import (  # noqa: F401  (re-exported for convenience)
+from .euler_maruyama import (  # noqa: F401  (re-exported for convenience)
     DiffusionFn,
     DriftFn,
     FloatArray,

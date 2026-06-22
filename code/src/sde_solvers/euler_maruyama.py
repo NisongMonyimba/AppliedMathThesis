@@ -85,7 +85,7 @@ class EulerMaruyamaSDE:
             sigma = self.diffusion(x_k, t_k)
             paths[:, k + 1, :] = x_k + b * dt + sigma * dW
 
-        return t_grid, paths
+        return t_grid.astype(np.float64), paths.astype(np.float64)
 
     def reset_rng(self, seed: Optional[int] = None) -> None:
         """Reset the internal RNG, e.g. to reproduce a specific Brownian path."""
@@ -179,7 +179,7 @@ class MeanFieldEulerMaruyama:
 
             paths[:, k + 1, :] = x_k + increment
 
-        return t_grid, paths
+        return t_grid.astype(np.float64), paths.astype(np.float64)
 
     def empirical_measure(self, paths: FloatArray, step: int) -> FloatArray:
         """Return the empirical measure (raw particle states) at a given step."""
