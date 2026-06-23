@@ -14,36 +14,29 @@
 
 \definecolor{rulegray}{HTML}{444444}
 
-% Section heading: bold, with a thin rule underneath
 \titleformat{\section}
   {\large\bfseries}
   {}{0em}{}
   [{\vspace{1pt}\titlerule}]
 \titlespacing{\section}{0pt}{10pt}{4pt}
 
-% Entry header: bold left title, right-aligned date on the same line
-% (uses a stretchy minimum gap, not bare \hfill, so long titles never
-% collide with the date)
 \newcommand{\cventry}[2]{%
-  \par\noindent\textbf{#1}\hspace{6pt plus 1fil}#2\par\vspace{1pt}
+  \par\noindent\textbf{#1}\hspace{6pt plus 1fil}#2\par
 }
-% Italic subline (scholarships, honors, etc.)
 \newcommand{\cvsub}[1]{%
   \par\noindent\textit{#1}\par\vspace{2pt}
 }
 
-\setlist[itemize]{leftmargin=14pt, itemsep=1pt, topsep=2pt, parsep=0pt}
+\setlist[itemize]{leftmargin=14pt, itemsep=1pt, topsep=0pt, parsep=0pt, partopsep=0pt}
 
 \begin{document}
 
-% ---------- Header ----------
 \begin{center}
   {\LARGE \textbf{Nisong Monyimba}}\\[3pt]
   1515 S Extension Rd, Mesa, AZ 85210 \;|\; nmonyimb@asu.edu \;|\; 602-545-6789
 \end{center}
 \vspace{2pt}
 
-% ---------- Education ----------
 \section*{Education}
 \cventry{Biomedical Engineering, M.Sc. --- Arizona State University}{Graduated May 2022}
 \cvsub{Ira A. Fulton Schools of Engineering; MasterCard Foundation Scholar (Accelerated Master's, 3+1+1); Dean's List: Fall 2020, Spring 2021}
@@ -59,7 +52,6 @@ Object-Oriented Programming, Signals and Systems, Biosignal Processes and Analys
 stochastic processes, and stochastic control theory, undertaken in connection with an independent research
 program in mean-field games with common noise (see Research Statement and supplementary repository).
 
-% ---------- Master's Applied Project & Capstone ----------
 \section*{Master's Applied Project \& Undergraduate Capstone Project}
 
 \cventry{Master's Applied Project: Trophoblast-on-Chip Microfluidic Device}{2022}
@@ -81,7 +73,6 @@ program in mean-field games with common noise (see Research Statement and supple
   under physiological load conditions.
 \end{itemize}
 
-% ---------- Research & Lab Work ----------
 \section*{Research \& Lab Work}
 
 \cventry{Research Assistant, Weaver Lab, Arizona State University}{2021--2022}
@@ -115,7 +106,6 @@ program in mean-field games with common noise (see Research Statement and supple
   established authorities to emerging or informal frameworks.
 \end{itemize}
 
-% ---------- Internship Experience ----------
 \section*{Internship Experience}
 
 \cventry{REU Internship, Case Western Reserve University}{2020}
@@ -138,7 +128,6 @@ program in mean-field games with common noise (see Research Statement and supple
   \item Assisted in vendor management and quality audits for customer-facing telecom hardware systems.
 \end{itemize}
 
-% ---------- Professional Experience ----------
 \section*{Professional Experience}
 
 \cventry{Senior Manufacturing Engineer, Abbott Laboratories}{2024--2025}
@@ -165,7 +154,6 @@ program in mean-field games with common noise (see Research Statement and supple
   \item Ran nonlinear FEA simulations to analyze fatigue, stress distribution, and deformation behavior.
 \end{itemize}
 
-% ---------- Teaching Experience ----------
 \section*{Teaching Experience}
 
 \cventry{Teaching Assistant, KNUST}{2019}
@@ -185,7 +173,6 @@ program in mean-field games with common noise (see Research Statement and supple
   \item Taught core mathematics and physics; prepared junior-high students for final exams (BECE), improving average performance.
 \end{itemize}
 
-% ---------- Volunteering ----------
 \section*{Volunteering, Community Service \& Projects}
 \begin{itemize}
   \item Group Homes Volunteer (Autism Support): assisted residents with learning and recreational activities.
@@ -197,7 +184,6 @@ program in mean-field games with common noise (see Research Statement and supple
   \item Organized community cleaning (gutters, weeds, trash) in Ashaiman-Zenu to reduce contamination and malaria risk.
 \end{itemize}
 
-% ---------- Awards ----------
 \section*{Awards \& Competitions}
 \begin{itemize}
   \item MasterCard Foundation Scholarship, Arizona State University and KNUST
@@ -209,7 +195,6 @@ program in mean-field games with common noise (see Research Statement and supple
   \item Dean's List, Arizona State University
 \end{itemize}
 
-% ---------- Leadership ----------
 \section*{Leadership \& Mentorship}
 \begin{itemize}
   \item Assistant Senior Prefect, Zenu T.M.A Junior High School
@@ -220,7 +205,6 @@ program in mean-field games with common noise (see Research Statement and supple
   \item Club Executive, Biomedical Engineering Society (KNUST \& ASU)
 \end{itemize}
 
-% ---------- Certifications ----------
 \section*{Certifications}
 \begin{itemize}
   \item Lean Six Sigma (Green Belt)
@@ -228,13 +212,11 @@ program in mean-field games with common noise (see Research Statement and supple
   \item Global Leadership \& Project Management (YALI / ASU Global Leadership Academy)
 \end{itemize}
 
-% ---------- Memberships ----------
 \section*{Professional Memberships}
 \noindent Society of Manufacturing Engineers (SME) \textbullet\ National Society of Black Engineers (NSBE) \textbullet\
 Biomedical Engineering Society (BMES) \textbullet\ ASU Global Leadership Academy \textbullet\ Toastmasters International
 \textbullet\ KNUST Peer Counsellors \& MasterCard Peer Mentors \textbullet\ Ghana Engineering Students Association \textbullet\ TraTech
 
-% ---------- Technical Skills ----------
 \section*{Technical Skills}
 \noindent \textbf{Programming \& Computation:} Python (NumPy, SciPy, statsmodels, pandas), MATLAB, R, Git/GitHub, SQL, Java, C, LaTeX (Overleaf).\\[3pt]
 \textbf{Statistical \& Numerical Modeling:} Monte Carlo simulation, ANOVA, DOE, SPC, PCA, GraphPad Prism, Minitab, JMP, Octave/GNU.\\[3pt]
