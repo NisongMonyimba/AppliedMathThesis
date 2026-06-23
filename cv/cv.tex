@@ -20,8 +20,13 @@
   [{\vspace{1pt}\titlerule}]
 \titlespacing{\section}{0pt}{10pt}{4pt}
 
+% Entry header: bold title on the left, date right-aligned inside a
+% FIXED-WIDTH box docked to the right margin. This guarantees every
+% date's right edge sits at the exact same horizontal column, reading
+% top to bottom, regardless of how long the title or date text is, and
+% regardless of whether the title wraps to a second line.
 \newcommand{\cventry}[2]{%
-  \par\noindent\textbf{#1}\hspace{6pt plus 1fil}#2\par
+  \par\noindent\textbf{#1}\hfill\makebox[1.4in][r]{#2}\par
 }
 \newcommand{\cvsub}[1]{%
   \par\noindent\textit{#1}\par\vspace{2pt}
