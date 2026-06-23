@@ -1,0 +1,243 @@
+\documentclass[10.5pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=0.6in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\renewcommand{\familydefault}{\sfdefault}
+\pagestyle{empty}
+
+\definecolor{rulegray}{HTML}{444444}
+
+% Section heading: bold, with a thin rule underneath
+\titleformat{\section}
+  {\large\bfseries}
+  {}{0em}{}
+  [{\vspace{1pt}\titlerule}]
+\titlespacing{\section}{0pt}{10pt}{4pt}
+
+% Entry header: bold left title, right-aligned date on the same line
+% (uses a stretchy minimum gap, not bare \hfill, so long titles never
+% collide with the date)
+\newcommand{\cventry}[2]{%
+  \par\noindent\textbf{#1}\hspace{6pt plus 1fil}#2\par\vspace{1pt}
+}
+% Italic subline (scholarships, honors, etc.)
+\newcommand{\cvsub}[1]{%
+  \par\noindent\textit{#1}\par\vspace{2pt}
+}
+
+\setlist[itemize]{leftmargin=14pt, itemsep=1pt, topsep=2pt, parsep=0pt}
+
+\begin{document}
+
+% ---------- Header ----------
+\begin{center}
+  {\LARGE \textbf{Nisong Monyimba}}\\[3pt]
+  1515 S Extension Rd, Mesa, AZ 85210 \;|\; nmonyimb@asu.edu \;|\; 602-545-6789
+\end{center}
+\vspace{2pt}
+
+% ---------- Education ----------
+\section*{Education}
+\cventry{Biomedical Engineering, M.Sc. --- Arizona State University}{Graduated May 2022}
+\cvsub{Ira A. Fulton Schools of Engineering; MasterCard Foundation Scholar (Accelerated Master's, 3+1+1); Dean's List: Fall 2020, Spring 2021}
+\cventry{Biomedical Engineering, B.Sc. --- Kwame Nkrumah University of Science \& Technology (KNUST)}{Graduated May 2021}
+\cvsub{MasterCard Foundation Scholar; Provost's List; First Class Honours}
+
+\noindent Relevant quantitative coursework: Algebra, Calculus with Analysis, Calculus with Several Variables,
+Differential Equations, Numerical Methods, Probability and Statistics, Finite Element Modeling, C Programming,
+Object-Oriented Programming, Signals and Systems, Biosignal Processes and Analysis, Embedded Systems.
+
+\vspace{4pt}
+\noindent Since 2025, self-directed graduate-level study (independent of formal coursework) in real analysis,
+stochastic processes, and stochastic control theory, undertaken in connection with an independent research
+program in mean-field games with common noise (see Research Statement and supplementary repository).
+
+% ---------- Master's Applied Project & Capstone ----------
+\section*{Master's Applied Project \& Undergraduate Capstone Project}
+
+\cventry{Master's Applied Project: Trophoblast-on-Chip Microfluidic Device}{2022}
+\begin{itemize}
+  \item Investigated trophoblast growth to quantify proliferation dynamics (cell counts over time, growth curves,
+  proliferation index) using Fiji to extract quantitative growth metrics from laboratory cell images.
+  \item Performed statistical analysis including growth-curve comparison across conditions (two-way ANOVA),
+  doubling-time comparison between treatments (unpaired t-test), and proliferation-marker quantification (Kruskal--Wallis).
+  \item Developed microfluidic channel designs in SolidWorks, simulated laminar flow and shear profiles in COMSOL
+  Multiphysics, and validated models against analytical equations.
+\end{itemize}
+
+\cventry{Capstone Project: Novel ECMO Cannula Design, Arizona State University}{2021}
+\begin{itemize}
+  \item Designed and simulated ECMO cannula flow in COMSOL Multiphysics, optimizing shear stress and velocity
+  distribution; built a 3D model in SolidWorks and simulated flow in ANSYS Fluent.
+  \item Quantified flow uniformity and reduced clot-formation risk by optimizing inlet geometry and flow-rate parameters.
+  \item Performed finite element analyses (FEA) in ANSYS and SolidWorks to assess performance and safety margins
+  under physiological load conditions.
+\end{itemize}
+
+% ---------- Research & Lab Work ----------
+\section*{Research \& Lab Work}
+
+\cventry{Research Assistant, Weaver Lab, Arizona State University}{2021--2022}
+\begin{itemize}
+  \item Analyzed trophoblast proliferation dynamics by quantifying cell counts over time and fitting growth curves.
+  \item Used Fiji to extract quantitative metrics from laboratory images, including colony expansion area and
+  fluorescence intensity, supporting rigorous modeling of cellular growth patterns.
+  \item Quantified cell proliferation rates from fluorescence microscopy data using Fiji and GraphPad Prism;
+  developed statistical plots and regression analyses to characterize proliferation and viability.
+  \item Developed Python-based probabilistic simulations and Monte Carlo analyses to evaluate variability in
+  material properties and stochastic loading, improving predictive accuracy.
+\end{itemize}
+
+\cventry{Research Assistant, Dr. Pizziconi's Lab, Arizona State University}{2022--2023}
+\begin{itemize}
+  \item Designed and optimized bone fixation screws using Halpin--Tsai micromechanics models to predict composite
+  behavior under mechanical load.
+  \item Created and refined 3D CAD models in SolidWorks, ensuring dimensional accuracy, manufacturability, and
+  integration with experimental validation workflows.
+  \item Trained and mentored lab members in modeling, simulation, and experimental validation, connecting
+  theoretical mathematics with engineering practice.
+  \item Collaborated with interdisciplinary teams to iterate designs from simulation results; documented and
+  presented research outcomes supporting publication efforts and potential clinical translation.
+\end{itemize}
+
+\cventry{Research Assistant, Medical Device Regulation (MDR) Project, KNUST}{2020--2021}
+\begin{itemize}
+  \item Analyzed regulatory frameworks governing medical devices across 20 African countries, identifying
+  disparities in approval processes, safety standards, and market accessibility.
+  \item Used publicly available regulatory data to categorize countries by regulatory maturity, from fully
+  established authorities to emerging or informal frameworks.
+\end{itemize}
+
+% ---------- Internship Experience ----------
+\section*{Internship Experience}
+
+\cventry{REU Internship, Case Western Reserve University}{2020}
+\begin{itemize}
+  \item Studied biological design and product development principles; designed Arduino-based air-quality sensors
+  and prototyped PCB systems using EAGLE CAD.
+  \item Collaborated with interdisciplinary teams to apply quantitative modeling to life-science problems.
+\end{itemize}
+
+\cventry{BME Internship, Komfo Anokye Teaching Hospital, Kumasi, Ghana}{2019}
+\begin{itemize}
+  \item Supported medical equipment maintenance and calibration; performed voltage and current testing on imaging systems.
+  \item Documented device performance data and proposed engineering solutions to minimize error variance;
+  presented findings to senior biomedical engineers and clinicians.
+\end{itemize}
+
+\cventry{Engineering Internship, Vodafone (Telecom) Headquarters, Accra, Ghana}{}
+\begin{itemize}
+  \item Designed and proposed a telemedicine smartphone application concept for patient monitoring.
+  \item Assisted in vendor management and quality audits for customer-facing telecom hardware systems.
+\end{itemize}
+
+% ---------- Professional Experience ----------
+\section*{Professional Experience}
+
+\cventry{Senior Manufacturing Engineer, Abbott Laboratories}{2024--2025}
+\begin{itemize}
+  \item Optimized medical device grinding precision by 31.7\% through DOE, ANOVA, and SPC-driven process improvements.
+  \item Implemented Python-based control dashboards for real-time statistical quality monitoring.
+  \item Applied Monte Carlo simulations, PCA, and variance component analysis to identify and mitigate process variability.
+  \item Authored and executed FDA- and ISO 13485-compliant validation protocols.
+  \item Experienced with DMAIC, CAPA, QMS, Lean Six Sigma, Pareto charts, SPC, RCA, DOE, FMEA, control charts,
+  Gage R\&R, DHF, SOP, DMF, PDR, and QSR.
+\end{itemize}
+
+\cventry{Quality Engineer, Vastek Inc., San Diego, CA}{2023--2024}
+\begin{itemize}
+  \item Designed devices and implemented engineering design practices targeting efficiency improvements; worked
+  with a cross-functional team of medical professionals and engineers.
+  \item Performed design analyses, requirements reviews, and revisions; wrote technical reports and protocols.
+  \item Conducted FMEA, Bayesian risk analysis, and fault-tree analysis to quantify cascading failure probabilities.
+\end{itemize}
+
+\cventry{Med Tech R\&D Engineer, Mayo Clinic \& Arizona State University}{2022--2023}
+\begin{itemize}
+  \item Designed bone fixation screws using Halpin--Tsai equations and Mori--Tanaka models.
+  \item Ran nonlinear FEA simulations to analyze fatigue, stress distribution, and deformation behavior.
+\end{itemize}
+
+% ---------- Teaching Experience ----------
+\section*{Teaching Experience}
+
+\cventry{Teaching Assistant, KNUST}{2019}
+\begin{itemize}
+  \item Tutored biomedical engineering undergraduates in calculus, electrical circuits, and biostatistics;
+  assisted with lab supervision, grading, and practical demonstrations.
+\end{itemize}
+
+\cventry{Science \& Math Teacher, NSMQ Team, Kwanyako Senior High School}{2016--2018}
+\begin{itemize}
+  \item Prepared and led students for regional and national science and math competitions, emphasizing teamwork,
+  critical thinking, and problem-solving.
+\end{itemize}
+
+\cventry{Math Teacher, Witness Academy}{2016--2017}
+\begin{itemize}
+  \item Taught core mathematics and physics; prepared junior-high students for final exams (BECE), improving average performance.
+\end{itemize}
+
+% ---------- Volunteering ----------
+\section*{Volunteering, Community Service \& Projects}
+\begin{itemize}
+  \item Group Homes Volunteer (Autism Support): assisted residents with learning and recreational activities.
+  \item MasterCard Foundation Community Projects: led sanitation, clean-water, and youth education projects in Ghana and Arizona.
+  \item Oforikrom Outreach Project: organized public school clean-ups, donations, and science tutoring.
+  \item Vocational Training: trained four youths in electrical wiring and biofill installation.
+  \item Personal Tutoring Initiative: mentored underprivileged students in mathematics; three students gained
+  high-school admission and two gained college admission, all first-generation in their families.
+  \item Organized community cleaning (gutters, weeds, trash) in Ashaiman-Zenu to reduce contamination and malaria risk.
+\end{itemize}
+
+% ---------- Awards ----------
+\section*{Awards \& Competitions}
+\begin{itemize}
+  \item MasterCard Foundation Scholarship, Arizona State University and KNUST
+  \item MORE Fellowship Award, Arizona State University
+  \item Vodafone Telecommunications Design Competition, 1st Place
+  \item Best Student, WASSCE (2016), Kwanyako Senior High School
+  \item Best Student, BECE (2013), Zenu T.M.A No. 3 JHS
+  \item 2nd Place, KNUST Engineering \& Medical School Innovation Challenge
+  \item Dean's List, Arizona State University
+\end{itemize}
+
+% ---------- Leadership ----------
+\section*{Leadership \& Mentorship}
+\begin{itemize}
+  \item Assistant Senior Prefect, Zenu T.M.A Junior High School
+  \item Leader, NSMQ Science \& Math Quiz Team, Kwanyako SHS
+  \item Peer Mentor, MasterCard Foundation Scholars (KNUST \& ASU)
+  \item Community Project Facilitator, MasterCard Foundation Ghana
+  \item Member, Young African Leaders Initiative (YALI)
+  \item Club Executive, Biomedical Engineering Society (KNUST \& ASU)
+\end{itemize}
+
+% ---------- Certifications ----------
+\section*{Certifications}
+\begin{itemize}
+  \item Lean Six Sigma (Green Belt)
+  \item Design of Experiments (Minitab \& JMP)
+  \item Global Leadership \& Project Management (YALI / ASU Global Leadership Academy)
+\end{itemize}
+
+% ---------- Memberships ----------
+\section*{Professional Memberships}
+\noindent Society of Manufacturing Engineers (SME) \textbullet\ National Society of Black Engineers (NSBE) \textbullet\
+Biomedical Engineering Society (BMES) \textbullet\ ASU Global Leadership Academy \textbullet\ Toastmasters International
+\textbullet\ KNUST Peer Counsellors \& MasterCard Peer Mentors \textbullet\ Ghana Engineering Students Association \textbullet\ TraTech
+
+% ---------- Technical Skills ----------
+\section*{Technical Skills}
+\noindent \textbf{Programming \& Computation:} Python (NumPy, SciPy, statsmodels, pandas), MATLAB, R, Git/GitHub, SQL, Java, C, LaTeX (Overleaf).\\[3pt]
+\textbf{Statistical \& Numerical Modeling:} Monte Carlo simulation, ANOVA, DOE, SPC, PCA, GraphPad Prism, Minitab, JMP, Octave/GNU.\\[3pt]
+\textbf{Engineering Simulation \& CAD:} SolidWorks, ANSYS Fluent, COMSOL Multiphysics, Autodesk Fusion 360, SimScale.\\[3pt]
+\textbf{Other:} Fiji/ImageJ, BioRender, Figma, Inkscape, LabVIEW, LTSpice, Windchill, Zotero.
+
+\end{document}
