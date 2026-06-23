@@ -1,0 +1,369 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[round]{natbib}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{enumitem}
+\usepackage{bm}
+
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\Wass}{W_2}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\title{A Combined Particle/Finite-Difference Scheme for\\Common-Noise Mean-Field Game FBSDEs:\\Convergence Rate and CFL Condition}
+
+\author{Nisong Monyimba\thanks{Department of Mathematics and Statistics. Correspondence: nisongmonyimba278@gmail.com. Code and supplementary material: \url{https://github.com/NisongMonyimba/AppliedMathThesis}.}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We develop and analyse a fully discrete numerical scheme for the conditional
+McKean--Vlasov forward-backward stochastic differential equation (FBSDE) system
+characterising mean-field game (MFG) equilibria with common noise. The scheme
+combines an Euler--Maruyama discretisation of the forward state and backward
+adjoint processes with a particle (or finite-difference) approximation of the
+stochastic Fokker--Planck equation governing the population measure. We prove that
+the resulting discrete equilibrium converges to the true equilibrium at rate
+$O(\Delta t^{1/2} + \Delta x)$ in the Wasserstein-2 distance, and derive a
+CFL-type stability condition for the coupled system that accounts separately for
+parabolic diffusion, stochastic transport from the common noise, and the explicit
+feedback coupling between the forward and backward components. We validate the
+scheme's strong-order convergence on a tractable linear-quadratic benchmark and
+discuss the practical particle-count requirements implied by the CFL condition in
+higher dimensions.
+\end{abstract}
+
+\noindent \textbf{Keywords:} mean-field games, common noise, numerical methods,
+particle methods, CFL condition, McKean--Vlasov FBSDEs
+
+\noindent \textbf{MSC2020:} 65C30, 65M12, 91A16, 60H35
+
+
+\section{Introduction}
+
+The probabilistic characterisation of mean-field game (MFG) equilibria with common
+noise as solutions to a conditional McKean--Vlasov forward-backward stochastic
+differential equation (FBSDE) system is now well established
+\citep{carmonadelarue2018,ahujarenyang2019}, and a companion paper establishes an
+explicit, parameter-dependent contraction estimate for the associated mean-field
+fixed-point map \citep{paper1}. Computing the equilibrium in practice, however,
+requires discretising three coupled components simultaneously: the forward state
+SDE, the backward adjoint BSDE, and the stochastic partial differential equation
+(SPDE) governing the evolution of the population measure under the common shock.
+The third component is the distinguishing numerical difficulty relative to the
+classical (no-common-noise) MFG setting, where the population measure is
+deterministic and solves an ordinary (not stochastic) Fokker--Planck PDE.
+
+\paragraph{Contribution.} We propose a combined Euler--Maruyama/particle scheme for
+the full coupled system (\Cref{sec:scheme}) and prove (\Cref{thm:main}) that it
+converges to the true equilibrium measure flow at rate
+$O(\Delta t^{1/2}+\Delta x)$ in Wasserstein-2 distance, under the same structural
+assumptions used to establish well-posedness in \citet{paper1}. The proof
+(\Cref{sec:proof}) combines weak-error estimates for the forward/backward
+components with a strong-error estimate for the stochastic Fokker--Planck
+discretisation, then closes the loop via the contraction property of the
+continuous-time fixed-point map. We further derive an explicit CFL-type condition
+(\Cref{sec:cfl}) for the coupled system, which -- unlike the classical parabolic CFL
+condition for deterministic Fokker--Planck PDEs -- includes an additional
+constraint from the stochastic transport induced by the common noise.
+
+\paragraph{Numerical validation, and an important caveat.} We validate the scheme's
+\emph{strong}-order convergence (pathwise $L^2$ error against a fine-resolution
+reference path, using common random numbers) on the tractable linear-quadratic
+(LQ) benchmark in \Cref{sec:experiments}, confirming the expected rate of $1.0$ for
+this benchmark (additive, state-independent diffusion coefficients give the
+Milstein correction term a zero coefficient, so Euler--Maruyama already attains
+its maximal strong order). \textbf{We note explicitly that a full numerical
+verification of the theorem's \emph{weak} (Wasserstein) rate on the LQ benchmark,
+using a properly noise-controlled (common-random-number or paired) Monte Carlo
+design at adequate particle counts, remains to be completed and is not reported
+here; our own preliminary attempt at a naive (non-paired) weak-error sweep did not
+exhibit a clean convergence trend at the particle counts we tested, indicating that
+Monte Carlo sampling noise dominates the discretisation signal at those
+settings.} We report only the strong-error results, which we have validated
+repeatedly and which directly confirm the scheme's stability and the temporal
+discretisation order; the weak-error LQ-benchmark table given in an earlier
+preprint version of this material was generated using an erroneous sign in the
+benchmark's closed-form Riccati coefficients and is superseded by the corrected
+system given in \Cref{app:lq-corrected}.
+
+\paragraph{Related work.} \citet{chassagneuxcrisandelarue2019} establish
+convergence of a particle method for McKean--Vlasov FBSDEs without common noise.
+\citet{achdouporretta2016} analyse finite-difference schemes for deterministic MFG
+PDEs. \citet{lordpowellshardlow2014} provide the general SPDE numerics background
+underlying our Fokker--Planck discretisation. Our contribution is the extension of
+the particle/FBSDE convergence theory to the common-noise setting, where the
+measure-valued component is itself stochastic, together with the explicit CFL
+condition this introduces.
+
+\paragraph{Organisation.} \Cref{sec:setup} recalls the FBSDE system.
+\Cref{sec:scheme} defines the discretisation. \Cref{sec:main} states the main
+convergence theorem. \Cref{sec:proof} sketches the proof. \Cref{sec:cfl} derives
+the CFL condition. \Cref{sec:experiments} reports the validated strong-error
+experiment. \Cref{sec:discussion} discusses scope and the open weak-error
+verification.
+
+
+\section{The FBSDE System}
+\label{sec:setup}
+
+We adopt the setting of \citet{paper1}: a representative agent's state
+$X_t \in \R^d$ solves $dX_t = b(t,X_t,\mu_t,\alpha_t)dt + \sigma\,dW_t^i +
+\sigma_0\,dW_t^0$, with $\mu_t = \mathcal{L}(X_t\mid\F_t^{W^0})$, optimal control
+characterised by the stochastic maximum principle via the adjoint BSDE
+$-dp_t = \partial_x H\,dt - q_t\,dW_t^i - r_t\,dW_t^0$, and the equilibrium measure
+flow $\mu^*$ the unique fixed point of the mean-field map $\Phi$. Under the
+standing assumptions of \citet{paper1}, $\mu^*$ satisfies the (weak form of the)
+stochastic Fokker--Planck equation
+\begin{equation}
+    d\langle \mu_t, \phi\rangle = \langle \mu_t, \mathcal{L}_t^*\phi\rangle\, dt +
+    \sigma_0\langle \mu_t, \nabla\phi\rangle\, dW_t^0, \qquad \phi \in
+    C_c^\infty(\R^d),
+    \label{eq:fp-spde}
+\end{equation}
+where $\mathcal{L}_t^*\phi = -\nabla\cdot(b\phi) + \tfrac{\sigma^2}{2}\Delta\phi$.
+
+
+\section{The Discrete Scheme}
+\label{sec:scheme}
+
+Fix a time grid $t_n = n\Delta t$, $n=0,\dots,N$, $\Delta t = T/N$. The forward
+state and backward adjoint are discretised by Euler--Maruyama,
+\begin{align}
+    X^{n+1} &= X^n + b(t_n,X^n,\mu^n,\alpha^n)\Delta t + \sigma\Delta W_n^i +
+        \sigma_0\Delta W_n^0, \label{eq:disc-forward} \\
+    p^n &= \E_n\big[p^{n+1} + \partial_x H(t_n,X^n,\mu^n,p^n,\alpha^n)\Delta
+        t\big], \label{eq:disc-backward}
+\end{align}
+with the conditional expectation in \eqref{eq:disc-backward} approximated by
+regression on a finite-dimensional basis \citep{gobetlemorwarin2005}. The measure
+$\mu^n$ is approximated either by the empirical measure of $M$ simulated particles
+or by an explicit finite-difference scheme on a spatial grid of mesh $\Delta x$ for
+the strong form of \eqref{eq:fp-spde}; in the particle case there is no explicit
+$\Delta x$, and the effective resolution scales as $O(M^{-1/d})$.
+
+
+\section{Main Theorem}
+\label{sec:main}
+
+\begin{theorem}[Numerical convergence]
+\label{thm:main}
+Under the standing assumptions of \citet{paper1} and the additional smoothness
+condition that $b,f,g$ are of class $C^{2,4}$ with bounded derivatives, there
+exists $C>0$, independent of $\Delta t,\Delta x$, such that for all sufficiently
+small $\Delta t, \Delta x$ satisfying the CFL condition \eqref{eq:cfl},
+\begin{equation}
+    \sup_{0\leq n\leq N} \E\big[\Wass(\mu^{\Delta,n},\mu_{t_n}^*)^2\big]^{1/2} \leq
+    C(\Delta t^{1/2}+\Delta x).
+    \label{eq:main-rate}
+\end{equation}
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+See \Cref{sec:proof}.
+\end{proof}
+
+
+\section{Proof Sketch}
+\label{sec:proof}
+
+The proof combines three error contributions and closes the loop via the
+contraction property of $\Phi$ established in \citet{paper1}.
+
+\textbf{(i) Forward/backward weak error.} The Euler--Maruyama weak error for
+Lipschitz SDEs under the stated smoothness is $O(\Delta t)$
+\citep[Thm~14.5.2]{kloedenplaten1992}; an analogous $O(\Delta t)$ weak error holds
+for the BSDE discretisation \citep{bouchardtouzi2004,gobetlemorwarin2005}. Both
+propagate to an $O(\Delta t^{1/2})$ contribution to the Wasserstein distance between
+discrete and continuous laws via the synchronous-coupling argument of
+\citet{paper1}.
+
+\textbf{(ii) Fokker--Planck discretisation error.} The explicit finite-difference
+(or particle) scheme for \eqref{eq:fp-spde} satisfies, under the CFL condition
+\eqref{eq:cfl} and by a standard Lax--Richtmyer consistency-plus-stability
+argument adapted to the stochastic transport term \citep[Thm~10.7]{lordpowellshardlow2014},
+\[
+    \sup_n \E\big[\|\rho^n-\rho_{t_n}\|_{L^2}^2\big]^{1/2} \leq C(\Delta t^{1/2}+
+    \Delta x).
+\]
+
+\textbf{(iii) Closing the fixed-point loop.} Let $\Phi^\Delta$ denote the discrete
+fixed-point map induced by \eqref{eq:disc-forward}--\eqref{eq:disc-backward}
+together with the Fokker--Planck discretisation. Combining (i)-(ii) gives
+$\|\Phi^\Delta(\mu)-\Phi(\mu)\|_{\lambda,T} \leq C_{\mathrm{disc}}(\Delta
+t^{1/2}+\Delta x)$ uniformly over bounded sets of measure flows. Writing
+$\mu^\Delta = \Phi^\Delta(\mu^\Delta)$ for the discrete fixed point and using the
+triangle inequality with the contraction factor $\rho<1$ from \citet{paper1},
+\[
+    \|\mu^\Delta-\mu^*\|_{\lambda,T} \leq C_{\mathrm{disc}}(\Delta t^{1/2}+\Delta x)
+    + \rho\|\mu^\Delta-\mu^*\|_{\lambda,T},
+\]
+and rearranging gives \eqref{eq:main-rate} with
+$C = C_{\mathrm{disc}}/(1-\rho)$.
+
+
+\section{CFL Condition for the Coupled System}
+\label{sec:cfl}
+
+Stability of the finite-difference Fokker--Planck discretisation requires the
+parabolic condition $\Delta t \leq \Delta x^2/(2\sigma^2)$. The stochastic
+transport term introduced by the common noise adds the further constraint
+$\Delta t \leq \Delta x/(2\|\sigma_0\|_F L_b)$ \citep[Ch.~10]{lordpowellshardlow2014}.
+The explicit coupling between the discrete forward state and backward adjoint
+(via $\partial_x H$ evaluated at the current discrete state) introduces a third
+constraint, $\Delta t \leq 1/L_H$ with $L_H$ the Lipschitz constant of
+$\partial_x H$. Collecting these,
+\begin{equation}
+    \Delta t \leq \min\left(\frac{\Delta x^2}{2\sigma^2}, \;
+    \frac{\Delta x}{2\|\sigma_0\|_F L_b}, \; \frac{1}{L_H}\right).
+    \label{eq:cfl}
+\end{equation}
+In the particle method, $\Delta x$ has no direct analogue; the effective
+resolution scales as $O(M^{-1/d})$, so \eqref{eq:cfl} translates into a joint
+requirement on the particle count $M$ and the time step that becomes increasingly
+demanding as the state dimension $d$ grows -- the familiar particle-method curse of
+dimensionality, here interacting with the common-noise stochastic-transport
+constraint specifically.
+
+
+\section{Numerical Validation: Strong-Order Convergence}
+\label{sec:experiments}
+
+We validate the temporal discretisation order on the one-dimensional
+linear-quadratic benchmark with $\kappa=0.5,\lambda=1.0,\sigma=0.3,\sigma_0=0.2$,
+$T=1$, comparing trajectories at four step sizes against a fine-resolution
+($\Delta t = 2^{-10}$) reference path, using common random numbers (CRN) to
+isolate the discretisation error from Monte Carlo sampling noise. We report the
+\emph{strong} (pathwise $L^2$) error, $\E[|X^{\Delta}_T - X_T^{\mathrm{ref}}|^2]^{1/2}$,
+averaged over 100 independent trials.
+
+\begin{table}[ht]
+\centering
+\caption{Strong-error convergence, LQ-MFG benchmark (CRN, 100 trials)}
+\label{tab:strong-error}
+\begin{tabular}{lccc}
+\toprule
+$\Delta t$ & Mean error & Std.\ error & Estimated rate \\
+\midrule
+$2^{-5} = 0.03125$ & 0.01751 & 0.01001 & -- \\
+$2^{-6} = 0.01563$ & 0.01030 & 0.00796 & -- \\
+$2^{-7} = 0.00781$ & 0.00540 & 0.00441 & -- \\
+$2^{-8} = 0.00391$ & 0.00218 & 0.00127 & \textbf{0.996} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The estimated rate of $0.996$ matches the theoretical strong order for additive
+(state- and measure-independent) diffusion coefficients, for which the Milstein
+correction term vanishes and Euler--Maruyama already attains strong order $1$
+rather than the generic order $1/2$. \textbf{This confirms the temporal
+discretisation is implemented correctly and is stable, but it validates the
+\emph{strong}-error behaviour of the forward SDE component in isolation; it does
+not, by itself, validate the \emph{weak} (Wasserstein, measure-level) rate of
+\Cref{thm:main}, which governs the full coupled scheme's convergence to the
+equilibrium measure and is the theorem's actual content.} We regard a properly
+noise-controlled empirical verification of the weak rate as a required next step
+before this manuscript is finalised for submission (see \Cref{sec:discussion}).
+
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{What is, and is not, empirically confirmed here}
+
+The strong-error experiment of \Cref{sec:experiments} confirms that the forward
+discretisation is implemented correctly and behaves as theory predicts for this
+benchmark's specific (additive-noise) structure. It does \emph{not} confirm the
+weak/Wasserstein rate $O(\Delta t^{1/2}+\Delta x)$ of \Cref{thm:main}, which is a
+statement about convergence of the \emph{measure}, not a single trajectory, and
+requires a separate experimental design (e.g., comparing the empirical measure of
+many particles against the known closed-form Gaussian equilibrium measure via the
+Wasserstein-2 formula for Gaussians, using either a much larger particle count or
+a common-random-number / paired-trajectory design to suppress Monte Carlo
+sampling noise enough to resolve the $O(\Delta t^{1/2})$ trend). A preliminary,
+non-paired attempt at this experiment did not show a clean trend at the particle
+counts tested, indicating the sampling-noise floor was not adequately controlled;
+we have not yet completed a design that resolves this and do not report specific
+weak-error numbers as a result.
+
+\subsection{Practical implications of the CFL condition}
+
+\Cref{eq:cfl}'s three terms have different practical bite depending on the
+application. For low-dimensional financial models ($d \lesssim 5$), the parabolic
+and coupling terms typically dominate, and standard grid resolutions suffice. For
+higher-dimensional models, the particle method's $O(M^{-1/d})$ effective
+resolution makes the stochastic-transport term increasingly binding, motivating
+the dimension-reduction techniques (moment closures, low-rank measure
+approximations) we discuss as future work.
+
+\subsection{Limitations}
+
+Beyond the open weak-error verification noted above: the theorem requires
+$C^{2,4}$ smoothness, which excludes models with non-smooth transaction costs or
+jump-type frictions common in financial applications; the particle method's
+curse of dimensionality is not addressed by any variance-reduction technique in
+the present scheme; and the contraction factor $\rho$ inherited from
+\citet{paper1} is itself only an expectation-level (not pathwise) guarantee, which
+limits the strength of any high-probability (rather than expectation) statement
+one might hope to extract from \Cref{thm:main}.
+
+
+\section{Conclusion}
+
+We have proposed and analysed a combined particle/finite-difference scheme for
+common-noise MFG equilibria, proving an $O(\Delta t^{1/2}+\Delta x)$ Wasserstein
+convergence rate and deriving the CFL condition the coupled system requires. The
+scheme's temporal discretisation is validated via a strong-error experiment on a
+tractable benchmark; a corresponding empirical validation of the theorem's weak
+(measure-level) rate remains open and is flagged explicitly as such, rather than
+asserted without adequate experimental support.
+
+
+\appendix
+\section{Corrected Linear-Quadratic Benchmark Coefficients}
+\label{app:lq-corrected}
+
+For the benchmark of \Cref{sec:experiments}, the closed-loop optimal control is
+$\alpha_t^* = -(A_tX_t+B_t\bar\mu_t)/\lambda$ with $(A_t,B_t)$ solving
+\begin{align}
+    \dot A_t &= 2\kappa A_t - A_t^2/\lambda + 2Q, & A_T&=2P, \\
+    \dot B_t &= \kappa B_t + A_tB_t/\lambda - \kappa A_t, & B_T&=-2P.
+\end{align}
+\textbf{We flag explicitly that the sign of the cross-coupling term in the
+$B_t$ equation (here, $+A_tB_t/\lambda$) was found, during preparation of this
+manuscript, to have been given with the opposite sign in an earlier internal
+draft; the corrected sign above was verified by an independent empirical
+optimality check (perturbing the closed-loop control away from its
+Riccati-implied value and confirming that realised cost strictly increases, as
+required at a true optimum) before being adopted here.} For the stated parameters,
+$A_t \equiv 2$ for all $t$ (a fixed point of the $A$-equation), and $B_t$ ranges
+from approximately $0.20$ at $t=0$ to $-2$ at $t=T$.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
