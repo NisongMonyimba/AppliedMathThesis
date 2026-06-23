@@ -1,0 +1,101 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{helvet}
+\usepackage{titlesec}
+\usepackage{microtype}
+
+\renewcommand{\familydefault}{\sfdefault}
+\pagestyle{empty}
+
+\titleformat{\paragraph}[runin]{\bfseries}{}{}{}[.]
+\titlespacing{\paragraph}{0pt}{8pt}{6pt}
+
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Research Statement}\\[4pt]
+{\bfseries Common-Noise Mean-Field Games: Theory, Computation, and Financial Applications}\\[4pt]
+Nisong Monyimba \;|\; nmonyimb@asu.edu
+\end{center}
+\vspace{8pt}
+
+My research investigates mean-field games (MFGs) in the presence of common noise --- aggregate
+shocks that affect every agent in a population simultaneously, as opposed to the idiosyncratic,
+individually-averaged noise of the classical MFG setting. This single structural change transforms
+the population's distribution from a deterministic object into a stochastic process in its own right,
+and it is the source of nearly every technical difficulty I have spent the past year working through:
+in well-posedness theory, in numerical schemes, in reinforcement-learning algorithms that attempt to
+learn equilibria from data, and in financial applications where the population's distributional state
+is itself the object of economic interest.
+
+\paragraph{How I arrived here} My background is in biomedical engineering --- a B.Sc.\ from KNUST
+and an M.Sc.\ from Arizona State University, followed by several years in industry as a quality and
+process engineer (Abbott Laboratories, Vastek, and earlier at Mayo Clinic/ASU), where I worked
+extensively with statistical process control, Monte Carlo simulation, design of experiments, and
+risk modeling. That work built real fluency with applied probability and numerical methods, but it
+did not include the formal, proof-based mathematical training --- real analysis, measure theory,
+rigorous stochastic processes --- that underlies the literature I have since become genuinely
+absorbed in. Over the past year, working independently and largely outside any formal coursework,
+I built a complete master's-thesis-length research program in common-noise mean-field games: a
+158-page manuscript spanning quantitative well-posedness theory, numerical analysis, multi-timescale
+reinforcement learning, and two financial applications (systemic risk with optimal government
+bailouts, and a Wasserstein-distance-based measure of market ``crowding'' validated empirically).
+I am applying to PhD programs because I want --- and currently lack --- the rigorous theoretical
+foundation to carry this work forward independently, defend it at the level it deserves, and extend
+it into open questions I can currently only describe, not yet resolve myself.
+
+\paragraph{What I have done, stated precisely} The thesis's central technical contribution is an
+explicit, parameter-dependent contraction estimate for the mean-field fixed-point map governing
+common-noise equilibria, obtained via a synchronous-coupling argument that isolates how the
+common-noise coefficient enters the stability constant through a second-order BSDE effect rather
+than a first-order state-difference term. Building on this, I developed a combined
+particle/finite-difference numerical scheme with a proven convergence rate and an explicit
+CFL-type stability condition for the coupled system; a three-timescale reinforcement-learning
+algorithm with a subsequential convergence guarantee, together with a hierarchical actor-critic
+architecture motivated by an SPDE decomposition of the associated master equation; a closed-form
+Stackelberg model of systemic risk and optimal government bailouts; and a novel ``crowding
+measure'' --- the Wasserstein-2 distance between the observed and theoretical equilibrium
+distributions --- as a candidate predictor of asset returns.
+
+\paragraph{What I want to be equally precise about} I validate this work computationally and
+through careful, repeated empirical checks --- including, over the course of this project, catching
+and correcting a genuine sign error in a closed-form Riccati system that had silently produced
+non-optimal (though stable and plausible-looking) numerical results across several downstream
+experiments, a correction I only found by insisting on an independent optimality check rather than
+trusting that a well-behaved simulation was a correct one. That experience shaped how I think about
+this work: I am confident in my ability to build, test, and rigorously interrogate computational
+models of stochastic systems, and to recognize the difference between code that runs cleanly and a
+result that is actually correct. I am not yet able to independently derive or defend every proof in
+this thesis from first principles without reference material, and I do not want to overstate that I
+am. This is precisely the gap I am seeking a PhD to close: I have begun working independently
+through real analysis and rigorous stochastic processes in parallel with this application cycle, and
+I view the structured theoretical training of a PhD program --- not just its research opportunities
+--- as essential, not incidental, to where I want this research program to go next.
+
+\paragraph{Where I want to take this} Several concrete open directions emerged directly from this
+work: extending the common-noise framework to jump-diffusion shocks, where the
+synchronous-coupling argument I rely on does not directly apply; relaxing the strong isoperimetric
+(log-Sobolev) condition needed for the reinforcement-learning convergence rate; replacing the
+heuristic algorithm-to-operator mapping in the hierarchical RL architecture with a more principled
+correspondence; and --- most concretely --- recalibrating the empirical alpha-generation results
+against real institutional-holdings and market data, which I was unable to access in the
+environment where this thesis was built. I am also interested in the formal verification direction
+I began in Lean 4 for a handful of the thesis's key estimates, though I want to be equally honest
+that this was exploratory and not machine-checked against a live proof assistant in this iteration
+of the work.
+
+\paragraph{Fit} Professors Duncan and Pasik-Duncan's sustained body of work in stochastic control
+theory, and Professor Duncan's editorial experience with SIAM Journal on Control and Optimization,
+make KU's mathematics department an ideal environment to build the rigorous foundation my
+thesis's contraction and convergence arguments currently lack independent of computational
+verification.
+
+\end{document}
