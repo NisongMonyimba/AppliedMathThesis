@@ -291,7 +291,7 @@ system of ordinary differential equations for the coefficients. The full derivat
 is provided in Appendix~A. The key equations for the quadratic terms are:
 \begin{align}
     \dot{A}_t &= 2\kappa A_t - \frac{A_t^2}{\lambda} + c_1, & A_T &= c_2, \notag \\
-    \dot{B}_t &= \kappa B_t - \frac{A_t B_t}{\lambda} - \kappa A_t, & B_T &= 0,
+    \dot{B}_t &= \kappa B_t + \frac{A_t B_t}{\lambda} - \kappa A_t, & B_T &= 0,
         \label{eq:sr-riccati-quadratic} \\
     \dot{C}_t &= -\frac{B_t^2}{\lambda} - 2\kappa B_t, & C_T &= 0. \notag
 \end{align}
@@ -302,14 +302,20 @@ $A_t$ and can be solved in closed form.
 The linear terms $D_t, E_t, F_t$ satisfy the following ODEs, which depend on the
 bailout policy $b_t$:
 \begin{align}
-    \dot{D}_t &= \kappa D_t - \frac{A_t D_t}{\lambda} - A_t b_t, & D_T &= 0,
+    \dot{D}_t &= \kappa D_t + \frac{A_t D_t}{\lambda} - A_t b_t, & D_T &= 0,
         \notag \\
     \dot{E}_t &= \kappa E_t - \frac{B_t D_t}{\lambda} - B_t b_t - \kappa D_t, & E_T
         &= 0, \label{eq:sr-riccati-linear} \\
     \dot{F}_t &= -\frac{D_t^2 \sigma^2}{2\lambda} - \frac{\sigma_0^2}{2}(A_t + C_t)
         - D_t b_t, & F_T &= 0. \notag
 \end{align}
-These equations are derived in Appendix~A. The linear terms capture the effect of
+These equations are derived in Appendix~A, which also documents a sign
+correction to the $B_t$ and $D_t$ cross-coupling terms relative to an earlier
+version of this derivation (confirmed via an independent empirical optimality
+check), and flags the $E_t$ equation above as provisional pending a more
+complete re-derivation accounting for its dependence on $C_t$ through the
+master-equation (Lions-derivative) term -- see Appendix~A for details. The
+linear terms capture the effect of
 the bailout policy on the value function and will be essential for determining the
 optimal government strategy.
 
@@ -481,9 +487,12 @@ reflecting reduced private effort.
 To quantify this trade-off, we define the effort elasticity with respect to
 bailouts: $\eta_\alpha = \frac{\partial \alpha_t^*}{\partial b_t^*} \cdot
 \frac{b_t^*}{\alpha_t^*}$. A large negative elasticity indicates severe moral
-hazard. From the Riccati system, we can compute $\eta_\alpha$ explicitly; typical
-values in our numerical experiments range from $-0.3$ to $-0.6$, indicating a
-substantial but not complete crowding-out of private effort.
+hazard. From the Riccati system, we can compute $\eta_\alpha$ explicitly.
+\textbf{The specific numerical range previously reported here (typical values
+$-0.3$ to $-0.6$) was computed using a version of the $B_t, D_t$ Riccati
+equations that has since been corrected (see Appendix~A); these figures have
+not yet been recomputed under the corrected system and should be treated as
+superseded pending recalculation, rather than relied upon as reported.}
 
 \subsection{Common Noise Amplification}
 
@@ -566,8 +575,22 @@ $\mu_{\mathrm{init}}$ & $N(1.0, 0.5)$ & Initial reserve distribution \\
 We solve the Riccati system \eqref{eq:sr-riccati-quadratic},
 \eqref{eq:sr-riccati-linear}, and \eqref{eq:sr-gov-riccati} using a Runge--Kutta
 (4,5) solver. \Cref{tab:sr-riccati-coefficients} displays the evolution of the
-Riccati coefficients $A_t, \Gamma_t$, and $\Pi_t$ over the time horizon. The
-coefficients are monotonic and well-behaved, ensuring the existence of a unique
+Riccati coefficients $A_t, \Gamma_t$, and $\Pi_t$ over the time horizon.
+\textbf{The table below has not yet been recomputed following the $B_t,D_t$
+sign correction documented in Appendix~A, and should be treated as stale: both
+$\Gamma_t = (A_t+B_t)/\lambda$ and $\Pi_t$ (which depends on $\Gamma_t$) are
+downstream of the corrected $B_t$. Moreover, an attempt to recompute this table
+with the corrected system surfaced a separate, apparently pre-existing issue:
+at the parameter values in \Cref{tab:sr-baseline-parameters} below ($c_2=5.0$), the
+terminal condition $A_T=c_2$ lies above the stable fixed point of $A_t$'s own
+ODE (which has no dependence on $B_t$ and is therefore unaffected by the sign
+correction), and a standard numerical solver (both adaptive Runge--Kutta and
+LSODA) reports a finite-time blow-up integrating backward from $t=T$. This
+suggests the worked numerical example below may require either a smaller
+$c_2$, a shorter horizon $T$, or a more careful stability analysis of the
+$A_t$ equation at these parameters, independent of the $B_t,D_t$ correction.
+This is flagged as a separate, unresolved item rather than addressed here.}
+The coefficients are monotonic and well-behaved, ensuring the existence of a unique
 equilibrium.
 
 \begin{table}[ht]
@@ -591,7 +614,10 @@ policy $b_t \equiv 0$ shows that the bailout policy significantly reduces the
 volatility of the mean and prevents it from falling below zero (95\% confidence
 interval computed from 10{,}000 Monte Carlo simulations). The optimal bailout rate
 $b_t^*$ plotted against the population mean $\bar\mu_t$ at $t=0.5$ exhibits a linear,
-counter-cyclical relationship with slope $-\Pi_t/\gamma \approx -6.24$. As the
+counter-cyclical relationship with slope $-\Pi_t/\gamma$. \textbf{The previously
+reported numerical value of this slope ($\approx -6.24$) is stale for the same
+reason as \Cref{tab:sr-riccati-coefficients} above and has been removed pending
+recomputation.} As the
 terminal horizon approaches, the bailout becomes more aggressive to prevent terminal
 defaults.
 

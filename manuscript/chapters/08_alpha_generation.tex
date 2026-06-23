@@ -131,7 +131,7 @@ derivation)
 \begin{align}
     \dot{A}_t &= \kappa A_t + A_t \kappa - \frac{1}{\lambda} A_t^2 + 2Q, & A_T &=
         2P, \notag \\
-    \dot{B}_t &= \kappa B_t - \frac{1}{\lambda} A_t B_t - \kappa A_t, & B_T &= -2P,
+    \dot{B}_t &= \kappa B_t + \frac{1}{\lambda} A_t B_t - \kappa A_t, & B_T &= -2P,
         \label{eq:alpha-riccati-system} \\
     \dot{C}_t &= -\frac{1}{\lambda} B_t^\top B_t - \kappa B_t - B_t^\top \kappa, &
         C_T &= 2P. \notag
@@ -139,6 +139,17 @@ derivation)
 The linear terms $d_t, e_t, f_t$ satisfy ODEs that depend on the baseline
 parameters; their explicit forms are given in Appendix~A. The adjoint process is
 $p_t = \partial_x u = -A_t X_t - B_t \bar\mu_t - d_t$.
+
+\textbf{Correction note:} an earlier version of the $B_t$ equation above had
+the sign of the $A_tB_t/\lambda$ cross term reversed; see Appendix~A for the
+corrected derivation and the empirical check that confirmed it. Since this
+chapter's terminal condition $B_T=-2P$ is, in magnitude, the same regime in
+which the sign error has a large quantitative effect (unlike Chapter 7's
+$B_T=0$ regime, where the effect is comparatively small), any specific
+numerical values for the four alpha signals, the mean-reversion speed
+$\kappa_t$, the factor exposure $\beta_t$, or the calibrated coefficient
+$\eta_2$ reported elsewhere in this chapter that were computed prior to this
+correction should be treated as stale and recomputed before being relied upon.
 
 
 \section{Derivation of the Four Alpha Signals}

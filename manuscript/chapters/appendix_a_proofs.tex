@@ -200,10 +200,20 @@ Expanding and matching coefficients of $x^2$:
 \]
 Matching coefficients of $x\bar\mu$:
 \[
-    -\dot{B}_t = \kappa A_t - \kappa B_t + \frac{A_t B_t}{\lambda} \qquad
-    \Longrightarrow \qquad \dot{B}_t = \kappa B_t - \frac{A_t B_t}{\lambda} -
+    -\dot{B}_t = \kappa A_t - \kappa B_t - \frac{A_t B_t}{\lambda} \qquad
+    \Longrightarrow \qquad \dot{B}_t = \kappa B_t + \frac{A_t B_t}{\lambda} -
     \kappa A_t.
 \]
+\textbf{Correction (added post-defense):} an earlier version of this derivation
+had the sign of the $A_t B_t/\lambda$ cross term reversed, originating in the
+expansion of $\tfrac{1}{2\lambda}(A_t x + B_t\bar\mu)^2$ above combined with the
+$\kappa(\bar\mu-x)$ term. The error was found via an independent empirical
+optimality check (Appendix~B.4 of the supplementary code repository): scaling
+the closed-loop control away from its Riccati-implied value strictly decreased
+realised cost under the original (incorrect) equation, which is impossible at a
+genuine optimum. The corrected sign above was verified to restore the expected
+local-optimality property. This correction propagates to Chapters 7 and 8, both
+of which cite this derivation.
 Matching coefficients of $\bar\mu^2$:
 \[
     -\frac{1}{2}\dot{C}_t = -\kappa B_t + \frac{B_t^2}{2\lambda} \qquad
@@ -215,10 +225,20 @@ scalar $c_1/2, c_2/2$ and matrix products throughout, \eqref{eq:alpha-riccati-sy
 \subsection{Linear Terms}
 
 The ODEs for $D_t, E_t, F_t$ are obtained by matching the coefficients of $x$,
-$\bar\mu$, and constants. They are:
+$\bar\mu$, and constants. The corrected $D_t$ equation, verified by the same
+coefficient-matching method used for $B_t$ above, is:
 \[
-    \dot{D}_t = \kappa D_t - \frac{A_t D_t}{\lambda} - A_t b_t, \qquad D_T = 0,
+    \dot{D}_t = \kappa D_t + \frac{A_t D_t}{\lambda} - A_t b_t, \qquad D_T = 0.
 \]
+\textbf{Open item, stated explicitly:} a careful re-derivation of $E_t$,
+accounting fully for the contribution of the Lions-derivative (master-equation)
+integral term in the HJB equation, shows that $\dot{E}_t$ should in general
+depend on $C_t$ as well as $B_t, D_t$ -- a dependence absent from the equation
+below as stated. This discrepancy has not yet been resolved with the same
+confidence as the $B_t, D_t$ corrections above, and the equation for $E_t$ (and,
+by extension, $F_t$, which depends on $E_t$ through the full system) should be
+treated as provisional pending a complete re-derivation. The equation as
+currently stated is:
 \[
     \dot{E}_t = \kappa E_t - \frac{B_t D_t}{\lambda} - B_t b_t - \kappa D_t,
     \qquad E_T = 0,
@@ -227,10 +247,15 @@ $\bar\mu$, and constants. They are:
     \dot{F}_t = -\frac{D_t^2 \sigma^2}{2\lambda} - \frac{\sigma_0^2}{2}(A_t + C_t)
     - D_t b_t, \qquad F_T = 0.
 \]
-These are exactly \eqref{eq:sr-riccati-linear}. In the alpha-generation model of
+These are exactly \eqref{eq:sr-riccati-linear} (with the $D_t$ correction noted
+above not yet propagated to the displayed equation number; see the correction
+note at the start of this subsection). In the alpha-generation model of
 Chapter 8, there is no exogenous bailout term $b_t$, so setting $b_t \equiv 0$
 gives $D_t = E_t = F_t \equiv 0$ for all $t$, recovering the simpler closed-loop
-drift used in Chapter 8.
+drift used in Chapter 8 -- this simplification is unaffected by the open item
+above, since it holds regardless of the precise form of $E_t$'s dependence on
+$C_t$ when $b_t \equiv 0$ forces all three linear coefficients to vanish
+identically.
 
 \subsection{Proof that $v_t$ is Independent of $b_t$}
 
