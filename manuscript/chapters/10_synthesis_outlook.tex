@@ -346,8 +346,37 @@ Partial verification only & Full pipeline correctness not machine-checked \\
 \label{sec:syn-open}
 
 The thesis opens several promising directions for future investigation. We
-present six open problems, each contextualised by a survey of recent relevant
+present seven open problems, each contextualised by a survey of recent relevant
 literature and a refined statement of what remains to be done.
+
+\subsection{Extending the Master-Equation Correction to the Matrix Case}
+
+\paragraph{Current framework.} A full re-derivation of the master equation for
+Chapter~7's scalar systemic-risk model (Appendix~A, this revision) found and
+corrected a sign error in $\dot{A}_t$ and completed the master-equation
+(Lions-derivative) coupling term that was missing from $B_t, C_t, D_t, E_t,$
+and $F_t$ alike. This correction was verified by direct PDE-residual
+substitution and independent numerical integration, and resolved the
+finite-time blow-up previously reported in the chapter's numerical
+illustration without needing to alter the originally intended parameters.
+
+\paragraph{Remaining open problem.} Chapter~8's alpha-generation model uses the
+matrix-valued analogue of the same Riccati system (Eq.~\ref{eq:alpha-riccati-system}),
+with $Q,P$ in place of the scalar $c_1/2,c_2/2$. This matrix system was
+\emph{not} re-derived under the corrected master-equation framework in this
+revision; it should be checked for the same class of sign error and the same
+missing coupling term, since both originate in the same Hamiltonian-matching
+and Lions-derivative steps that were found to be incomplete in the scalar
+case. Separately, the government's own Riccati equation for $\Pi_t$
+(Eq.~\ref{eq:sr-gov-riccati}), which takes $\Gamma_t=(A_t+B_t)/\lambda$ as an
+input from the now-corrected bank-level system, was recomputed using the
+corrected $\Gamma_t$ in this revision but its own derivation (a separate
+optimisation problem from the bank's) was not independently re-examined for
+analogous errors. Both extensions are mechanical applications of the
+verification methodology used for the scalar case (Hamiltonian re-derivation
+from the primitive cost functional, explicit mean-field coupling term,
+symbolic PDE-residual check, and cross-solver numerical verification) but
+were not completed here due to scope.
 
 \subsection{Extension to Jump-Diffusion Common Noise}
 

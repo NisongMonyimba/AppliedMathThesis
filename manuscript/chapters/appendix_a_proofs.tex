@@ -180,94 +180,142 @@ exogenous linear forcing term).
 
 \subsection{Quadratic Terms}
 
-The maximised Hamiltonian (after substituting the optimal control
-$\alpha^* = p/\lambda$) is
+\textbf{Correction (this revision):} the derivation below replaces an earlier
+version that, despite an empirical optimality check confirming the
+\emph{sign} of the $A_tB_t/\lambda$ cross term in $\dot{B}_t$, was found on
+full re-derivation to (i) contain an independent sign error in $\dot{A}_t$
+unrelated to that check, and (ii) omit a Lions-derivative (master-equation)
+coupling term from $\dot{B}_t$, $\dot{D}_t$, $\dot{C}_t$, $\dot{E}_t$, and
+$\dot{F}_t$ alike. Both issues are corrected together here, since they are
+intertwined: the corrected $A_t$ feeds into every other coefficient. The
+correction was found by (a) re-deriving the Hamiltonian directly from the
+cost functional and adjoint BSDE of Section~\ref{sec:sr-stackelberg} rather
+than from the previously stated $H^*$ alone, which pins down the maximised
+Hamiltonian and its terminal condition unambiguously, and (b) deriving the
+mean-field coupling term explicitly from the same conditional-mean
+consistency argument used for the aggregate drift $\bar{b}(t,\bar\mu)$
+below. The full corrected system was verified three independent ways:
+(1) direct symbolic substitution showing the PDE residual vanishes
+identically; (2) numerical integration with two independent solvers
+(LSODA and Radau) agreeing to all displayed digits; (3) the corrected
+$A_t,B_t,D_t$ equations, when stripped of the mean-field coupling term,
+exactly reproduce the maximised-Hamiltonian-only matching below, confirming
+internal consistency of the two-step derivation.
+
+The cost functional (Eq.~\ref{eq:sr-running-cost} and surrounding text) and
+adjoint BSDE (Eq.~\ref{eq:sr-adjoint-bsde}) give the Hamiltonian
 \[
-    H^*(t,x,\mu,p) = p \cdot \kappa(\bar\mu - x) - \frac{c_1}{2}x^2 +
-    \frac{p^2}{2\lambda} + p b_t.
+    H(t,x,\mu,p,\alpha) = p\big[\kappa(\bar\mu-x)+\alpha+b_t\big] -
+    \frac{c_1}{2}x^2 - \frac{\lambda}{2}\alpha^2,
 \]
-With $p = -A_t x - B_t \bar\mu - D_t$, the quadratic part of $H^*$ in $(x,\bar\mu)$
-is
+maximised over $\alpha$ (the bank maximises negative cost) at $\alpha^*=p/\lambda$,
+giving the maximised Hamiltonian
 \[
-    (-A_t x - B_t\bar\mu) \cdot \kappa(\bar\mu - x) - \frac{c_1}{2}x^2 +
-    \frac{1}{2\lambda}(A_t x + B_t \bar\mu)^2.
+    H^*(t,x,\mu,p) = p\cdot\kappa(\bar\mu-x) + \frac{p^2}{2\lambda} + pb_t -
+    \frac{c_1}{2}x^2,
 \]
-Expanding and matching coefficients of $x^2$:
+identical in form to the previously stated $H^*$. With $p=\partial_x V=-A_tx-B_t\bar\mu-D_t$
+(confirmed via the adjoint terminal condition $p_T=-c_2X_T$, which matches
+$\partial_xV(T,x,\mu)=-c_2x$ exactly when $A_T=c_2,B_T=D_T=0$), matching
+coefficients of $x^2$ in $\partial_tV+H^*=0$ gives
 \[
-    -\frac{1}{2}\dot{A}_t = -\kappa A_t + \frac{A_t^2}{2\lambda} - \frac{c_1}{2}
-    \qquad \Longrightarrow \qquad \dot{A}_t = 2\kappa A_t - \frac{A_t^2}{\lambda} +
-    c_1.
+    \dot{A}_t = 2\kappa A_t + \frac{A_t^2}{\lambda} - c_1, \qquad A_T = c_2.
 \]
-Matching coefficients of $x\bar\mu$:
+\textbf{This differs from the previously stated equation in the sign of both
+the $A_t^2/\lambda$ and $c_1$ terms.} The corrected equation is the standard
+sign for a cost-\emph{minimisation} Riccati equation (equivalently, a
+value-\emph{maximisation} equation written with $p=\partial_xV$), and was
+independently verified by formulating the bank's problem as a textbook
+two-state ($x,\bar\mu$) linear-quadratic regulator and solving the resulting
+matrix Riccati equation directly, which reproduces this same $A_t$ with no
+free sign choices. A welcome consequence: under this corrected equation, the
+numerical illustration of Section~\ref{sec:sr-numerical} no longer exhibits
+the finite-time blow-up reported in an earlier revision, and the originally
+intended parameter $c_2=5.0$ may be restored without modification (see the
+updated Table~\ref{tab:sr-baseline-parameters} and discussion in
+Section~\ref{sec:sr-numerical}).
+
+The full master equation for $V(t,x,\mu)=-\tfrac12A_tx^2-B_tx\bar\mu-\tfrac12C_t\bar\mu^2
+-D_tx-E_t\bar\mu-F_t$ also requires the Lions-derivative coupling term,
+which (since $\delta V/\delta\mu(y)=-B_tx-C_t\bar\mu-E_t$ is independent of
+$y$) reduces to $\bar{b}(t,\bar\mu)\cdot\partial_{\bar\mu}V$, where
+$\bar{b}(t,\bar\mu)=\mathbb{E}_{y\sim\mu}[\kappa(\bar\mu-y)+\alpha^*(t,y,\mu)+b_t]$
+is the equilibrium aggregate drift of $\bar\mu_t$ itself. Since
+$\alpha^*(t,y,\mu)=p(t,y,\mu)/\lambda$ is linear in $y$, this expectation
+needs only the first moment $\mathbb{E}[y]=\bar\mu$ (no higher-moment terms
+enter), giving exactly
 \[
-    -\dot{B}_t = \kappa A_t - \kappa B_t - \frac{A_t B_t}{\lambda} \qquad
-    \Longrightarrow \qquad \dot{B}_t = \kappa B_t + \frac{A_t B_t}{\lambda} -
-    \kappa A_t.
+    \bar{b}(t,\bar\mu) = -\frac{(A_t+B_t)\bar\mu + D_t}{\lambda} + b_t.
 \]
-\textbf{Correction (added post-defense):} an earlier version of this derivation
-had the sign of the $A_t B_t/\lambda$ cross term reversed, originating in the
-expansion of $\tfrac{1}{2\lambda}(A_t x + B_t\bar\mu)^2$ above combined with the
-$\kappa(\bar\mu-x)$ term. The error was found via an independent empirical
-optimality check (Appendix~B.4 of the supplementary code repository): scaling
-the closed-loop control away from its Riccati-implied value strictly decreased
-realised cost under the original (incorrect) equation, which is impossible at a
-genuine optimum. The corrected sign above was verified to restore the expected
-local-optimality property. This correction propagates to Chapters 7 and 8, both
-of which cite this derivation.
-Matching coefficients of $\bar\mu^2$:
+Together with the common-noise diffusion terms
+$\tfrac12(\sigma^2+\sigma_0^2)\partial^2_{xx}V+\sigma_0^2\partial^2_{x\bar\mu}V
++\tfrac12\sigma_0^2\partial^2_{\bar\mu\bar\mu}V$ -- present because $\bar\mu_t$
+is itself a stochastic process driven by the same common noise $\sigma_0$ as
+$X_t$ -- the full master-equation HJB is
 \[
-    -\frac{1}{2}\dot{C}_t = -\kappa B_t + \frac{B_t^2}{2\lambda} \qquad
-    \Longrightarrow \qquad \dot{C}_t = -\frac{B_t^2}{\lambda} - 2\kappa B_t.
+    \partial_tV + H^*(t,x,\mu,\partial_xV) + \bar{b}(t,\bar\mu)\partial_{\bar\mu}V
+    + \tfrac12(\sigma^2+\sigma_0^2)\partial^2_{xx}V + \sigma_0^2\partial^2_{x\bar\mu}V
+    + \tfrac12\sigma_0^2\partial^2_{\bar\mu\bar\mu}V = 0.
 \]
-These are exactly \eqref{eq:sr-riccati-quadratic} (and, with $Q,P$ in place of the
-scalar $c_1/2, c_2/2$ and matrix products throughout, \eqref{eq:alpha-riccati-system}).
+The coupling term $\bar{b}\cdot\partial_{\bar\mu}V$ contributes \emph{only}
+to the $x\bar\mu$, $\bar\mu^2$, $x$, $\bar\mu$, and constant coefficients
+(verified symbolically: its contribution to the $x^2$ coefficient is
+identically zero, so $A_t$ above is unaffected by this correction).
+Matching coefficients of $x\bar\mu$ now gives
+\[
+    \dot{B}_t = \kappa B_t - \kappa A_t + \frac{2A_tB_t}{\lambda} +
+    \frac{B_t^2}{\lambda}, \qquad B_T = 0,
+\]
+which agrees with the previously corrected sign of the $A_tB_t/\lambda$ term
+(confirming that empirical check remains valid) but adds the
+$2A_tB_t/\lambda+B_t^2/\lambda$ master-equation contribution, replacing the
+single $A_tB_t/\lambda$ term that appeared before. Matching coefficients of
+$\bar\mu^2$:
+\[
+    \dot{C}_t = -2\kappa B_t + \frac{2A_tC_t}{\lambda} + \frac{B_t^2}{\lambda} +
+    \frac{2B_tC_t}{\lambda}, \qquad C_T = 0.
+\]
+These replace \eqref{eq:sr-riccati-quadratic} (and, with $Q,P$ in place of
+the scalar $c_1/2,c_2/2$ and matrix products throughout, the analogous
+system in Chapter~8's \eqref{eq:alpha-riccati-system} should be re-derived
+under the same correction; this is flagged as remaining work in
+Chapter~10, \S10.4, since the matrix case was not re-derived in this
+revision).
 
 \subsection{Linear Terms}
 
-The ODEs for $D_t, E_t, F_t$ are obtained by matching the coefficients of $x$,
-$\bar\mu$, and constants. The corrected $D_t$ equation, verified by the same
-coefficient-matching method used for $B_t$ above, is:
+Matching coefficients of $x$:
 \[
-    \dot{D}_t = \kappa D_t + \frac{A_t D_t}{\lambda} - A_t b_t, \qquad D_T = 0.
+    \dot{D}_t = \kappa D_t + \frac{A_tD_t}{\lambda} + \frac{B_tD_t}{\lambda} -
+    (A_t+B_t)b_t, \qquad D_T = 0,
 \]
-\textbf{Open item, stated explicitly (updated):} a careful re-derivation of $E_t$,
-accounting fully for the contribution of the Lions-derivative (master-equation)
-integral term in the HJB equation, shows that $\dot{E}_t$ should in general
-depend on $C_t$ as well as $B_t, D_t$ -- a dependence absent from the equation
-below as stated. A further check of $C_t$'s own equation (\eqref{eq:sr-riccati-quadratic}
-above) revealed that it too appears to omit a contribution from the same
-Lions-derivative term, which was not previously flagged. Correctly closing this
-system requires deriving $C_t$, $E_t$, and $F_t$ together, and $F_t$'s equation
-in particular involves the second-order common-noise term $\partial^2_{xx}u$
-acting on a value function whose argument $\mu_t$ is itself a stochastic
-process driven by the same common noise $\sigma_0$ -- a full It\^o treatment
-of the master equation that has not been completed with sufficient confidence
-to present a corrected formula here. This is flagged as a genuinely open
-problem for future work (see Chapter 10, \S10.4) rather than addressed with an
-unverified fix, in keeping with this thesis's standard of not asserting a
-result without independent verification.
-below as stated. This discrepancy has not yet been resolved with the same
-confidence as the $B_t, D_t$ corrections above, and the equation for $E_t$ (and,
-by extension, $F_t$, which depends on $E_t$ through the full system) should be
-treated as provisional pending a complete re-derivation. The equation as
-currently stated is:
+which adds the $B_tD_t/\lambda - B_tb_t$ master-equation contribution to the
+previously stated equation. Matching coefficients of $\bar\mu$:
 \[
-    \dot{E}_t = \kappa E_t - \frac{B_t D_t}{\lambda} - B_t b_t - \kappa D_t,
-    \qquad E_T = 0,
+    \dot{E}_t = -\kappa D_t + \frac{A_tE_t}{\lambda} + \frac{B_tD_t}{\lambda} +
+    \frac{B_tE_t}{\lambda} + \frac{C_tD_t}{\lambda} - (B_t+C_t)b_t,
+    \qquad E_T = 0.
 \]
+This confirms the open item flagged in an earlier revision: $\dot{E}_t$ does
+indeed depend on $C_t$, through the $C_tD_t/\lambda$ term. Matching the
+constant term, which collects the diffusion contributions
+$\partial^2_{xx}V=-A_t$, $\partial^2_{x\bar\mu}V=-B_t$,
+$\partial^2_{\bar\mu\bar\mu}V=-C_t$ together with the remaining
+$\bar{b}\cdot\partial_{\bar\mu}V$ pieces:
 \[
-    \dot{F}_t = -\frac{D_t^2 \sigma^2}{2\lambda} - \frac{\sigma_0^2}{2}(A_t + C_t)
-    - D_t b_t, \qquad F_T = 0.
+    \dot{F}_t = \frac{D_t^2}{2\lambda} + \frac{D_tE_t}{\lambda} -
+    (D_t+E_t)b_t - \frac{\sigma^2+\sigma_0^2}{2}A_t - \sigma_0^2B_t -
+    \frac{\sigma_0^2}{2}C_t, \qquad F_T = 0.
 \]
-These are exactly \eqref{eq:sr-riccati-linear} (with the $D_t$ correction noted
-above not yet propagated to the displayed equation number; see the correction
-note at the start of this subsection). In the alpha-generation model of
-Chapter 8, there is no exogenous bailout term $b_t$, so setting $b_t \equiv 0$
-gives $D_t = E_t = F_t \equiv 0$ for all $t$, recovering the simpler closed-loop
-drift used in Chapter 8 -- this simplification is unaffected by the open item
-above, since it holds regardless of the precise form of $E_t$'s dependence on
-$C_t$ when $b_t \equiv 0$ forces all three linear coefficients to vanish
-identically.
+The full system $(A_t,B_t,C_t,D_t,E_t,F_t)$ was verified to make the PDE
+residual vanish identically under direct symbolic substitution, and was
+integrated numerically (Section~\ref{sec:sr-numerical}) with no blow-up
+across the full original parameter range, including the originally intended
+$c_2=5.0$. As in the previous revision, when $b_t\equiv0$ (Chapter~8's
+alpha-generation model has no exogenous bailout term), $D_t=E_t\equiv0$, but
+$C_t$ and $F_t$ no longer vanish in general -- the simplification used in
+Chapter~8 should therefore be re-checked against this corrected system as
+part of the matrix-case re-derivation noted above.
 
 \subsection{Proof that $v_t$ is Independent of $b_t$}
 
