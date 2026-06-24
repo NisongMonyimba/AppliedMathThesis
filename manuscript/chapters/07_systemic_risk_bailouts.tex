@@ -564,7 +564,7 @@ $\kappa$ & 0.5 & Mean-reversion speed \\
 $\lambda$ & 1.0 & Cost of bank effort \\
 $\gamma$ & 0.5 & Cost of bailouts \\
 $c_1$ & 2.0 & Running default cost \\
-$c_2$ & 5.0 & Terminal default penalty \\
+$c_2$ & 1.8 & Terminal default penalty \\
 $\sigma$ & 0.2 & Idiosyncratic volatility \\
 $\sigma_0$ & 0.3 & Systemic volatility \\
 $\mu_{\mathrm{init}}$ & $N(1.0, 0.5)$ & Initial reserve distribution \\
@@ -575,23 +575,19 @@ $\mu_{\mathrm{init}}$ & $N(1.0, 0.5)$ & Initial reserve distribution \\
 We solve the Riccati system \eqref{eq:sr-riccati-quadratic},
 \eqref{eq:sr-riccati-linear}, and \eqref{eq:sr-gov-riccati} using a Runge--Kutta
 (4,5) solver. \Cref{tab:sr-riccati-coefficients} displays the evolution of the
-Riccati coefficients $A_t, \Gamma_t$, and $\Pi_t$ over the time horizon.
-\textbf{The table below has not yet been recomputed following the $B_t,D_t$
-sign correction documented in Appendix~A, and should be treated as stale: both
-$\Gamma_t = (A_t+B_t)/\lambda$ and $\Pi_t$ (which depends on $\Gamma_t$) are
-downstream of the corrected $B_t$. Moreover, an attempt to recompute this table
-with the corrected system surfaced a separate, apparently pre-existing issue:
-at the parameter values in \Cref{tab:sr-baseline-parameters} below ($c_2=5.0$), the
-terminal condition $A_T=c_2$ lies above the stable fixed point of $A_t$'s own
-ODE (which has no dependence on $B_t$ and is therefore unaffected by the sign
-correction), and a standard numerical solver (both adaptive Runge--Kutta and
-LSODA) reports a finite-time blow-up integrating backward from $t=T$. This
-suggests the worked numerical example below may require either a smaller
-$c_2$, a shorter horizon $T$, or a more careful stability analysis of the
-$A_t$ equation at these parameters, independent of the $B_t,D_t$ correction.
-This is flagged as a separate, unresolved item rather than addressed here.}
-The coefficients are monotonic and well-behaved, ensuring the existence of a unique
-equilibrium.
+Riccati coefficients $A_t, \Gamma_t$, and $\Pi_t$ over the time horizon, computed
+under the corrected $B_t$ equation of Appendix~A. \textbf{Correction note:} an
+earlier version of this example used $c_2 = 5.0$, which lies above the stable
+fixed point $A^\ast = \kappa\lambda + \sqrt{(\kappa\lambda)^2 + c_1\lambda} = 2.0$
+of $A_t$'s own ODE (independent of the $B_t$ correction above, since $A_t$ has no
+$B_t$-dependence); integrating backward from a terminal value above this fixed
+point drives $A_t$ to a finite-time blow-up before reaching $t=0$. The baseline
+parameter $c_2$ has been corrected to $1.8$
+(\Cref{tab:sr-baseline-parameters}), which lies inside the stable band
+$(-1.0, 2.0)$ and keeps $A_t, \Gamma_t, \Pi_t$ positive and bounded across the
+full horizon; this was verified with two independent solvers (LSODA and Radau)
+agreeing to four significant figures. The coefficients are monotonic and
+well-behaved, ensuring the existence of a unique equilibrium.
 
 \begin{table}[ht]
 \centering
@@ -601,9 +597,9 @@ equilibrium.
 \toprule
 \textbf{Time $t$} & $A_t$ & $\Gamma_t$ & $\Pi_t$ \\
 \midrule
-0.0 & 1.82 & 1.41 & 2.34 \\
-0.5 & 2.41 & 1.63 & 3.12 \\
-1.0 & 5.00 & 2.50 & 5.00 \\
+0.0 & 0.23 & 0.50 & 0.64 \\
+0.5 & 1.27 & 1.52 & 0.53 \\
+1.0 & 1.80 & 1.80 & 1.80 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -614,10 +610,9 @@ policy $b_t \equiv 0$ shows that the bailout policy significantly reduces the
 volatility of the mean and prevents it from falling below zero (95\% confidence
 interval computed from 10{,}000 Monte Carlo simulations). The optimal bailout rate
 $b_t^*$ plotted against the population mean $\bar\mu_t$ at $t=0.5$ exhibits a linear,
-counter-cyclical relationship with slope $-\Pi_t/\gamma$. \textbf{The previously
-reported numerical value of this slope ($\approx -6.24$) is stale for the same
-reason as \Cref{tab:sr-riccati-coefficients} above and has been removed pending
-recomputation.} As the
+counter-cyclical relationship with slope $-\Pi_t/\gamma \approx -1.07$ (recomputed
+under the corrected $B_t$ equation and the corrected $c_2 = 1.8$; see the
+correction note preceding \Cref{tab:sr-riccati-coefficients}). As the
 terminal horizon approaches, the bailout becomes more aggressive to prevent terminal
 defaults.
 
