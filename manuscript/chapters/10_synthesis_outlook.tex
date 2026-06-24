@@ -418,7 +418,10 @@ class of MFG equilibria for which the LSI (or its relaxations) holds.
 \subsection{Formal Verification of the Full Pipeline}
 
 \paragraph{Current framework.} Key estimates (Gronwall, CFL, optimality, Riccati
-derivation) have been formally verified in Lean 4.
+derivation) have been formally verified in Lean 4. \textbf{As noted in
+Section~10.3.4, this verification is partial and illustrative: it covers these
+four selected estimates only, not the full pipeline (RL convergence proofs,
+empirical backtest statistics, or the Sinkhorn implementation).}
 
 \paragraph{Recent literature.} Formal verification in mathematical finance is a
 nascent field. Interactive theorem provers have been used to verify the
@@ -507,7 +510,11 @@ can serve as a template for further research.
 \subsection{For the Reproducibility of Mathematical Finance}
 
 The formal verification of key estimates in Lean 4 sets a precedent for the use
-of interactive theorem provers in mathematical finance. As models become
+of interactive theorem provers in mathematical finance. \textbf{This verification
+is partial, covering the selected estimates listed in Section~10.3.4 rather than
+the full theoretical and computational pipeline; the precedent it sets is for the
+approach, not yet for comprehensive end-to-end verification of a result of this
+scope.} As models become
 increasingly complex, machine-checked proofs offer a path to greater confidence
 in theoretical results. The code accompanying this thesis is publicly available
 and may serve as a starting point for future formalisation efforts. The
