@@ -23,7 +23,7 @@ The chapter covers six interlocking topics:
     clarify the distinction between the linear Fokker--Planck SPDE and the nonlinear
     Kushner--Zakai equation.
     \item \textbf{Martingale theory}: martingales, stopping times, Doob's inequality,
-    the Burkholder--Davis--Gundy inequality, martingale representation, and Girsanov's
+    Burkholder--Davis--Gundy, martingale representation, and Girsanov's
     theorem.
     \item \textbf{Sobolev spaces and functional analysis}: Sobolev embedding,
     Hahn--Banach extension, Lumer--Phillips theorem, spectral gap, and log-Sobolev
@@ -145,7 +145,10 @@ penalty:
 \end{equation}
 where $\mathrm{KL}(\pi\|\mu\otimes\nu) = \int \log\frac{d\pi}{d(\mu\otimes\nu)}\, d\pi$.
 The solution has the form
-$\pi_\epsilon^*(dx,dy) = u(x) K(x,y) v(y)\, \mu(dx)\nu(dy)$ where
+\[
+    \pi_\epsilon^*(dx,dy) = u(x) K(x,y) v(y)\, \mu(dx)\nu(dy),
+\]
+where
 $K(x,y) = e^{-|x-y|^2/\epsilon}$ is the Gaussian kernel, and $(u,v)$ satisfies the
 Sinkhorn fixed-point equations:
 \begin{equation}
@@ -446,19 +449,25 @@ Let $X_t^i$ be a single agent satisfying $dX_t^i = b_t\, dt + \sigma\, dW_t^i +
 \sigma_0\, dW_t^0$. Apply \Cref{thm:ito-multidim} with $f = \phi$ (a smooth test
 function):
 \[
-    d\phi(X_t^i) = \nabla\phi(X_t^i) \cdot b_t\, dt + \sigma \nabla\phi(X_t^i) \cdot
-    dW_t^i + \sigma_0 \nabla\phi(X_t^i) \cdot dW_t^0 + \frac{\sigma^2}{2}
+    \begin{aligned}
+    d\phi(X_t^i) &= \nabla\phi(X_t^i) \cdot b_t\, dt + \sigma \nabla\phi(X_t^i) \cdot
+    dW_t^i + \sigma_0 \nabla\phi(X_t^i) \cdot dW_t^0 \\
+    &\quad + \frac{\sigma^2}{2}
     \Delta\phi(X_t^i)\, dt + \frac{1}{2} \mathrm{tr}(\sigma_0 \sigma_0^\top D^2
     \phi(X_t^i))\, dt.
+    \end{aligned}
 \]
 Averaging over $i = 1, \dots, N$ and writing
 $\langle \mu_t^N, \phi \rangle = \frac{1}{N}\sum_i \phi(X_t^i)$:
 \[
-    d\langle \mu_t^N, \phi \rangle = \left\langle \mu_t^N, b_t \cdot \nabla\phi +
+    \begin{aligned}
+    d\langle \mu_t^N, \phi \rangle &= \left\langle \mu_t^N, b_t \cdot \nabla\phi +
     \frac{\sigma^2}{2}\Delta\phi + \frac{1}{2}\mathrm{tr}(\sigma_0 \sigma_0^\top D^2
-    \phi) \right\rangle dt + \underbrace{\frac{\sigma}{N}\sum_i \nabla\phi(X_t^i)\,
+    \phi) \right\rangle dt \\
+    &\quad + \underbrace{\frac{\sigma}{N}\sum_i \nabla\phi(X_t^i)\,
     dW_t^i}_{\to 0 \text{ as } N \to \infty} + \sigma_0 \langle \mu_t^N, \nabla\phi
     \rangle\, dW_t^0.
+    \end{aligned}
 \]
 The idiosyncratic term vanishes in $L^2$ as $N \to \infty$ (mutual independence of
 $W^i$). The common noise term survives because $W_t^0$ is the same for all agents.
@@ -677,7 +686,9 @@ For a non-negative submartingale $(M_t)$:
 
 \begin{remark}
 This is used in Theorem 3.1: to bound the expected supremum
-$\mathbb{E}[\sup_t W_2^2(\mu_t^1,\mu_t^2)]$ by $4\mathbb{E}[W_2^2(\mu_T^1,\mu_T^2)]$,
+\[
+    \mathbb{E}\big[\sup_t W_2^2(\mu_t^1,\mu_t^2)\big] \leq 4\,\mathbb{E}\big[W_2^2(\mu_T^1,\mu_T^2)\big],
+\]
 allowing the Gronwall bound to be applied.
 \end{remark}
 
@@ -718,9 +729,12 @@ This is the adjoint BSDE from Chapter 1.
 
 \begin{theorem}[Girsanov's Theorem]
 \label{thm:girsanov}
-Let $\theta : [0,T] \times \Omega \to \mathbb{R}^d$ be adapted with
-$\mathbb{E}\big[\exp(\tfrac{1}{2}\int_0^T |\theta_t|^2\, dt)\big] < \infty$ (Novikov's
-condition). Define
+Let $\theta : [0,T] \times \Omega \to \mathbb{R}^d$ be adapted with the Novikov
+condition
+\[
+    \mathbb{E}\Big[\exp\big(\tfrac{1}{2}\textstyle\int_0^T |\theta_t|^2\, dt\big)\Big] < \infty.
+\]
+Define
 \[
     Z_T = \exp\left( \int_0^T \theta_t\, dW_t - \frac{1}{2}\int_0^T |\theta_t|^2\, dt
     \right).
@@ -795,8 +809,11 @@ $x \in X$) if and only if:
 \begin{remark}[Application to Fokker--Planck]
 The Fokker--Planck operator $\mathcal{L}^*$ on $L^2(\mu^*)$ (where $\mu^*$ is the MFG
 equilibrium measure) is dissipative:
-$\langle \mathcal{L}^* \rho, \rho \rangle_{L^2(\mu^*)} = -\sigma^2 \|\nabla\rho\|_{L^2(\mu^*)}^2
-\leq 0$ (assuming boundary terms vanish). By Lumer--Phillips, $\mathcal{L}^*$ generates
+\[
+    \langle \mathcal{L}^* \rho, \rho \rangle_{L^2(\mu^*)} = -\sigma^2 \|\nabla\rho\|_{L^2(\mu^*)}^2
+    \leq 0
+\]
+(assuming boundary terms vanish). By Lumer--Phillips, $\mathcal{L}^*$ generates
 a contraction semigroup, and the spectral gap $\lambda_1 > 0$ (the smallest positive
 eigenvalue) gives the exponential decay rate in Theorem 5.2.
 \end{remark}
@@ -826,7 +843,10 @@ $\lambda_1 \geq 1/C_{\mathrm{Lip}}$.
 
 \begin{proof}
 The log-Sobolev inequality implies the Poincar\'e inequality
-$\mathrm{Var}_{\mu^*}(f) \leq C_{\mathrm{Lip}} \int |\nabla f|^2\, d\mu^*$ (take
+\[
+    \mathrm{Var}_{\mu^*}(f) \leq C_{\mathrm{Lip}} \int |\nabla f|^2\, d\mu^*
+\]
+(take
 $\mu = f^2 \mu^*$, expand $H$ to second order). The Poincar\'e inequality is equivalent
 to $\lambda_1 \geq 1/C_{\mathrm{Lip}}$.
 \end{proof}

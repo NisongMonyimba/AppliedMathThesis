@@ -360,13 +360,14 @@ constant $L_\mu$. Consequently,
 \end{equation}
 Standard BSDE estimates (see, e.g., El Karoui et al., 1997, or \citep{zhang2017}, Theorem
 4.3.1) yield
-\begin{equation}
-    \mathbb{E}\left[\sup_{t \in [0,T]} |\Delta p_t|^2 + \int_0^T \big(|\Delta q_t|^2 +
-    |\Delta r_t|^2\big)\, dt\right] \leq C_{\mathrm{BSDE}} \,\mathbb{E}\left[|\Delta
-    X_T|^2 + \int_0^T \big(|\Delta X_t|^2 + |\alpha_t^1 - \alpha_t^2|^2 +
-    W_2(\mu_t^1, \mu_t^2)^2\big)\, dt\right].
+\begin{align}
+    \mathbb{E}\bigg[\sup_{t \in [0,T]} |\Delta p_t|^2 + \int_0^T \big(|\Delta q_t|^2 +
+    |\Delta r_t|^2\big)\, dt\bigg] \notag\\
+    \leq C_{\mathrm{BSDE}} \,\mathbb{E}\bigg[|\Delta X_T|^2
+    + \int_0^T \big(|\Delta X_t|^2 + |\alpha_t^1 - \alpha_t^2|^2
+    + W_2(\mu_t^1, \mu_t^2)^2\big)\, dt\bigg].
     \label{eq:bsde-estimate}
-\end{equation}
+\end{align}
 The constant $C_{\mathrm{BSDE}}$ depends on the bounds of the coefficients
 $A_t, B_t, D_t$, the Lipschitz constant $L_\mu$, the time horizon $T$, and crucially,
 the norm of the common-noise volatility $\|\sigma_0\|_F$ (through the martingale

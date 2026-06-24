@@ -49,6 +49,7 @@ this literature.
 \small
 \caption{Comparison of RL for MFG Convergence Results}
 \label{tab:rl-comparison}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{p{2.3cm}p{1.6cm}p{1.4cm}p{1.6cm}p{1.6cm}p{1.8cm}p{1.8cm}}
 \toprule
 \textbf{Work} & \textbf{Setting} & \textbf{Time-scales} & \textbf{Common Noise} &
@@ -65,6 +66,7 @@ Zhou et al.\ (2025) & MFG & Continuous & No & Yes & Parametric & Weak convergenc
     (exponential) & LSI policy class & Exponential rate \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \paragraph{Scope of the guarantees.} \textbf{The convergence results in Theorems
@@ -518,7 +520,7 @@ exponential rate in Theorem~\ref{thm:rl-exponential} provides a theoretical uppe
 bound on what can be achieved under idealised conditions.
 
 
-\section{Practical Implementation Considerations and Limitations}
+\section{Practical Considerations and Limitations}
 \label{sec:rl-implementation}
 
 \subsection{Function Approximation}

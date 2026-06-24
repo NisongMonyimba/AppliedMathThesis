@@ -144,6 +144,7 @@ associated timescales.
 \small
 \caption{SPDE Operator Decomposition and Timescales}
 \label{tab:operator-decomposition}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{p{1.6cm}p{3.5cm}p{2.6cm}p{1.6cm}p{1.8cm}}
 \toprule
 \textbf{Operator} & \textbf{Mathematical Expression} & \textbf{Physical
@@ -162,6 +163,7 @@ $\mathcal{L}_{\mathrm{common}}$ & $\frac{1}{2}\|\sigma_0\|_F^2 \int\int \nabla_x
     TD3 (Meta-Learner) \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 
@@ -234,7 +236,7 @@ s_t)}$ is the probability ratio, $\hat{A}_t$ is the advantage estimate (computed
 the SAC critic), and $\epsilon$ is the clipping parameter. The advantage $\hat{A}_t$
 depends on the current population measure through the critic's value estimates.
 
-\subsection{Slow Meta-Learner: Twin Delayed DDPG (TD3) for Common-Noise Adaptation}
+\subsection{Slow Meta-Learner: TD3 for Common-Noise Adaptation}
 
 The operator $\mathcal{L}_{\mathrm{common}}$ captures the effect of common shocks on
 the entire population. Learning this operator requires adapting the policy and value
@@ -376,6 +378,7 @@ not as a guarantee of convergence for arbitrary deep RL implementations.
 \centering
 \caption{Timescale Separation Verification for LQ-MFG}
 \label{tab:timescale-verification}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lccc}
 \toprule
 \textbf{Operator} & \textbf{Theoretical Timescale} & \textbf{LQ-MFG Scaling} &
@@ -389,6 +392,7 @@ $\mathcal{L}_{\mathrm{common}}$ & $O(\sigma_0^2)$ & $O(\sigma_0^2)$ & Every
     $K_{\mathrm{TD3}} = 10^5$ steps ($\eta = 10^{-5}$) \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 
@@ -556,6 +560,7 @@ interaction.
 \centering
 \caption{LQ-MFG Benchmark Results}
 \label{tab:lq-benchmark-results}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lcc}
 \toprule
 \textbf{Algorithm} & \textbf{Final $W_2$ Error (mean $\pm$ std)} & \textbf{Steps to
@@ -568,6 +573,7 @@ Monolithic SAC & $0.23 \pm 0.04$ & Never reached \\
 Monolithic PPO & Diverged & --- \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \subsection{Multi-Asset Market Simulation}
@@ -697,7 +703,8 @@ tangible benefits of respecting the underlying mathematical structure.
 \small
 \caption{Summary of Limitations and Mitigations}
 \label{tab:limitations-summary}
-\begin{tabular}{p{2.8cm}p{3.2cm}p{4.5cm}}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{3.3cm}p{3.0cm}p{4.2cm}}
 \toprule
 \textbf{Limitation} & \textbf{Impact} & \textbf{Mitigation Strategy} \\
 \midrule
@@ -714,6 +721,7 @@ Fixed update frequencies & Violates asymptotic theory & Hyperparameter tuning;
     annealing schedules \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 

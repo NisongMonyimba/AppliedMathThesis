@@ -64,9 +64,9 @@ discussion of implementation considerations.
 \section{Discretisation of the FBSDE System}
 \label{sec:na-discretisation}
 
-We recall the FBSDE system \eqref{eq:fbsde-system} that characterises the MFG
-equilibrium. Let $(\mu^*, \alpha^*, X^*, p, q, r)$ denote the unique solution whose
-existence is guaranteed by Theorem~\ref{thm:wellposedness}. For numerical
+We recall the FBSDE system \eqref{eq:fbsde-system} characterising the MFG
+equilibrium: the unique solution $(\mu^*, \alpha^*, X^*, p, q, r)$ exists by
+Theorem~\ref{thm:wellposedness}. For numerical
 approximation, we fix a time grid $0 = t_0 < t_1 < \dots < t_N = T$ with uniform step
 size $\Delta t = T/N$, and a spatial grid for the measure flow with mesh size
 $\Delta x$. We denote by $X^n, p^n, \mu^n$ the approximations at time $t_n$.
@@ -453,7 +453,7 @@ Coupling & $\Delta t \leq 1/L_H$ & Explicit feedback & 0.2 \\
 \end{table}
 
 
-\section{Numerical Experiments: Linear-Quadratic Benchmark}
+\section{Numerical Experiments: LQ Benchmark}
 \label{sec:na-experiments}
 
 We validate the theoretical convergence rates on the one-dimensional linear-quadratic
@@ -473,10 +473,10 @@ Runge--Kutta (4,5) solver. We implement three numerical schemes:
 
 \begin{itemize}
     \item \textbf{Particle method}: $M = 10^5$ particles, Euler--Maruyama time
-    stepping with step sizes $\Delta t \in \{2^{-5}, 2^{-6}, 2^{-7}, 2^{-8}\}$.
-    \item \textbf{Finite-difference method}: spatial domain $[-3,3]$ with mesh sizes
-    $\Delta x \in \{0.1, 0.05, 0.025, 0.0125\}$, time step chosen to satisfy the CFL
-    condition \eqref{eq:cfl-condition}.
+    stepping, step sizes $\Delta t\in\{2^{-5},2^{-6},2^{-7},2^{-8}\}$.
+    \item \textbf{Finite-difference}: domain $[-3,3]$, mesh sizes
+    $\Delta x\in\{0.1,0.05,0.025,0.0125\}$, CFL-satisfying time step
+    \eqref{eq:cfl-condition}.
     \item \textbf{Combined scheme}: particle approximation of the measure coupled
     with finite-difference solution of the adjoint equation.
 \end{itemize}
@@ -551,9 +551,10 @@ necessary. These extensions are discussed as open problems in Chapter 10.
 \centering
 \caption{Computational Cost Comparison (LQ-MFG, $T=1$)}
 \label{tab:computational-cost}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lccc}
 \toprule
-\textbf{Scheme} & \textbf{Time (seconds)} & \textbf{Memory (MB)} & \textbf{Scaling
+\textbf{Scheme} & \textbf{Time (s)} & \textbf{Memory (MB)} & \textbf{Scaling
     with $d$} \\
 \midrule
 Particle ($M = 10^5$) & 12.4 & 80 & $O(M)$ (state), $O(M^2)$ (Wasserstein) \\
@@ -561,6 +562,7 @@ Finite-difference & 3.2 & 12 & Exponential in $d$ \\
 Combined & 8.7 & 45 & Hybrid \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 
@@ -583,8 +585,11 @@ generating synthetic data, validating learning algorithms, and ultimately extrac
 tradable signals from real market data.
 
 \begin{remark}[Reproducibility note --- relation to repository code]
-The numerical experiments of this section are reproduced in
-\texttt{simulations/euler\_milstein/run\_convergence\_simulation.py} in the
+The numerical experiments of this section are reproduced in the script
+\begin{center}
+\texttt{simulations/euler\_milstein/run\_convergence\_simulation.py}
+\end{center}
+in the
 accompanying code repository, using common random numbers (CRN) to isolate
 discretisation error from Monte Carlo noise. \textbf{That implementation measures
 \emph{strong} pathwise error (order 1.0, since $\sigma, \sigma_0$ are additive/constant
