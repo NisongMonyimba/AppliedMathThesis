@@ -173,6 +173,29 @@ Despite its breadth and depth, the thesis has several important limitations that
 must be acknowledged. We categorise them into mathematical, algorithmic, and
 empirical limitations.
 
+\paragraph{A unifying caveat: pervasive reliance on the linear-quadratic special
+case.} Before turning to the itemised limitations below, it is worth stating
+explicitly a pattern that recurs throughout this thesis rather than treating it
+as a series of isolated, chapter-specific caveats. The closed-form Riccati
+solutions of Chapter 7 and Chapter 8, the explicit numerical benchmarks of
+Chapter 4, the linear-quadratic actor-critic experiments of Chapters 5--6, and
+the empirical alpha-generation framework of Chapter 9 all rest, in their
+quantitative content, on the linear-quadratic (LQ) structural assumption: linear
+state dynamics, quadratic costs, and (where relevant) Gaussian or
+linear-quadratic-consistent measure flows. This is standard practice in the MFG
+literature, since the LQ case is the setting in which closed-form or
+semi-explicit solutions exist at all, and the general theory of Chapters 2--3
+and the convergence theorems of Chapters 4--6 are stated for general nonlinear
+MFGs. But it means that essentially none of this thesis's specific numerical
+claims -- convergence rates, Sharpe ratios, contraction constants, RL training
+curves -- has been verified outside the LQ structure, and the general-case
+theory's practical behaviour at finite sample sizes and realistic nonlinearity
+remains, in this thesis, a matter of theoretical guarantee rather than
+demonstrated numerical evidence. Extending any of Chapters 4--9's worked
+examples beyond the LQ case is listed as open work in the relevant subsections
+below, but it is worth seeing this as one connected gap rather than several
+unrelated ones.
+
 \subsection{Mathematical Limitations}
 
 \paragraph{Regularity assumptions.} The contraction estimate of

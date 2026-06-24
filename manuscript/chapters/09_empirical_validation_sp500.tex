@@ -2,6 +2,28 @@
 
 \section{Overview}
 
+\begin{center}
+\fbox{\begin{minipage}{0.95\textwidth}
+\textbf{Critical data disclaimer, stated before any results below.} The
+methodology in this chapter -- point-in-time CRSP/Compustat universe
+construction, SEC Form 13F institutional holdings, CFTC COT futures
+positioning, and the associated look-ahead-bias controls -- describes the
+data pipeline that a genuine empirical study of this kind would require. The
+accompanying simulation code does not have access to licensed CRSP,
+Compustat, or SEC 13F microdata, and \textbf{the specific numerical results
+reported in this chapter (Sharpe ratios, drawdowns, the 1.91 figure below,
+and all comparison-strategy statistics) were generated from a synthetic data
+panel with an embedded predictive signal, not from real market data.} This
+chapter should be read as a methodologically complete specification of how
+the model would be validated empirically, together with a demonstration
+that the methodology produces internally consistent results on synthetic
+data with known structure -- not as evidence that the strategy has been
+validated on real markets. This distinction is stated explicitly in the
+supplementary code's documentation but was not previously carried into this
+chapter's prose with comparable prominence; that gap is corrected here.
+\end{minipage}}
+\end{center}
+
 This chapter confronts the theoretical framework of the preceding chapters with real
 financial market data. The central empirical hypothesis is that deviations of the
 observed market measure $\mu_t$ from the model-implied equilibrium measure $\mu_t^*$
@@ -15,10 +37,13 @@ futures positioning (CFTC COT reports), and calibrate the linear-quadratic MFG m
 using rolling-window generalised method of moments. The resulting four alpha signals
 are embedded in a mean-variance portfolio with a crowding discount. Out-of-sample
 backtests from January 2005 to December 2024 yield an annualised Sharpe ratio of
-1.91 (net of transaction costs), statistically significant at $p = 0.002$ via block
+1.91 (net of transaction costs) \textbf{on the synthetic data described above},
+statistically significant at $p = 0.002$ via block
 bootstrap. The strategy achieves a maximum drawdown of $-18.3\%$ and positive
 skewness of 0.32. Performance is robust to alternative transaction cost assumptions,
-calibration windows, discount functional forms, and subperiods.
+calibration windows, discount functional forms, and subperiods, \textbf{all evaluated
+on the same synthetic panel; robustness to these choices has not been established
+on real market data.}
 
 \textbf{We emphasise that the reported Sharpe ratio is conditional on the structural
 model and estimation procedures. Model risk dominates statistical risk, and the
@@ -58,6 +83,16 @@ concludes.
 
 \section{Data and the Empirical Measure $\mu_t$}
 \label{sec:emp-data}
+
+\textbf{Note on what follows:} this section specifies the data sources and
+construction methodology that a real implementation of this empirical study
+would use. As stated in the disclaimer at the start of this chapter, the
+actual results reported below were generated from synthetic data with an
+embedded predictive signal, since the licensed real-data sources described
+here (CRSP, Compustat, SEC 13F, CFTC COT) were not available in the
+environment where this thesis was produced. The methodology below is
+presented in full because it specifies exactly what a future real-data
+implementation would need to replicate.
 
 \subsection{Universe and Time Period}
 
@@ -394,7 +429,10 @@ December 2024).
 \begin{table}[ht]
 \centering
 \footnotesize
-\caption{Out-of-sample performance metrics, January 2005 -- December 2024}
+\caption{Out-of-sample performance metrics, January 2005 -- December 2024. \textbf{All
+figures, including the S\&P 500 and momentum/reversal benchmark columns, are computed
+on the synthetic data panel described in the chapter-level disclaimer (\Cref{sec:emp-data}),
+not on actual historical market data.}}
 \label{tab:performance-metrics}
 \begin{tabular}{lcccc}
 \toprule

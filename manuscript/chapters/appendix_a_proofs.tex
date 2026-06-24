@@ -230,10 +230,22 @@ coefficient-matching method used for $B_t$ above, is:
 \[
     \dot{D}_t = \kappa D_t + \frac{A_t D_t}{\lambda} - A_t b_t, \qquad D_T = 0.
 \]
-\textbf{Open item, stated explicitly:} a careful re-derivation of $E_t$,
+\textbf{Open item, stated explicitly (updated):} a careful re-derivation of $E_t$,
 accounting fully for the contribution of the Lions-derivative (master-equation)
 integral term in the HJB equation, shows that $\dot{E}_t$ should in general
 depend on $C_t$ as well as $B_t, D_t$ -- a dependence absent from the equation
+below as stated. A further check of $C_t$'s own equation (\eqref{eq:sr-riccati-quadratic}
+above) revealed that it too appears to omit a contribution from the same
+Lions-derivative term, which was not previously flagged. Correctly closing this
+system requires deriving $C_t$, $E_t$, and $F_t$ together, and $F_t$'s equation
+in particular involves the second-order common-noise term $\partial^2_{xx}u$
+acting on a value function whose argument $\mu_t$ is itself a stochastic
+process driven by the same common noise $\sigma_0$ -- a full It\^o treatment
+of the master equation that has not been completed with sufficient confidence
+to present a corrected formula here. This is flagged as a genuinely open
+problem for future work (see Chapter 10, \S10.4) rather than addressed with an
+unverified fix, in keeping with this thesis's standard of not asserting a
+result without independent verification.
 below as stated. This discrepancy has not yet been resolved with the same
 confidence as the $B_t, D_t$ corrections above, and the equation for $E_t$ (and,
 by extension, $F_t$, which depends on $E_t$ through the full system) should be
