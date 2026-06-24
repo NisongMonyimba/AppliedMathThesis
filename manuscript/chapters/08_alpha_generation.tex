@@ -62,8 +62,8 @@ The main contributions of this chapter are:
     \texttt{sorry} placeholders.
 \end{enumerate}
 
-\paragraph{Chapter organisation.} \Cref{sec:alpha-mfg-framework} reviews the MFG
-framework and the linear-quadratic specification. \Cref{sec:alpha-signals} derives
+\paragraph{Chapter organisation.} \Cref{sec:alpha-mfg-framework} reviews the
+MFG framework and the LQ specification. \Cref{sec:alpha-signals} derives
 the four alpha signals. \Cref{sec:alpha-estimation} addresses the estimation of the
 equilibrium measure. \Cref{sec:alpha-portfolio} presents the portfolio construction
 algorithm. \Cref{sec:alpha-robustness} discusses robustness and model risk.
@@ -97,12 +97,12 @@ is the state process under $\alpha^*$.
 For analytical tractability and clear economic interpretation, we specialise to the
 linear-quadratic MFG introduced in \Cref{ex:lq-mfg}. The drift and reward functions
 are
-\begin{equation}
-    b(t,x,\mu,\alpha) = \kappa(\bar\mu - x) + \alpha, \qquad
-    f(t,x,\mu,\alpha) = -\left( x^\top Q x + \frac{\lambda}{2}\|\alpha\|^2 \right),
-    \qquad g(x,\mu) = -(x-\bar\mu_T)^\top P (x - \bar\mu_T),
+\begin{align}
+    b(t,x,\mu,\alpha) &= \kappa(\bar\mu - x) + \alpha, \notag\\
+    f(t,x,\mu,\alpha) &= -\left( x^\top Q x + \frac{\lambda}{2}\|\alpha\|^2 \right), \notag\\
+    g(x,\mu) &= -(x-\bar\mu_T)^\top P (x - \bar\mu_T),
     \label{eq:alpha-lq-specification}
-\end{equation}
+\end{align}
 where $\bar\mu = \int_{\mathbb{R}^d} x\, \mu(dx)$ is the population mean,
 $\kappa > 0$ is the mean-reversion speed, $\lambda > 0$ is the trading cost
 parameter, and $Q, P \in \mathbb{R}^{d \times d}$ are positive semidefinite matrices.
@@ -296,7 +296,7 @@ details.
 
 \subsection{Structural Calibration via GMM}
 
-The most direct approach is to calibrate the LQ-MFG model parameters
+The most direct approach calibrates the LQ-MFG model parameters
 $\theta = (\kappa, \lambda, Q, P, \sigma, \sigma_0)$ by matching empirical moments.
 Let $M_t^{\mathrm{emp}}$ be a vector of empirical moments computed from a rolling
 window of historical data. For the LQ-MFG, the key moments are:
@@ -377,7 +377,8 @@ Chapter 9.
 \small
 \caption{Comparison of Equilibrium Measure Estimation Methods}
 \label{tab:estimation-methods}
-\begin{tabular}{p{2cm}p{2.3cm}p{2.3cm}p{2.2cm}p{2.2cm}}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{1.8cm}p{2.1cm}p{2.6cm}p{2.0cm}p{2.0cm}}
 \toprule
 \textbf{Method} & \textbf{Accuracy} & \textbf{Computational Cost} & \textbf{Data
     Requirements} & \textbf{Robustness} \\
@@ -388,6 +389,7 @@ Kalman Filter & High, adaptive & Moderate & Streaming data & Requires tuning \\
 Reduced-Form & Moderate & Very low & Minimal & High \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 

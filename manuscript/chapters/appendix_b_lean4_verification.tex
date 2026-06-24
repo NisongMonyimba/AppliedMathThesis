@@ -186,10 +186,10 @@ theorem optimal_control_is_linear_feedback (x mu_bar p : Real) :
 \section{Contraction Factor in the Weighted Wasserstein Metric}
 \label{sec:appB-contraction-factor}
 
-This formalises the elementary inequality underlying the contraction factor
-$\rho = \sqrt{C_0/(2\lambda - C)} < 1$ of Theorem~3.1.
+This formalises the elementary inequality underlying Theorem~3.1's
+contraction factor, $\rho = \sqrt{C_0/(2\lambda - C)} < 1$.
 
-\begin{lstlisting}[style=lean4, caption={Existence of a contraction factor $\rho < 1$ whenever $\lambda$ is chosen sufficiently large.}]
+\begin{lstlisting}[style=lean4, caption={Existence of contraction factor $\rho < 1$ for large $\lambda$.}]
 -- Lean 4 formalization: contraction factor existence (Theorem 3.1)
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 

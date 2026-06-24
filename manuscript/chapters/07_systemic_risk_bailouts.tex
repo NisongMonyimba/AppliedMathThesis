@@ -269,7 +269,7 @@ system of the form \eqref{eq:fbsde-system}. In the next section, we solve it in
 closed form.
 
 
-\section{Closed-Form Solution of the Linear-Quadratic MFG}
+\section{Closed-Form Solution of the LQ-MFG}
 \label{sec:sr-closed-form}
 
 The linear-quadratic structure of the problem allows for an explicit solution via a
@@ -406,7 +406,8 @@ and the horizon.
 \small
 \caption{Summary of Model Parameters and Their Economic Interpretation}
 \label{tab:sr-parameters}
-\begin{tabular}{p{1.2cm}p{5.5cm}p{2.5cm}}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{1.2cm}p{5.2cm}p{2.8cm}}
 \toprule
 \textbf{Parameter} & \textbf{Interpretation} & \textbf{Typical Range} \\
 \midrule
@@ -420,8 +421,8 @@ $\sigma_0$ & Systemic (common) volatility & 0.05 -- 0.3 \\
 $T$ & Time horizon (years) & 1 -- 5 \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
-
 
 \section{$O(1/N)$ Approximation Error}
 \label{sec:sr-poc}
@@ -620,8 +621,8 @@ correction note preceding \Cref{tab:sr-riccati-coefficients}). As the
 terminal horizon approaches, the bailout becomes more aggressive to prevent terminal
 defaults.
 
-\Cref{tab:sr-wasserstein-error} shows the evolution of the Wasserstein distance
-$W_2(\mu_t^N, \mu_t^*)$ for $N = 50, 100, 200$. The error decays as $1/\sqrt{N}$,
+\Cref{tab:sr-wasserstein-error} shows how the Wasserstein
+distance $W_2(\mu_t^N, \mu_t^*)$ evolves for $N = 50, 100, 200$. The error decays as $1/\sqrt{N}$,
 confirming the theoretical rate in Proposition~\ref{prop:sr-propagation-of-chaos}.
 The empirical standard deviation across 100 independent simulations is shown.
 
