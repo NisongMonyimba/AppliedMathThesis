@@ -47,16 +47,24 @@ The work provides six principal contributions.
     measure (GMM, Kalman filtering, reduced-form proxies) are provided, and a
     mean-variance portfolio construction with a crowding discount is developed.
 
-    \item \textbf{Empirical validation on S\&P 500 constituents (2000--2024)} (Chapter 9).
-    A strategy based on the four signals, using point-in-time 13F holdings and CFTC COT
+    \item \textbf{Empirical validation methodology, demonstrated on synthetic
+    S\&P 500-style data (2000--2024)} (Chapter 9). A strategy based on the four signals,
+    using a methodology specified for point-in-time 13F holdings and CFTC COT
     data, achieves an out-of-sample Sharpe ratio of 1.91 (net of 5--10bps transaction
-    costs), with a maximum drawdown of $-18.3\%$ and positive skewness (0.32). Statistical
+    costs) on a synthetic panel constructed with a known embedded predictive signal,
+    with a maximum drawdown of $-18.3\%$ and positive skewness (0.32). Statistical
     significance is $p = 0.002$ (block bootstrap, 10{,}000 samples). Performance is robust
     to alternative cost assumptions, calibration windows, discount functions, and
     sub-periods, and incremental over both a na\"ive 13F mean-reversion benchmark
-    (Sharpe 0.72) and a 13F residual momentum benchmark (Sharpe 0.89). The crowding measure
+    (Sharpe 0.72) and a 13F residual momentum benchmark (Sharpe 0.89), all evaluated on
+    the same synthetic panel. The crowding measure
     $c_t$ is strongly monotonic in subsequent alpha: the top quintile yields average
-    monthly returns of 2.8\% versus 0.9\% in the bottom quintile.
+    monthly returns of 2.8\% versus 0.9\% in the bottom quintile. \textbf{These figures
+    demonstrate that the methodology behaves as intended on data with known structure;
+    they are not evidence of profitability on real markets}, since the licensed data
+    sources (CRSP, Compustat, SEC 13F, CFTC COT) were not available in the environment
+    where this thesis was produced. Deployment on real market data is identified as
+    future work.
 \end{enumerate}
 
 Selected core estimates --- the Gronwall inequality, the Riccati system derivation, the

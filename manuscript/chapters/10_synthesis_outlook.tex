@@ -69,8 +69,10 @@ provides a condensed overview.
     Four-signal framework; novel crowding measure $c_t = W_2(\mu_t, \mu_t^*)$
     anchored to equilibrium; full pipeline to portfolio weights \\
 \addlinespace
-9 & Empirical validation on S\&P 500 (2000--2024) & Full out-of-sample trading
-    strategy; Sharpe 1.91 (conditional on model); incremental over na\"ive 13F;
+9 & Empirical validation methodology, demonstrated on synthetic S\&P 500-style
+    data (2000--2024) & Full out-of-sample trading
+    strategy methodology; Sharpe 1.91 on synthetic data (conditional on model);
+    incremental over na\"ive 13F;
     extensive robustness checks \\
 \bottomrule
 \end{tabular}
@@ -155,14 +157,20 @@ framework; \textbf{the novel contribution is the crowding measure
 $c_t = W_2(\mu_t, \mu_t^*)$.} The portfolio construction algorithm with crowding
 discount provides a complete implementation pipeline.
 
-Chapter 9 provided the empirical validation. The use of 13F holdings to predict
+Chapter 9 provided the empirical validation methodology. The use of 13F holdings to predict
 returns was established by \citep{chenhongstein2002}. \citep{lehallemouzouni2019} calibrated a portfolio MFG to 176 stocks. \textbf{Our contribution is a
-full out-of-sample trading strategy on the S\&P 500 universe (2000--2024),
-achieving a Sharpe ratio of 1.91 (net of costs) with a block-bootstrap $p$-value
+full out-of-sample trading strategy methodology, specified for the S\&P 500 universe
+(2000--2024) and demonstrated end-to-end on a synthetic data panel with a known
+embedded predictive signal (real-data deployment is future work, since the licensed
+sources --- CRSP, Compustat, SEC 13F, CFTC COT --- were unavailable),
+achieving a Sharpe ratio of 1.91 (net of costs) on that synthetic panel, with a
+block-bootstrap $p$-value
 of 0.002.} The incremental contribution over a na\"ive 13F mean-reversion strategy
-(Sharpe 0.72) and a 13F residual momentum strategy (Sharpe 0.89) is substantial.
+(Sharpe 0.72) and a 13F residual momentum strategy (Sharpe 0.89), both evaluated on the
+same synthetic panel, is substantial.
 Extensive robustness checks confirm stability across specifications. The Sharpe
-ratio is conditional on the LQ model specification; model risk is the dominant
+ratio is conditional on the LQ model specification and the synthetic-data construction;
+model risk is the dominant
 source of uncertainty.
 
 

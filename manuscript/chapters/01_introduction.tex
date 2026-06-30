@@ -70,7 +70,9 @@ This thesis develops a mathematically rigorous and computationally implementable
 framework for mean-field games with common noise. It integrates three research streams
 that have not yet been combined into a single framework simultaneously providing
 (i) quantitative stability estimates, (ii) learning guarantees under common noise, and
-(iii) empirical validation on real financial data:
+(iii) a complete empirical validation methodology, demonstrated end-to-end on a
+synthetic data panel with deployment to real market data identified as future work
+(Chapter 9):
 
 \begin{itemize}
     \item \textbf{SPDE theory} --- the analysis of forward-backward stochastic partial
@@ -78,7 +80,8 @@ that have not yet been combined into a single framework simultaneously providing
     \item \textbf{Reinforcement learning} --- multi-timescale actor-critic algorithms
     with provable convergence guarantees for regularised function classes;
     \item \textbf{Quantitative finance} --- deployable alpha generation from
-    equilibrium theory, validated by rigorous statistical testing.
+    equilibrium theory, with the full statistical testing pipeline demonstrated on
+    synthetic data of known structure.
 \end{itemize}
 
 The framework yields six principal contributions spanning well-posedness, numerical
@@ -469,10 +472,12 @@ existing work:
 
     \item \textbf{Gap 3 (Applied)}: A fully integrated pipeline combining MFG
     equilibrium solution, theoretically justified trading signals, and rigorous
-    empirical validation on real equity data remains largely unexplored. The work of
+    empirical validation remains largely unexplored. The work of
     \citep{lehallemouzouni2019} provides an empirical analysis of correlations but does
     not derive and test a full trading strategy. This thesis resolves this gap through
-    the alpha signals of Chapter 8 and the empirical backtest of Chapter 9.
+    the alpha signals of Chapter 8 and the empirical backtest methodology of Chapter 9,
+    demonstrated end-to-end on synthetic data (deployment on real equity data is left
+    as future work).
 \end{itemize}
 
 
@@ -493,9 +498,10 @@ not trivial, but the proof methodology follows the same ODE framework.} Addresse
 Theorems 5.1--5.2 and Proposition 6.1.
 
 \paragraph{Gap 3 (Applied).} A fully integrated pipeline combining MFG equilibrium
-solution, theoretically justified trading signals, and empirical validation on real
-equity data remains largely unexplored. Resolved by the sequence: Chapter 3 (theory)
-$\to$ Chapter 4 (numerics) $\to$ Chapter 8 (signals) $\to$ Chapter 9 (validation).
+solution, theoretically justified trading signals, and rigorous empirical validation
+remains largely unexplored. Resolved methodologically by the sequence: Chapter 3 (theory)
+$\to$ Chapter 4 (numerics) $\to$ Chapter 8 (signals) $\to$ Chapter 9 (validation on
+synthetic data; deployment on real equity data is future work).
 
 
 \section{Principal Contributions}
@@ -591,18 +597,26 @@ provided. (Chapter 8)
 
 \subsection*{Empirical Finding}
 
-\begin{theorem}[Empirical validation]
-A strategy based on Proposition~8.1 signals, applied to S\&P 500 constituents
-(2000--2024, survivorship-bias-free), yields an estimated annualised Sharpe ratio of
+\begin{theorem}[Empirical validation methodology]
+A strategy based on Proposition~8.1 signals, with a methodology specified for
+S\&P 500 constituents (2000--2024, survivorship-bias-free), yields an estimated
+annualised Sharpe ratio of
 1.9 under the model and estimation procedure, after transaction costs (5--10 bps) and
-slippage. Statistical significance: $p = 0.002$ (10{,}000 block-bootstrap). Maximum
-drawdown $-18\%$. Metrics use purged walk-forward cross-validation. Robustness checks
-support qualitative conclusions. \textbf{The reported performance is conditional on
+slippage, \textbf{when evaluated on a synthetic data panel constructed with a known
+embedded predictive signal} (the licensed real-data sources --- CRSP, Compustat, SEC
+13F, CFTC COT --- were not available in the environment where this thesis was
+produced; see Chapter 9 for the full disclaimer). Statistical significance: $p = 0.002$
+(10{,}000 block-bootstrap), all on the same synthetic panel. Maximum
+drawdown $-18\%$. Metrics use purged walk-forward cross-validation. \textbf{These
+results demonstrate the methodology behaves as intended on data with known structure;
+they are not evidence of profitability on real markets.} The reported performance is
+additionally conditional on
 model specification and estimation of $\mu_t^*$; the magnitude of the Sharpe ratio is
-sensitive to these choices. Model risk dominates statistical risk}, and the empirical
-results should be interpreted as validation of the structural predictions of the model
-rather than evidence of a directly deployable trading strategy. The strategy assumes a
-small-player limit; a capacity analysis is provided with strong caveats. (Chapter 9)
+sensitive to these choices. Model risk dominates statistical risk, and the empirical
+results should be interpreted as a demonstration of the methodology rather than
+evidence of a directly deployable trading strategy. The strategy assumes a
+small-player limit; a capacity analysis is provided with strong caveats. Deployment on
+real market data is identified as future work. (Chapter 9)
 \end{theorem}
 
 \paragraph{Formal verification.} The Gronwall estimate of Theorem~\ref{thm:wellposedness}, the Riccati
@@ -637,8 +651,10 @@ Proposition 6.1 (Hierarchical architecture) & Hu--Lauri\`ere (2023) & SPDE-groun
 Proposition 8.1 (Alpha signals) & \citep{cardaliaguetlehalle2018}, \citep{lehallemouzouni2019}
     & Four-signal framework; novel crowding measure $c_t$ \\
 \addlinespace
-Empirical Finding 9.1 & \citep{lehallemouzouni2019} & Full out-of-sample strategy on
-    S\&P 500; Sharpe 1.91 (conditional on model) \\
+Empirical Finding 9.1 & \citep{lehallemouzouni2019} & Full out-of-sample strategy
+    methodology, demonstrated on synthetic
+    S\&P 500-style data; Sharpe 1.91 (conditional on model and synthetic-data
+    construction) \\
 \bottomrule
 \end{tabular}
 \end{table}

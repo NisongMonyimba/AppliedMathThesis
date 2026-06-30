@@ -842,12 +842,18 @@ multiple participants), which is beyond the scope of this thesis.
 
 \subsection{Comparison to Prior Literature}
 
-The Sharpe ratio of 1.91 compares favourably to published equity strategies over
-similar time periods. The na\"ive 13F mean-reversion strategy achieves 0.72, and
-the 13F residual momentum strategy achieves 0.89. The incremental performance of
-the MFG strategy may be attributed to its unique focus on distributional
+\textbf{The comparison below is qualitative only: the 1.91 figure is measured on the
+synthetic data panel described in \Cref{sec:emp-data}, and is not directly comparable
+to Sharpe ratios reported for real strategies in the cited literature, which are
+measured on actual historical returns.} With that caveat, the magnitude is broadly in
+the range reported for published equity strategies over
+similar time periods. The na\"ive 13F mean-reversion benchmark achieves 0.72, and
+the 13F residual momentum benchmark achieves 0.89, both on the same synthetic panel.
+The incremental performance of
+the MFG strategy on this synthetic panel may be attributed to its unique focus on distributional
 disequilibrium, which is not captured by traditional price-based factors or simple
-holdings-based signals.
+holdings-based signals -- a structural claim that would need to be re-tested on real
+data to be confirmed empirically.
 
 Our findings align with the predictive power of Wasserstein distance in asset
 pricing documented by \citep{kimkorajczykneuhierl2015}, who used the Earth
