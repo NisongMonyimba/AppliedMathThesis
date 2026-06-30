@@ -560,12 +560,17 @@ direction for future work.}
 \section{Formal Verification in Lean 4}
 \label{sec:wp-lean4}
 
-The key estimates of this chapter have been formally verified using the Lean 4
-interactive theorem prover. The verification includes the Gronwall estimate, the
+The key estimates of this chapter have been formalised using the Lean 4
+interactive theorem prover, targeting the Gronwall estimate, the
 contraction property in weighted Wasserstein metric, and the stability constant
-derivation. The code below contains no \texttt{sorry} placeholders; all proofs are
-complete and machine-checked. The full Lean 4 code is available in the supplementary
-repository.
+derivation. \textbf{As detailed in the provenance caveat at the start of
+Appendix~B, these proofs were written and reviewed for mathematical correctness
+following standard Mathlib idioms, but were not compiled against a live
+Lean~4/Mathlib installation while writing this thesis, since no such toolchain
+was available in that environment; they should not be treated as machine-verified
+until built successfully via \texttt{lake build} (the supplementary repository's
+CI workflow does this on every push).} The full Lean 4 code is available in the
+supplementary repository.
 
 \begin{lstlisting}[style=lean4, caption={Lean 4 formalisation of the Gronwall estimate underlying the contraction proof.}]
 -- Lean 4 formalization of the contraction estimate (Theorem 3.1)
@@ -590,11 +595,12 @@ theorem gronwall_estimate {y : Real -> Real} {C1 C2 : Real}
   have hz0 : z 0 = 0 := by simp [z, hy0, Real.exp_zero, sub_self, mul_zero]
   -- [excerpt truncated for typesetting -- continues with the derivative
   --  bound on z, then le_of_deriv_le to conclude z t <= 0 for all t >= 0,
-  --  giving the stated bound on y. The full, complete, machine-checked
-  --  proof (zero `sorry` placeholders) is reproduced in Appendix B.]
+  --  giving the stated bound on y. The full proof, together with the
+  --  provenance caveat governing its verification status, is reproduced
+  --  in Appendix B.]
   exact gronwall_estimate_aux hC1 hC2 h_deriv h_bound hy0 t ht
 \end{lstlisting}
 
-\noindent\textit{Note: the excerpt above is abbreviated for typesetting; the complete,
-fully machine-checked Lean~4 proof (with no \texttt{sorry} placeholders) is provided in
-full in Appendix~B.}
+\noindent\textit{Note: the excerpt above is abbreviated for typesetting; the complete
+proof, together with the provenance caveat explaining that it has not yet been
+compiled against Mathlib, is provided in full in Appendix~B.}

@@ -983,10 +983,22 @@ to functionals on the Hilbert space $L^2(\Omega; \mathbb{R}^d)$; see
 \citet[Vol.\ I, Chapter 5]{carmonadelarue2018} for a comprehensive treatment. The HJB
 equation
 \[
-    -\partial_t u = H^*(t,x,\mu,D_x u) + \frac{\sigma^2}{2}\Delta_x u, \qquad
-    u(T,x,\mu) = g(x,\mu)
+    -\partial_t u = H^*(t,x,\mu,D_x u) + \bar{b}(t,\mu)\cdot D_\mu u
+    + \frac{\sigma^2+\sigma_0^2}{2}\Delta_x u + \sigma_0^2 \,\mathrm{tr}\big(D_x D_\mu
+    u\big) + \frac{\sigma_0^2}{2}\int D_\mu^2 u(\widetilde{x},\widetilde{x})\,
+    \mu(d\widetilde{x}), \qquad
+    u(T,x,\mu) = g(x,\mu),
 \]
-is the PDE characterisation of the value function, and its unique solution (under
+where $\bar{b}(t,\mu)$ is the equilibrium aggregate drift of $\mu_t$ itself (the
+population analogue of the individual drift $b$, evaluated at the optimal control).
+\textbf{This is the full master equation, including the common-noise diffusion terms
+and the Lions-derivative mean-field coupling term $\bar{b}\cdot D_\mu u$; the latter
+is frequently omitted in informal expositions but is generally non-zero whenever
+$\bar{b}$ depends on $\mu$, as it does in every model considered in this thesis.
+Chapter 7's Appendix~A derivation works through this term explicitly for the
+linear-quadratic case, including the correction history of an earlier omission;
+see the note there for how the coupling term is computed in practice.} The PDE
+is the characterisation of the value function, and its unique solution (under
 Assumptions A1--A5) gives the adjoint variables via \eqref{eq:smp-hjb-connection}.
 
 \begin{remark}[Significance for the master equation]

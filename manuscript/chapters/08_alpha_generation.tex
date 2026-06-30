@@ -55,11 +55,12 @@ The main contributions of this chapter are:
     signals in a mean-variance framework and introduce a crowding discount function
     $\delta(c_t)$ that modulates position sizes based on the degree of
     disequilibrium.
-    \item \textbf{Formal verification in Lean 4}. We provide machine-checked proofs
+    \item \textbf{Formal verification in Lean 4}. We provide Lean 4 formalisations
     of key mathematical properties underlying the signal derivations, including the
     optimality of the linear feedback policy and the closed-form Wasserstein
-    distance for Gaussian measures. All proofs are complete and contain no
-    \texttt{sorry} placeholders.
+    distance for Gaussian measures. As detailed in Appendix~B's provenance caveat,
+    these proofs were written and reviewed for correctness but have not yet been
+    compiled against a live Mathlib installation.
 \end{enumerate}
 
 \paragraph{Chapter organisation.} \Cref{sec:alpha-mfg-framework} reviews the
@@ -538,9 +539,13 @@ Crowding discount form & Suboptimal scaling & Alternative functions tested \\
 \section{Formal Verification in Lean 4}
 \label{sec:alpha-lean4}
 
-To ensure the correctness of key mathematical derivations, we have formally
-verified several properties using the Lean 4 interactive theorem prover. All proofs
-are complete and contain no \texttt{sorry} placeholders. The verified properties
+To ensure the correctness of key mathematical derivations, we have formalised
+several properties using the Lean 4 interactive theorem prover. \textbf{As detailed
+in the provenance caveat at the start of Appendix~B, these proofs were written and
+reviewed for mathematical correctness but were not compiled against a live
+Lean~4/Mathlib installation while writing this thesis; they should not be treated
+as machine-verified until built successfully via \texttt{lake build}.} The
+formalised properties
 include:
 
 \begin{itemize}
