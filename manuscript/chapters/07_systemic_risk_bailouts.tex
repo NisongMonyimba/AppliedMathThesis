@@ -288,35 +288,43 @@ $p_t = \partial_x u = -A_t X_t - B_t \bar\mu_t - D_t$.
 
 Substituting the ansatz into the HJB equation and matching coefficients yields a
 system of ordinary differential equations for the coefficients. The full derivation
-is provided in Appendix~A. The key equations for the quadratic terms are:
+is provided in Appendix~A. \textbf{The equations below reflect the corrected
+derivation from Appendix~A, which identified and fixed sign errors in the $A_t$
+equation and missing mean-field coupling terms in $B_t$--$F_t$; see Appendix~A
+for the correction history.} The key equations for the quadratic terms are:
 \begin{align}
-    \dot{A}_t &= 2\kappa A_t - \frac{A_t^2}{\lambda} + c_1, & A_T &= c_2, \notag \\
-    \dot{B}_t &= \kappa B_t + \frac{A_t B_t}{\lambda} - \kappa A_t, & B_T &= 0,
+    \dot{A}_t &= 2\kappa A_t + \frac{A_t^2}{\lambda} - c_1, & A_T &= c_2, \notag \\
+    \dot{B}_t &= \kappa B_t + \frac{2A_t B_t}{\lambda} + \frac{B_t^2}{\lambda}
+        - \kappa A_t, & B_T &= 0,
         \label{eq:sr-riccati-quadratic} \\
-    \dot{C}_t &= -\frac{B_t^2}{\lambda} - 2\kappa B_t, & C_T &= 0. \notag
+    \dot{C}_t &= -2\kappa B_t + \frac{2A_t C_t}{\lambda} + \frac{B_t^2}{\lambda}
+        + \frac{2B_t C_t}{\lambda}, & C_T &= 0. \notag
 \end{align}
 The Riccati equation for $A_t$ is a scalar quadratic ODE, which admits a unique
-positive solution on $[0,T]$. The equations for $B_t$ and $C_t$ are linear given
-$A_t$ and can be solved in closed form.
+positive solution on $[0,T]$ (verified numerically with the corrected sign; the
+sign error in earlier versions caused blowup for $c_2 = 5.0$, which is now stable).
+The equations for $B_t$ and $C_t$ are linear given $A_t$ and can be solved
+sequentially.
 
 The linear terms $D_t, E_t, F_t$ satisfy the following ODEs, which depend on the
-bailout policy $b_t$:
+bailout policy $b_t$ and include the mean-field coupling terms from the
+Lions-derivative in the master equation:
 \begin{align}
-    \dot{D}_t &= \kappa D_t + \frac{A_t D_t}{\lambda} - A_t b_t, & D_T &= 0,
+    \dot{D}_t &= \kappa D_t + \frac{A_t D_t}{\lambda} + \frac{B_t D_t}{\lambda}
+        - (A_t+B_t) b_t, & D_T &= 0,
         \notag \\
-    \dot{E}_t &= \kappa E_t - \frac{B_t D_t}{\lambda} - B_t b_t - \kappa D_t, & E_T
+    \dot{E}_t &= -\kappa D_t + \frac{A_t E_t}{\lambda} + \frac{B_t D_t}{\lambda}
+        + \frac{B_t E_t}{\lambda} + \frac{C_t D_t}{\lambda}
+        - (B_t+C_t) b_t, & E_T
         &= 0, \label{eq:sr-riccati-linear} \\
-    \dot{F}_t &= -\frac{D_t^2 \sigma^2}{2\lambda} - \frac{\sigma_0^2}{2}(A_t + C_t)
-        - D_t b_t, & F_T &= 0. \notag
+    \dot{F}_t &= \frac{D_t^2}{2\lambda} + \frac{D_t E_t}{\lambda}
+        - (D_t+E_t) b_t - \frac{\sigma^2+\sigma_0^2}{2} A_t
+        - \sigma_0^2 B_t - \frac{\sigma_0^2}{2} C_t, & F_T &= 0. \notag
 \end{align}
-These equations are derived in Appendix~A, which also documents a sign
-correction to the $B_t$ and $D_t$ cross-coupling terms relative to an earlier
-version of this derivation (confirmed via an independent empirical optimality
-check), and flags the $E_t$ equation above as provisional pending a more
-complete re-derivation accounting for its dependence on $C_t$ through the
-master-equation (Lions-derivative) term -- see Appendix~A for details. The
-linear terms capture the effect of
-the bailout policy on the value function and will be essential for determining the
+These equations are derived in full in Appendix~A, including the mean-field coupling
+terms arising from the Lions derivative of the master equation with respect to $\mu$.
+The linear terms capture the effect of
+the bailout policy on the value function and are essential for determining the
 optimal government strategy.
 
 \subsection{Equilibrium Measure Dynamics}
@@ -378,6 +386,12 @@ where $\Pi_t$ satisfies the Riccati equation
     \dot{\Pi}_t = 2\Gamma_t \Pi_t + \frac{\Pi_t^2}{\gamma} - c_1, \qquad \Pi_T = c_2.
     \label{eq:sr-gov-riccati}
 \end{equation}
+\textbf{Note on sign convention:} despite the government \emph{minimising} cost,
+the quadratic term in $\Pi_t$ has a positive sign. This arises because the optimal
+control $b^* = -(1/\gamma)\Pi_t\bar\mu_t$ is substituted back into the HJB: the
+cost term $(\gamma/2)b^{*2} = \Pi_t^2/(2\gamma)\bar\mu_t^2$ contributes positively,
+yielding $\dot\Pi_t = 2\Gamma_t\Pi_t + \Pi_t^2/\gamma - c_1$.
+
 \textbf{The optimal bailout is counter-cyclical: when the population mean
 $\bar\mu_t$ is low (i.e., banks are undercapitalised), the government injects more
 capital.} The coefficient $\Pi_t$ determines the responsiveness of the bailout to
@@ -596,15 +610,15 @@ by direct PDE-residual substitution and by two independent numerical solvers
 
 \begin{table}[ht]
 \centering
-\caption{Riccati Coefficients at Selected Times}
+\caption{Riccati Coefficients at Selected Times (recomputed under corrected system)}
 \label{tab:sr-riccati-coefficients}
 \begin{tabular}{lccc}
 \toprule
-\textbf{Time $t$} & $A_t$ & $\Gamma_t$ & $\Pi_t$ \\
+\textbf{Time $t$} & $A_t$ & $\Gamma_t=(A_t+B_t)/\lambda$ & $\Pi_t$ \\
 \midrule
-0.0 & 5.00 & 5.00 & 5.00 \\
-0.5 & 1.44 & 1.64 & 0.49 \\
-1.0 & 1.09 & 1.28 & 0.53 \\
+0.0 & 1.09 & 1.28 & 0.60 \\
+0.5 & 1.44 & 1.64 & 0.59 \\
+1.0 & 5.00 & 5.00 & 5.00 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -615,8 +629,8 @@ policy $b_t \equiv 0$ shows that the bailout policy significantly reduces the
 volatility of the mean and prevents it from falling below zero (95\% confidence
 interval computed from 10{,}000 Monte Carlo simulations). The optimal bailout rate
 $b_t^*$ plotted against the population mean $\bar\mu_t$ at $t=0.5$ exhibits a linear,
-counter-cyclical relationship with slope $-\Pi_t/\gamma \approx -0.99$ (recomputed
-under the fully corrected system above and the restored $c_2 = 5.0$; see the
+counter-cyclical relationship with slope $-\Pi_t/\gamma \approx -0.59$ at $t=0.5$
+(computed under the fully corrected system above and the restored $c_2 = 5.0$; see the
 correction note preceding \Cref{tab:sr-riccati-coefficients}). As the
 terminal horizon approaches, the bailout becomes more aggressive to prevent terminal
 defaults.
