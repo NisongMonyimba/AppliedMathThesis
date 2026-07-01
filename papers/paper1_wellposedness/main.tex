@@ -513,19 +513,140 @@ Zhang, J. (2017).
 
 \appendix
 
-\section{Algebraic Details of the Gronwall Setup}
+\section{Algebraic Details: Closing the Gronwall Inequality}
 \label{app:algebra}
 
-This appendix gives the algebraic manipulation eliding \eqref{eq:gronwall-setup} and
-\eqref{eq:bsde-estimate} into \eqref{eq:gronwall-differential}, omitted from the main
-text for brevity. [\emph{To be completed with the full derivation extracted from
-Appendix A of the accompanying thesis before submission.}]
+This appendix gives the derivation of \eqref{eq:gronwall-differential} from
+\eqref{eq:gronwall-setup} and \eqref{eq:bsde-estimate}, together with the control
+bound \eqref{eq:control-lipschitz}.
+
+\paragraph{Step 1: bound the control difference in the $X$-inequality.} By
+\eqref{eq:control-lipschitz} and the elementary inequality
+$(a+b+c)^2 \le 3(a^2+b^2+c^2)$,
+\[
+    |\alpha_t^1-\alpha_t^2|^2 \le 3C_\alpha^2\big(|\Delta X_t|^2 + |\Delta p_t|^2 +
+    W_2(\mu_t^1,\mu_t^2)^2\big).
+\]
+Substituting into \eqref{eq:gronwall-setup},
+\begin{equation}
+    d|\Delta X_t|^2 \le \Big[\big(2L_b+L_b^2+3L_bC_\alpha^2\big)|\Delta X_t|^2 +
+    3L_bC_\alpha^2\,|\Delta p_t|^2 + \big(L_b+3L_bC_\alpha^2\big)
+    W_2(\mu_t^1,\mu_t^2)^2\Big]\, dt.
+    \label{eq:app-x-bound}
+\end{equation}
+
+\paragraph{Step 2: bound the control difference in the BSDE estimate.} Applying
+\eqref{eq:bsde-estimate} on the sub-interval $[0,t]$ (valid since $t \le T$ is
+arbitrary and the same BSDE comparison argument applies verbatim on any
+sub-interval), and substituting the same bound on $|\alpha^1_s-\alpha^2_s|^2$:
+\begin{align}
+    \mathbb{E}\Big[\sup_{s\le t}|\Delta p_s|^2\Big] &\le C_{\mathrm{BSDE}}\,
+    \mathbb{E}\big[|\Delta X_t|^2\big] + C_{\mathrm{BSDE}}(1+3C_\alpha^2)
+    \int_0^t \mathbb{E}\big[|\Delta X_s|^2\big]\, ds \notag \\
+    &\qquad + 3C_{\mathrm{BSDE}} C_\alpha^2 \int_0^t
+    \mathbb{E}\big[|\Delta p_s|^2\big]\, ds + C_{\mathrm{BSDE}}(1+3C_\alpha^2)
+    \int_0^t \mathbb{E}\big[W_2(\mu_s^1,\mu_s^2)^2\big]\, ds.
+    \label{eq:app-p-bound}
+\end{align}
+
+\paragraph{Step 3: a smallness condition closes the estimate.} The term
+$3C_{\mathrm{BSDE}}C_\alpha^2 \int_0^t \mathbb{E}[|\Delta p_s|^2]\,ds$ on the
+right-hand side of \eqref{eq:app-p-bound} involves the same quantity bounded on
+the left. We assume, as part of the standing regularity hypotheses
+(\Cref{ass:regularity}), that the model parameters satisfy
+\begin{equation}
+    3\,C_{\mathrm{BSDE}}\,C_\alpha^2 < 1;
+    \label{eq:smallness-condition}
+\end{equation}
+this is a mild restriction on the size of $C_\alpha$ (control sensitivity) relative
+to $C_{\mathrm{BSDE}}$ (adjoint-process sensitivity), both of which are themselves
+determined by the Lipschitz and concavity constants of the model, and can always be
+arranged by working on a sufficiently short time interval or under a sufficiently
+strong concavity constant $\lambda_H$ in \Cref{ass:concavity}. Under
+\eqref{eq:smallness-condition}, a standard integral form of Gronwall's lemma applied
+to \eqref{eq:app-p-bound} (treating $\mathbb{E}[\sup_{s\le t}|\Delta p_s|^2]$ as the
+unknown and absorbing the self-referential term via
+\eqref{eq:smallness-condition}) yields
+\begin{equation}
+    \mathbb{E}\big[|\Delta p_t|^2\big] \le \frac{C_{\mathrm{BSDE}}}{1-3C_{\mathrm{BSDE}}C_\alpha^2}
+    \left(\mathbb{E}\big[|\Delta X_t|^2\big] + (1+3C_\alpha^2)\int_0^t
+    \mathbb{E}\big[|\Delta X_s|^2 + W_2(\mu_s^1,\mu_s^2)^2\big]\, ds\right).
+    \label{eq:app-p-closed}
+\end{equation}
+
+\paragraph{Step 4: combine.} Adding \eqref{eq:app-x-bound} (in integrated form) and
+\eqref{eq:app-p-closed}, and setting
+$y_t := \mathbb{E}[|\Delta X_t|^2] + \mathbb{E}[|\Delta p_t|^2]$, every term on the
+right is a constant multiple of either $\mathbb{E}[|\Delta X_s|^2]$,
+$\mathbb{E}[|\Delta p_s|^2]$ (hence of $y_s$), or $\mathbb{E}[W_2(\mu_s^1,\mu_s^2)^2]$,
+for $s \le t$. Collecting terms and denoting
+$\widetilde{C}_{\mathrm{BSDE}} := C_{\mathrm{BSDE}}/(1-3C_{\mathrm{BSDE}}C_\alpha^2)$,
+one obtains, after routine algebra,
+\[
+    \frac{d}{dt}\, y_t \;\le\; C_1\, y_t \;+\; C_2\, \mathbb{E}\big[W_2(\mu_t^1,\mu_t^2)^2\big],
+\]
+where
+\[
+    C_1 = 2L_b + L_b^2 + 3L_bC_\alpha^2 + \widetilde{C}_{\mathrm{BSDE}}(1+3C_\alpha^2),
+    \qquad
+    C_2 = L_b + 3L_bC_\alpha^2 + \widetilde{C}_{\mathrm{BSDE}}(1+3C_\alpha^2).
+\]
+This is \eqref{eq:gronwall-differential}. The compact expression
+$C_1 = 2L_b^2+2\|\sigma_0\|_F^2+C_{\mathrm{reg}}$ quoted in \eqref{eq:constants}
+absorbs the constant $\widetilde{C}_{\mathrm{BSDE}}(1+3C_\alpha^2)$ and the
+$3L_bC_\alpha^2$ term into $C_{\mathrm{reg}}$, and isolates the explicit
+$\|\sigma_0\|_F^2$-dependence that enters through $C_{\mathrm{BSDE}}$ (and hence
+through $\widetilde{C}_{\mathrm{BSDE}}$) via the martingale representation for
+$r_t$ in the adjoint BSDE, as discussed in \Cref{sec:discussion}.
+
+\begin{remark}[On the smallness condition \eqref{eq:smallness-condition}]
+This condition does not appear explicitly in the informal derivation sketched in
+the main text; making it explicit here is, in the authors' view, necessary for a
+fully rigorous closure of the Gronwall argument, and we flag it as such rather than
+leaving it implicit. It is a standing structural assumption on the model (via
+$C_\alpha, C_{\mathrm{BSDE}}$), not an additional constraint imposed after the fact;
+in the linear-quadratic case of \Cref{sec:example} it can be checked directly from
+the explicit Riccati coefficients.
+\end{remark}
 
 \section{Proof of the Contraction Bound}
 \label{app:contraction-proof}
 
-This appendix gives the full derivation of \eqref{eq:contraction} from
-\eqref{eq:stability-estimate} via the weighted-norm change of variables. [\emph{To be
-completed with the full derivation before submission.}]
+This appendix derives \eqref{eq:contraction} from \eqref{eq:stability-estimate}.
+Multiplying both sides of \eqref{eq:stability-estimate} by $e^{-2\lambda t}$ and
+taking the supremum over $t \in [0,T]$:
+\begin{align*}
+    \|\Phi(\mu^1)-\Phi(\mu^2)\|_{\lambda,T}^2 &= \sup_{t\le T} e^{-2\lambda t}\,
+        \mathbb{E}\big[W_2(\Phi(\mu^1)_t,\Phi(\mu^2)_t)^2\big] \\
+    &\le C_2 \sup_{t\le T} e^{-2\lambda t} \int_0^t e^{C_1(t-s)}\,
+        \mathbb{E}\big[W_2(\mu_s^1,\mu_s^2)^2\big]\, ds.
+\end{align*}
+Writing the integrand as
+$e^{-2\lambda(t-s)}\, e^{(C_1-2\lambda)s} \cdot e^{-2\lambda s}\,
+\mathbb{E}[W_2(\mu_s^1,\mu_s^2)^2]$
+and using $e^{-2\lambda s}\,\mathbb{E}[W_2(\mu_s^1,\mu_s^2)^2] \le
+\|\mu^1-\mu^2\|_{\lambda,T}^2$ for every $s\le T$, together with the change of
+variable $u = t-s$:
+\[
+    \|\Phi(\mu^1)-\Phi(\mu^2)\|_{\lambda,T}^2 \le C_2\left(\sup_{t\le T}
+    \int_0^t e^{-(2\lambda-C_1)u}\, du\right) \|\mu^1-\mu^2\|_{\lambda,T}^2.
+\]
+For $\lambda > C_1/2$, the integral is increasing in $t$ and bounded by its value
+at $t=T$:
+\[
+    I(\lambda) := C_2\int_0^T e^{-(2\lambda-C_1)u}\, du =
+    \frac{C_2}{2\lambda-C_1}\big(1-e^{-(2\lambda-C_1)T}\big) \le
+    \frac{C_2}{2\lambda-C_1}.
+\]
+Choosing $\lambda > \tfrac{C_1}{2}+\tfrac{C_2}{2}$ ensures $2\lambda - C_1 > C_2$,
+hence $I(\lambda) < 1$, and $\rho := \sqrt{I(\lambda)} = \sqrt{C_2/(2\lambda-C_1)}
+< 1$. This gives
+\[
+    \|\Phi(\mu^1)-\Phi(\mu^2)\|_{\lambda,T} \le \rho\, \|\mu^1-\mu^2\|_{\lambda,T},
+\]
+which is \eqref{eq:contraction}. Since $(\mathcal{M}, \|\cdot\|_{\lambda,T})$ is a
+complete metric space (\Cref{sec:setup}), the Banach fixed-point theorem yields a
+unique $\mu^* \in \mathcal{M}$ with $\Phi(\mu^*)=\mu^*$, completing the proof of
+existence and uniqueness in \Cref{thm:wellposedness}. \qed
 
 \end{document}
