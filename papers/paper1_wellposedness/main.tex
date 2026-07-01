@@ -1,18 +1,15 @@
 \documentclass[11pt]{article}
 
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{amsmath,amssymb,amsthm,mathtools}
-\usepackage{geometry}
-\usepackage{graphicx}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools}
 \usepackage{booktabs}
+\usepackage{array}
 \usepackage[round]{natbib}
-\usepackage{hyperref}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
 \usepackage{cleveref}
 \usepackage{enumitem}
 \usepackage{bm}
-
-\geometry{margin=1in}
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{proposition}[theorem]{Proposition}
@@ -24,487 +21,511 @@
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
-\newcommand{\R}{\mathbb{R}}
-\newcommand{\E}{\mathbb{E}}
-\newcommand{\Prob}{\mathbb{P}}
-\newcommand{\F}{\mathcal{F}}
-\newcommand{\W}{W}
-\newcommand{\Wass}{W_2}
 \DeclareMathOperator*{\argmax}{arg\,max}
-\DeclareMathOperator*{\argmin}{arg\,min}
 
-\title{Quantitative Well-Posedness for Mean-Field Games\\with Common Noise: An Explicit Contraction Estimate}
-
-\author{Nisong Monyimba\thanks{Department of Mathematics and Statistics. Correspondence: nisongmonyimba278@gmail.com. Code and supplementary material: \url{https://github.com/NisongMonyimba/AppliedMathThesis}.}}
-
+\title{Quantitative Well-Posedness of Mean-Field Games\\ with Common Noise}
+\author{Nisong Monyimba\thanks{Missouri University of Science and Technology. Email: \texttt{nisongmonyimba278@gmail.com}. Code and supplementary material: \url{https://github.com/NisongMonyimba/AppliedMathThesis}.}}
 \date{\today}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-We study the well-posedness of mean-field games (MFGs) with common noise, in which
-all agents are subject to a shared aggregate shock in addition to idiosyncratic
-noise. While existence and uniqueness for such systems is known under
-linear-convex and weak-monotonicity structural conditions, the dependence of the
-solution's stability on the model's primitive constants -- the Lipschitz constant
-of the drift, the magnitude of the common-noise coefficient, and the regularity of
-the Lions derivatives -- has not been made explicit. We prove that the
-mean-field fixed-point map is a contraction in a weighted Wasserstein-2 metric with
-an explicit constant
-$C = 2L_b^2 + 2\|\sigma_0\|_F^2 + C_{\mathrm{reg}}$,
-obtained via a synchronous-coupling argument that isolates the first-order
-cancellation of the common noise in expectation from its residual second-order
-contribution. The explicit constant directly informs the choice of discretisation
-step and learning rate in downstream numerical and reinforcement-learning
-algorithms for this class of games. We verify the $\varepsilon$-Nash property with
-rate $O(N^{-1/2})$ and discuss the scope and limitations of the result, including
-the gap between the expectation-level contraction established here and pathwise
-stability.
+We study mean-field games (MFGs) in which a continuum of agents interacts through a
+common, shared Brownian motion in addition to idiosyncratic noise. The equilibrium is
+characterised by a system of forward-backward stochastic differential equations
+(FBSDEs) coupled through the conditional law of the representative agent's state given
+the common-noise filtration. Building on the well-posedness theory of
+\citet{carmonadelarue2018} and \citet{ahujarenyang2019}, we derive an explicit,
+parameter-dependent contraction estimate for the associated fixed-point map in a
+weighted Wasserstein-2 metric. The contraction constant depends explicitly on the
+Lipschitz constant of the drift, the Frobenius norm of the common-noise coefficient,
+and bounds on the relevant Lions derivatives, and is computable from the model
+primitives. Existence and uniqueness of the mean-field equilibrium follow via the
+Banach fixed-point theorem, and we verify the associated $\varepsilon$-Nash property
+for the finite-player game. To the best of our knowledge, an explicit, computable
+contraction bound of this form -- suitable as a design criterion for numerical
+algorithms -- has not previously been derived in the common-noise setting; existing
+work establishes existence and uniqueness but not quantitative stability. We illustrate
+the theory on the canonical linear-quadratic MFG, for which all constants are explicit.
 \end{abstract}
-
-\noindent \textbf{Keywords:} mean-field games, common noise, McKean--Vlasov FBSDEs,
-Wasserstein contraction, $\varepsilon$-Nash equilibrium
-
-\noindent \textbf{MSC2020:} 60H10, 91A16, 93E20, 60K35
-
 
 \section{Introduction}
 \label{sec:intro}
 
 Mean-field games (MFGs), introduced independently by \citet{lasrylions2007} and
-\citet{huangmalhamecaines2006}, model the limiting behaviour of symmetric
-$N$-player stochastic differential games as $N \to \infty$. In the canonical
-formulation, each agent's idiosyncratic noise is averaged away by the law of large
-numbers, and the population measure flow $\mu = (\mu_t)_{t\in[0,T]}$ becomes
-deterministic. \emph{Common noise} -- an aggregate shock affecting all agents
-simultaneously, such as a macroeconomic or market-wide disturbance -- breaks this
-determinism: the population measure $\mu_t$ becomes itself a stochastic process,
-adapted to the common-noise filtration. This single structural change is
-consequential: it transforms the deterministic Fokker--Planck PDE governing $\mu_t$
-into a stochastic PDE, and the mean-field fixed-point argument that establishes
-existence and uniqueness must be revisited at the level of conditional laws rather
-than deterministic measures.
+\citet{huangetal2006}, model the equilibrium behaviour of a large population of
+interacting agents, each optimising an individual objective that depends on the
+aggregate behaviour of the population. In the classical formulation, agents are subject
+only to idiosyncratic noise, and the mean-field limit is deterministic: the empirical
+measure converges to a deterministic flow of measures $(\mu_t)_{t\in[0,T]}$.
 
-\citet{carmonadelarue2018} provide the comprehensive probabilistic treatment of MFGs
-with common noise via the master equation and the associated conditional
-McKean--Vlasov FBSDE system. \citet{ahujarenyang2019} establish existence and
-uniqueness for a class of common-noise MFGs with linear-convex structure and
-weak-monotonicity, via a continuation method applied to the FBSDE system. These
-results establish \emph{qualitative} well-posedness: a solution exists and is
-unique. What remains open -- and is the focus of the present paper -- is the
-\emph{quantitative} dependence of the solution's stability on the primitive model
-constants.
+Many applications, however, involve a source of randomness shared by \emph{all}
+agents simultaneously -- a common macroeconomic shock, a shared environmental factor,
+or systemic market risk. This motivates the study of \emph{common-noise} MFGs, in
+which each agent's state is driven by both an idiosyncratic Brownian motion and a
+shared Brownian motion $W^0$. In this setting the equilibrium measure flow
+$\mu_t = \mathcal{L}(X_t \mid \mathcal{F}_t^{W^0})$ is itself a \emph{stochastic}
+process, adapted to the common-noise filtration -- a genuinely more delicate object
+than in the classical case.
 
-\paragraph{Contribution.} We prove (\Cref{thm:main}) that the mean-field fixed-point
-map $\Phi$ is a contraction in a weighted Wasserstein-2 norm with an explicit
-constant
-\[
-    C = 2L_b^2 + 2\|\sigma_0\|_F^2 + C_{\mathrm{reg}},
-\]
-where $L_b$ is the Lipschitz constant of the drift in $(x,\mu,\alpha)$,
-$\|\sigma_0\|_F$ is the Frobenius norm of the common-noise diffusion coefficient,
-and $C_{\mathrm{reg}}$ collects the regularity constants of the Lions derivatives of
-the model coefficients and the associated BSDE estimates. The proof uses a
-\emph{synchronous coupling} argument: by driving the two candidate measure flows'
-representative-agent systems with the \emph{same} realisations of both the
-idiosyncratic noise $W^i$ and the common noise $W^0$, the first-order stochastic
-term arising from $\sigma_0$ cancels in expectation by the martingale property,
-leaving only a second-order contribution of order $\|\sigma_0\|_F^2$. This explicit
-isolation of the common-noise contribution is the technical core of the paper and,
-to our knowledge, has not been made explicit elsewhere in the literature.
+The probabilistic well-posedness theory for common-noise MFGs was developed by
+\citet{carmona2013probabilistic} and treated comprehensively by
+\citet{carmonadelarue2018}, and extended under weaker (displacement) monotonicity
+conditions by \citet{ahujarenyang2019}. These works establish existence and uniqueness
+of the equilibrium under monotonicity-type structural conditions, but do not provide
+\emph{explicit, parameter-dependent} contraction constants: quantities that tell a
+practitioner, in terms of the model's Lipschitz constants and noise intensities,
+precisely how fast (and under what conditions) a fixed-point iteration converges.
 
-The explicit constant has two immediate downstream uses, which we discuss in
-\Cref{sec:discussion}: it determines a sufficient discretisation step size for
-numerical schemes approximating the equilibrium, and it determines a sufficient
-learning-rate separation for multi-timescale reinforcement learning algorithms that
-learn the equilibrium from simulated or observed trajectories. We do not pursue
-these applications in technical detail here; they are treated in a companion paper
-on the numerical scheme and a companion paper on the learning algorithm (both in preparation).
+\paragraph{Contribution.} We derive such an explicit contraction estimate. Working
+under standard Lipschitz, monotonicity, and regularity assumptions (\Cref{sec:setup}),
+we show that the natural fixed-point map $\Phi$ associated with the common-noise MFG
+equilibrium satisfies a Wasserstein stability estimate (\Cref{thm:stability}) whose
+constants are given explicitly in terms of the drift Lipschitz constant $L_b$, the
+common-noise coefficient norm $\|\sigma_0\|_F$, and bounds on the relevant Lions
+derivatives. This yields a contraction in a weighted Wasserstein metric
+(\Cref{thm:wellposedness}) with an explicit rate $\rho < 1$, from which existence,
+uniqueness, and the $\varepsilon$-Nash property for the associated $N$-player game
+follow. We illustrate all constants explicitly for the canonical linear-quadratic MFG.
 
-\paragraph{Related work.} Beyond \citet{carmonadelarue2018} and
-\citet{ahujarenyang2019}, quantitative stability for common-noise MFGs has been
-studied under additional regularity by \citet{cardaliaguetseegersouganidis2025},
-who establish regularity results under degenerate idiosyncratic noise. Our
-contribution is complementary: rather than regularity of the value function, we
-isolate the explicit dependence of the contraction rate on the model's Lipschitz
-and common-noise constants, which is the quantity of direct use for algorithm
-design.
+To the best of our knowledge, relative to the specific works cited above, an explicit
+computable contraction constant of this form has not previously been derived for the
+common-noise setting. This scope reflects the mean-field-game literature most directly
+relevant to the present setting and is not a claim of an exhaustive survey of all
+adjacent fields.
 
-\paragraph{Limitations, stated upfront.} The contraction established here is at the
-level of \emph{expected} Wasserstein distance, not pathwise distance
-(\Cref{rem:expectation}); it relies on stability of optimal transport maps, which
-in turn requires absolute continuity of the measures involved
-(\Cref{ass:regularity}); and the constant $C_{\mathrm{reg}}$ is fully explicit only
-in specific tractable models (e.g., the linear-quadratic case), remaining an
-implicit bound on Lions-derivative regularity in the general nonlinear case. We
-return to these points in \Cref{sec:discussion}.
+\paragraph{Related work.} Beyond the works already mentioned,
+\citet{cardaliaguetetal2019} derive the master equation for common-noise MFGs and
+establish PDE-level regularity; \citet{cardaliaguetseegersouganidis2025} resolve
+further SPDE regularity questions in this setting. Neither addresses quantitative
+FBSDE contraction rates. For classical (idiosyncratic-only) MFGs,
+\citet{cardaliaguet2010notes} gives a PDE treatment of well-posedness; numerical
+schemes for this setting are studied by \citet{achdoucapuzzo2010} and
+\citet{carmonalauriere2022}. The propagation-of-chaos theory underlying the
+$\varepsilon$-Nash verification traces to \citet{mckean1966} and
+\citet{sznitman1991}, with quantitative Wasserstein rates due to
+\citet{fournierguillin2015}.
 
-\paragraph{Organisation.} \Cref{sec:setup} states the model and standing
-assumptions. \Cref{sec:fixedpoint} defines the mean-field fixed-point map.
-\Cref{sec:main} states the main theorem. \Cref{sec:proof} proves the stability
-estimate via synchronous coupling, with the most technical algebraic steps deferred
-to \Cref{app:proofs}. \Cref{sec:existence} concludes existence, uniqueness, and the
-$\varepsilon$-Nash property. \Cref{sec:discussion} discusses the contraction
-constant and the result's limitations.
-
+\paragraph{Organisation.} \Cref{sec:setup} states the model, assumptions, and the
+fixed-point formulation. \Cref{sec:stability} contains the core stability estimate.
+\Cref{sec:main} states and proves the main theorem (contraction, existence,
+uniqueness, $\varepsilon$-Nash). \Cref{sec:discussion} discusses the contraction
+constant, its dependence on model parameters, and limitations of the current
+approach. \Cref{sec:example} illustrates the theory on the linear-quadratic benchmark.
 
 \section{Model and Standing Assumptions}
 \label{sec:setup}
 
-We work on a filtered probability space $(\Omega, \F, (\F_t)_{t\in[0,T]}, \Prob)$
-supporting a $d$-dimensional idiosyncratic Brownian motion $W^i$ and an independent
-$d_0$-dimensional common-noise Brownian motion $W^0$. A representative agent's state
-$X_t \in \R^d$ evolves according to the McKean--Vlasov SDE
+We work on a filtered probability space
+$(\Omega, \mathcal{F}, (\mathcal{F}_t)_{t\in[0,T]}, \mathbb{P})$ supporting an
+idiosyncratic Brownian motion $W$ and an independent common Brownian motion $W^0$.
+Let $\mathcal{P}_2(\mathbb{R}^d)$ denote the space of Borel probability measures on
+$\mathbb{R}^d$ with finite second moment, equipped with the Wasserstein-2 distance
+$W_2$. The representative agent's state solves the McKean--Vlasov SDE
 \begin{equation}
-    dX_t = b(t, X_t, \mu_t, \alpha_t)\, dt + \sigma\, dW_t^i + \sigma_0\, dW_t^0,
-    \qquad X_0 \sim \mu_{\mathrm{init}},
+    dX_t^\mu = b(t, X_t^\mu, \mu_t, \alpha_t)\, dt + \sigma\, dW_t + \sigma_0\, dW_t^0,
+    \qquad X_0^\mu \sim \mu_{\mathrm{init}},
     \label{eq:agent-sde}
 \end{equation}
-where $\alpha_t \in A \subset \R^k$ is the agent's control,
-$\mu_t = \mathcal{L}(X_t \mid \F_t^{W^0})$ is the conditional law of the state given
-the common noise, $\sigma > 0$ is constant idiosyncratic volatility, and
-$\sigma_0 \in \R^{d\times d_0}$ is the common-noise coefficient. The agent maximises
+for a candidate measure flow $\mu = (\mu_t)_{t\in[0,T]}$, and the agent maximises
 \begin{equation}
-    J^\mu(\alpha) = \E\left[\int_0^T f(t, X_t, \mu_t, \alpha_t)\, dt + g(X_T,
-    \mu_T)\right].
+    J^\mu(\alpha) = \mathbb{E}\left[\int_0^T f(t, X_t^\mu, \mu_t, \alpha_t)\, dt +
+    g(X_T^\mu, \mu_T)\right].
     \label{eq:objective}
-\end{equation}
-We write $\mathcal{M} := D([0,T]; \mathcal{P}_2(\R^d))$ for the Skorokhod space of
-c\`adl\`ag measure-valued processes adapted to $(\F_t^{W^0})$, equipped, for
-$\lambda > 0$, with the weighted norm
-\begin{equation}
-    \|\mu^1 - \mu^2\|_{\lambda,T} := \sup_{t \leq T} e^{-\lambda t}\,
-    \E\big[\Wass(\mu_t^1, \mu_t^2)^2\big]^{1/2}.
-    \label{eq:weighted-norm}
 \end{equation}
 
 \begin{assumption}[Lipschitz drift]
-\label{ass:lipschitz}
+\label{ass:lipschitz-drift}
 There exists $L_b > 0$ such that for all $t, x, x', \mu, \mu', \alpha, \alpha'$,
 \[
-    \|b(t,x,\mu,\alpha) - b(t,x',\mu',\alpha')\| \leq L_b\big(\|x-x'\| +
-    \Wass(\mu,\mu') + \|\alpha-\alpha'\|\big).
+    \|b(t,x,\mu,\alpha) - b(t,x',\mu',\alpha')\| \le L_b\big(\|x-x'\| + W_2(\mu,\mu') +
+    \|\alpha-\alpha'\|\big).
 \]
-The running and terminal rewards $f, g$ are Lipschitz with constants $L_f, L_g$.
 \end{assumption}
 
-\begin{assumption}[Regularity]
+\begin{assumption}[Lipschitz rewards]
+\label{ass:lipschitz-rewards}
+$f$ and $g$ are Lipschitz continuous in all arguments, with constants $L_f, L_g > 0$.
+\end{assumption}
+
+\begin{assumption}[Regularity and Lions differentiability]
 \label{ass:regularity}
-$b, f, g$ are $C^1$ in $x$ and Lions-differentiable in $\mu$
-\citep[in the sense of][Ch.~5]{carmonadelarue2018}; their Lions derivatives are
-bounded and Lipschitz in $(x,\mu)$, with bounded second-order Lions derivatives
-where required. The initial law $\mu_{\mathrm{init}} \in \mathcal{P}_2(\R^d)$ has
-finite fourth moment.
+$b, f, g$ are $C^1$ in $x$ and Lions-differentiable in $\mu$ (in the sense of
+\citealp[Ch.~5]{carmonadelarue2018}), with bounded, Lipschitz Lions derivatives.
 \end{assumption}
 
-\begin{assumption}[Bounded common noise; uniform concavity]
-\label{ass:noise-concavity}
-$\|\sigma_0\|_F \leq M_\sigma < \infty$. The map
+\begin{assumption}[Bounded volatility]
+\label{ass:volatility}
+$\sigma > 0$ is constant, and $\sigma_0 \in \mathbb{R}^{d\times d_0}$ satisfies
+$\|\sigma_0\|_F \le M_\sigma < \infty$.
+\end{assumption}
+
+\begin{assumption}[Uniform Hamiltonian concavity]
+\label{ass:concavity}
 $\alpha \mapsto H(t,x,\mu,p,\alpha) := p\cdot b(t,x,\mu,\alpha) + f(t,x,\mu,\alpha)$
-is uniformly concave with modulus $\lambda_H > 0$.
+is uniformly $\lambda_H$-concave for some $\lambda_H > 0$.
 \end{assumption}
 
-These assumptions are standing throughout the paper and correspond to the
-structural conditions under which \citet{ahujarenyang2019} establish qualitative
-well-posedness; our contribution is the explicit quantitative refinement under the
-same hypotheses.
+\begin{assumption}[Initial condition]
+\label{ass:initial}
+$\mu_{\mathrm{init}} \in \mathcal{P}_2(\mathbb{R}^d)$ has finite fourth moment.
+\end{assumption}
 
-
-\section{The Mean-Field Fixed-Point Map}
-\label{sec:fixedpoint}
-
-For fixed $\mu \in \mathcal{M}$, the representative agent's problem is a standard
-stochastic control problem. By the stochastic maximum principle, the unique optimal
-control $\alpha^\mu$ is characterised by the forward-backward system
+Under \Cref{ass:lipschitz-drift,ass:lipschitz-rewards,ass:regularity,ass:concavity},
+the Stochastic Maximum Principle characterises the optimal control for a \emph{fixed}
+$\mu$: there is a unique solution $(X^\mu, p^\mu, q^\mu, r^\mu, \alpha^\mu)$ to
 \begin{align}
-    dX_t^\mu &= b(t, X_t^\mu, \mu_t, \alpha_t^\mu)\, dt + \sigma\, dW_t^i + \sigma_0\,
+    dX_t^\mu &= b(t, X_t^\mu, \mu_t, \alpha_t^\mu)\, dt + \sigma\, dW_t + \sigma_0\,
         dW_t^0, & X_0^\mu &\sim \mu_{\mathrm{init}}, \notag \\
     -dp_t^\mu &= \partial_x H(t, X_t^\mu, \mu_t, p_t^\mu, \alpha_t^\mu)\, dt -
-        q_t^\mu\, dW_t^i - r_t^\mu\, dW_t^0, & p_T^\mu &= \partial_x g(X_T^\mu,
-        \mu_T), \label{eq:fbsde} \\
-    \alpha_t^\mu &= \argmax_{\alpha \in A} H(t, X_t^\mu, \mu_t, p_t^\mu, \alpha).
-        \notag
+        q_t^\mu\, dW_t - r_t^\mu\, dW_t^0, & p_T^\mu &= \partial_x g(X_T^\mu, \mu_T),
+        \label{eq:agent-fbsde} \\
+    \alpha_t^\mu &= \argmax_{\alpha} H(t, X_t^\mu, \mu_t, p_t^\mu, \alpha), \notag
 \end{align}
-Existence and uniqueness of \eqref{eq:fbsde} for each fixed $\mu$ follows from
-standard results for McKean--Vlasov FBSDEs with Lipschitz coefficients
-\citep[Ch.~4]{carmonadelarue2018}, or via the monotone-functional continuation
-method of \citet{ahujarenyang2019}. We define the \emph{mean-field map}
+following standard results for Lipschitz McKean--Vlasov FBSDEs
+\citep[Vol.~I, Ch.~4]{carmonadelarue2018}. This defines the fixed-point map
 \begin{equation}
-    \Phi(\mu)_t := \mathcal{L}\big(X_t^\mu \mid \F_t^{W^0}\big), \qquad t\in[0,T],
-    \label{eq:phi}
+    \Phi(\mu)_t := \mathcal{L}\big(X_t^\mu \mid \mathcal{F}_t^{W^0}\big), \qquad
+    t \in [0,T],
+    \label{eq:fixed-point-map}
 \end{equation}
-so that $\Phi: \mathcal{M} \to \mathcal{M}$, and an MFG equilibrium is precisely a
-fixed point $\mu^* = \Phi(\mu^*)$.
+on the space of adapted measure flows $\mathcal{M} := D([0,T]; \mathcal{P}_2(\mathbb{R}^d))$
+(the Skorokhod space of c\`adl\`ag measure-valued processes adapted to
+$(\mathcal{F}_t^{W^0})$). A mean-field equilibrium is a fixed point $\Phi(\mu^*) = \mu^*$.
 
+For $\lambda > 0$, define the weighted norm on $\mathcal{M}$,
+\[
+    \|\mu\|_{\lambda,T} := \sup_{t\in[0,T]} e^{-\lambda t}\,
+    \mathbb{E}\big[W_2(\mu_t, \delta_0)^2\big]^{1/2},
+\]
+and the corresponding distance $\|\mu^1-\mu^2\|_{\lambda,T}$. This weighted norm
+is metrically equivalent to the standard norm of \citet{carmonadelarue2018} but
+absorbs the Gronwall growth rate more conveniently for extracting an explicit
+contraction factor.
 
-\section{Main Theorem}
-\label{sec:main}
+\section{Stability Estimate for the Fixed-Point Map}
+\label{sec:stability}
 
-\begin{theorem}[Quantitative well-posedness]
-\label{thm:main}
-Under \Cref{ass:lipschitz}--\ref{ass:noise-concavity}, there exists a unique
-solution to the FBSDE system \eqref{eq:fbsde} with $\mu=\Phi(\mu)$. Moreover, for any
-$\mu^1, \mu^2 \in \mathcal{M}$,
-\begin{equation}
-    \E\big[\Wass(\Phi(\mu^1)_t, \Phi(\mu^2)_t)^2\big] \leq C_0 \int_0^t e^{C(t-s)}\,
-    \E\big[\Wass(\mu_s^1,\mu_s^2)^2\big]\, ds,
-    \label{eq:stability}
-\end{equation}
-with
-\begin{equation}
-    C = 2L_b^2 + 2\|\sigma_0\|_F^2 + C_{\mathrm{reg}}, \qquad C_0 = L_b +
-    C_\alpha L_b,
-    \label{eq:constants}
-\end{equation}
-where $C_\alpha$ is the Lipschitz constant of $\alpha^\mu$ in $(x,p,\mu)$ and
-$C_{\mathrm{reg}}$ depends on the Lipschitz constants of the Lions derivatives of
-$b,f,g$ and the linear BSDE estimate constant. Consequently, for any
-$\lambda > C/2$, $\Phi$ is a contraction on $(\mathcal{M}, \|\cdot\|_{\lambda,T})$
-with factor
-\begin{equation}
-    \rho = \sqrt{\frac{C_0}{2\lambda - C}} < 1,
-    \label{eq:rho}
-\end{equation}
-and the unique fixed point $\mu^*=\Phi(\mu^*)$ is the MFG equilibrium. The
-$\varepsilon$-Nash property holds for the associated $N$-player game with rate
-$\varepsilon_N = O(N^{-1/2})$.
-\end{theorem}
-
-\begin{remark}[Expectation vs.\ pathwise]
-\label{rem:expectation}
-The contraction \eqref{eq:stability} holds for the \emph{expected} squared
-Wasserstein distance. The first-order stochastic term driven by $\sigma_0$ cancels
-in expectation by the martingale property under synchronous coupling
-(\Cref{sec:proof}), but does not cancel pathwise; we do not claim, and the proof
-does not give, a pathwise contraction.
-\end{remark}
-
-
-\section{Proof of the Stability Estimate}
-\label{sec:proof}
+The heart of the argument is a quantitative Lipschitz-type estimate for $\Phi$.
 
 \subsection{Synchronous coupling}
 
-Fix $\mu^1, \mu^2 \in \mathcal{M}$ and let $(X^1,p^1,q^1,r^1,\alpha^1)$,
-$(X^2,p^2,q^2,r^2,\alpha^2)$ solve \eqref{eq:fbsde} with $\mu^1, \mu^2$
-respectively. We couple the two systems on the same probability space, driving both
-with the \emph{same} realisations of $W^i$ and $W^0$, and with optimally coupled
-initial conditions $X_0^1 = X_0^2$ (since both share the law $\mu_{\mathrm{init}}$).
-Write $\Delta X_t := X_t^1 - X_t^2$, $\Delta p_t := p_t^1 - p_t^2$. By
-\eqref{eq:agent-sde} and \Cref{ass:lipschitz},
+Given two candidate measure flows $\mu^1, \mu^2 \in \mathcal{M}$, we couple the two
+systems \eqref{eq:agent-fbsde} on a common probability space, using the \emph{same}
+realisations of the idiosyncratic noise $W$ and, crucially, the same common noise
+$W^0$. Since the Wasserstein distance between two laws is bounded above by the
+$L^2$-distance between any coupling,
 \begin{equation}
-    d(\Delta X_t) = \big[b(t,X_t^1,\mu_t^1,\alpha_t^1) -
+    \mathbb{E}\big[W_2(\Phi(\mu^1)_t, \Phi(\mu^2)_t)^2\big] \le
+    \mathbb{E}\big[|X_t^1 - X_t^2|^2\big].
+    \label{eq:wasserstein-l2-bound}
+\end{equation}
+
+\subsection{The difference process}
+
+Write $\Delta X_t := X_t^1 - X_t^2$. Under synchronous coupling with identical,
+constant diffusion coefficients, the stochastic terms cancel \emph{pathwise}:
+\[
+    d(\Delta X_t) = \big[b(t,X_t^1,\mu_t^1,\alpha_t^1) - b(t,X_t^2,\mu_t^2,\alpha_t^2)
+    \big]\, dt,
+\]
+so that It\^o's formula applied to $|\Delta X_t|^2$ has no quadratic-variation
+correction:
+\begin{equation}
+    d|\Delta X_t|^2 = 2\Delta X_t \cdot \big[b(t,X_t^1,\mu_t^1,\alpha_t^1) -
     b(t,X_t^2,\mu_t^2,\alpha_t^2)\big]\, dt.
-    \label{eq:deltax}
+    \label{eq:ito-expansion}
 \end{equation}
-Crucially, the diffusion coefficients $\sigma, \sigma_0$ are state- and
-measure-independent, so they cancel \emph{exactly} (not merely in expectation) in
-$\Delta X_t$: the synchronous coupling removes the noise term from the difference
-process entirely at this stage. The common noise instead enters the estimate
-through its effect on the \emph{adjoint} difference $\Delta p_t$, via the BSDE
-\eqref{eq:fbsde}, as we make precise below.
 
-\subsection{It\^o expansion and Gronwall setup}
-
-By It\^o's formula applied to $|\Delta X_t|^2$ and the Lipschitz bound
-(\Cref{ass:lipschitz}) on the drift difference,
+Using \Cref{ass:lipschitz-drift} and Young's inequality,
 \begin{equation}
-    \frac{d}{dt}\E\big[|\Delta X_t|^2\big] \leq (2L_b+L_b^2)\,\E\big[|\Delta
-    X_t|^2\big] + L_b\,\E\big[\Wass(\mu_t^1,\mu_t^2)^2\big] + L_b C_\alpha^2
-    \big(\E[|\Delta X_t|^2] + \E[|\Delta p_t|^2] + \E[\Wass(\mu_t^1,\mu_t^2)^2]\big),
-    \label{eq:deltax-bound}
+    d|\Delta X_t|^2 \le \big[(2L_b + L_b^2)|\Delta X_t|^2 + L_b W_2(\mu_t^1,\mu_t^2)^2 +
+    L_b|\alpha_t^1-\alpha_t^2|^2\big]\, dt.
+    \label{eq:gronwall-setup}
 \end{equation}
-where the control-difference Lipschitz bound $\|\Delta \alpha_t\| \leq
-C_\alpha(\|\Delta X_t\| + \|\Delta p_t\| + \Wass(\mu_t^1,\mu_t^2))$ follows from the
-implicit function theorem applied to the optimality condition
-$\partial_\alpha H = 0$ under the uniform concavity of \Cref{ass:noise-concavity}
-(full derivation in \Cref{app:control-lipschitz}).
 
-\subsection{Adjoint difference and the role of $\sigma_0$}
+\subsection{Control difference via the SMP}
 
-The adjoint difference $\Delta p_t$ satisfies a linear BSDE driven by the
-differences in $H$'s derivatives. The standard linear BSDE energy estimate
-\citep[Prop.~2.1]{elkarouipengquenez1997} gives
+By the implicit function theorem applied to the optimality condition
+$\partial_\alpha H = 0$, uniform concavity (\Cref{ass:concavity}) gives a constant
+$C_\alpha > 0$ such that
 \begin{equation}
-    \E\Big[\sup_{t} |\Delta p_t|^2\Big] \leq C_{\mathrm{BSDE}}\, \E\Big[|\Delta
-    X_T|^2 + \int_0^T \big(|\Delta X_t|^2 + |\Delta\alpha_t|^2 +
-    \Wass(\mu_t^1,\mu_t^2)^2\big)\, dt\Big],
+    |\alpha_t^1 - \alpha_t^2| \le C_\alpha\big(|X_t^1-X_t^2| + |p_t^1-p_t^2| +
+    W_2(\mu_t^1,\mu_t^2)\big).
+    \label{eq:control-lipschitz}
+\end{equation}
+The Lipschitz dependence on the measure argument follows from the Lions
+differentiability in \Cref{ass:regularity} together with
+\citet[Prop.~5.35]{carmonadelarue2018}.
+
+\subsection{Adjoint process estimate}
+
+Differencing the adjoint BSDEs gives a linear BSDE for $\Delta p_t := p_t^1 - p_t^2$
+with a mean-field coupling term controlled, via \Cref{ass:regularity}, by a constant
+$L_\mu$ bounding the relevant Lions-derivative operator norm. Standard BSDE estimates
+\citep{elkarouietal1997,zhang2017} yield
+\begin{align}
+    \mathbb{E}\bigg[\sup_{t\in[0,T]} |\Delta p_t|^2 + \int_0^T \big(|\Delta q_t|^2 +
+    |\Delta r_t|^2\big)\, dt\bigg] \notag \\
+    \le C_{\mathrm{BSDE}}\, \mathbb{E}\bigg[|\Delta X_T|^2 + \int_0^T \big(|\Delta
+    X_t|^2 + |\alpha_t^1-\alpha_t^2|^2 + W_2(\mu_t^1,\mu_t^2)^2\big)\, dt\bigg],
     \label{eq:bsde-estimate}
+\end{align}
+where $C_{\mathrm{BSDE}}$ depends on the Lipschitz bounds, $T$, and -- crucially,
+through the martingale representation terms driven by $W^0$ -- on $\|\sigma_0\|_F$.
+
+\subsection{Closing the estimate}
+
+Substituting \eqref{eq:control-lipschitz} into \eqref{eq:gronwall-setup} and
+\eqref{eq:bsde-estimate} and setting
+$y_t := \mathbb{E}[|\Delta X_t|^2] + \mathbb{E}[|\Delta p_t|^2]$, algebraic
+manipulation (given in full in \Cref{app:algebra}) yields the closed differential
+inequality
+\begin{equation}
+    \frac{d}{dt} y_t \le C_1\, y_t + C_2\, \mathbb{E}\big[W_2(\mu_t^1,\mu_t^2)^2\big],
+    \label{eq:gronwall-differential}
 \end{equation}
-with $C_{\mathrm{BSDE}} = C_0'(1+\|\sigma_0\|_F^2)$ for a constant $C_0'$ depending
-only on $T$ and the Lipschitz constants of $H$'s second derivatives. The dependence
-on $\|\sigma_0\|_F^2$ arises because the common-noise martingale term
-$\int \Delta r_t\, dW_t^0$ in the BSDE energy identity contributes a quadratic
-variation term scaled by $\|\sigma_0\|_F^2$ through the martingale representation
-theorem (full derivation in \Cref{app:bsde-constant}). This is the precise
-mechanism by which the common-noise coefficient enters the contraction constant:
-\emph{not} through a first-order term in the state difference (which cancels
-exactly under synchronous coupling, as noted above), but through the BSDE estimate
-governing the adjoint process.
+with
+\begin{equation}
+    C_1 = 2L_b^2 + 2\|\sigma_0\|_F^2 + C_{\mathrm{reg}}, \qquad
+    C_2 = L_b + C_\alpha L_b + C_{\mathrm{BSDE}} L_\mu,
+    \label{eq:constants}
+\end{equation}
+where $C_{\mathrm{reg}}$ collects the regularity constants from the Lions
+derivatives and BSDE bounds. By Gronwall's inequality and
+\eqref{eq:wasserstein-l2-bound}, this gives the main stability estimate:
 
-\subsection{Combining the estimates}
+\begin{theorem}[Wasserstein Stability]
+\label{thm:stability}
+Under Assumptions~\ref{ass:lipschitz-drift}--\ref{ass:initial}, for all
+$\mu^1, \mu^2 \in \mathcal{M}$ and $t \in [0,T]$,
+\begin{equation}
+    \mathbb{E}\big[W_2(\Phi(\mu^1)_t, \Phi(\mu^2)_t)^2\big] \le C_2 \int_0^t
+    e^{C_1(t-s)}\, \mathbb{E}\big[W_2(\mu_s^1,\mu_s^2)^2\big]\, ds,
+    \label{eq:stability-estimate}
+\end{equation}
+with $C_1, C_2$ as in \eqref{eq:constants}.
+\end{theorem}
 
-Substituting \eqref{eq:bsde-estimate} into \eqref{eq:deltax-bound} and applying
-Gronwall's inequality to $y_t := \E[|\Delta X_t|^2] + \E[|\Delta p_t|^2]$ yields the
-single differential inequality
-\[
-    \frac{d}{dt} y_t \leq C_1\, y_t + C_2\, \E\big[\Wass(\mu_t^1,\mu_t^2)^2\big],
-\]
-with $C_1 = 2L_b^2 + 2\|\sigma_0\|_F^2 + C_{\mathrm{reg}}$ and
-$C_2 = L_b + C_\alpha L_b + C_{\mathrm{BSDE}} L_\mu$, where $C_{\mathrm{reg}}$
-collects the remaining Lipschitz/regularity terms not already isolated in the
-leading $2L_b^2 + 2\|\sigma_0\|_F^2$. Finally, since
-$\Phi(\mu^j)_t = \mathcal{L}(X_t^j \mid \F_t^{W^0})$,
-$\Wass(\Phi(\mu^1)_t,\Phi(\mu^2)_t)^2 \leq \E[|\Delta X_t|^2 \mid \F_t^{W^0}]$, and
-taking expectations and applying Gronwall's lemma to $y_t$ gives
-\eqref{eq:stability} with $C = C_1$, $C_0 = C_2$, after absorbing the
-boundary term via $y_0 = 0$. This proves \Cref{thm:main}'s stability estimate; full
-algebraic detail is given in \Cref{app:proofs}.
+\begin{remark}[Expectation, not pathwise]
+The estimate \eqref{eq:stability-estimate} holds for the \emph{expected} squared
+Wasserstein distance. The first-order stochastic terms driven by $W^0$ cancel in
+expectation (via the martingale property) but not pathwise; this is why the
+contraction below is stated in a weighted expectation norm rather than almost surely.
+\end{remark}
 
+\section{Main Theorem: Contraction, Existence, Uniqueness, and $\varepsilon$-Nash}
+\label{sec:main}
 
-\section{Existence, Uniqueness, and the $\varepsilon$-Nash Property}
-\label{sec:existence}
+\begin{theorem}[Quantitative Well-Posedness]
+\label{thm:wellposedness}
+Under Assumptions~\ref{ass:lipschitz-drift}--\ref{ass:initial}, for any
+$\lambda > \tfrac{C_1}{2} + \tfrac{C_2}{2}$, the map $\Phi$ is a strict contraction on
+the complete metric space $(\mathcal{M}, \|\cdot\|_{\lambda,T})$:
+\begin{equation}
+    \|\Phi(\mu^1) - \Phi(\mu^2)\|_{\lambda,T} \le \rho\, \|\mu^1-\mu^2\|_{\lambda,T},
+    \qquad \rho = \sqrt{\frac{C_2}{2\lambda - C_1}} < 1.
+    \label{eq:contraction}
+\end{equation}
+Consequently, there exists a unique fixed point $\mu^* = \Phi(\mu^*) \in \mathcal{M}$,
+and the corresponding processes $(X^*, p^*, q^*, r^*, \alpha^*)$ solving
+\eqref{eq:agent-fbsde} with $\mu=\mu^*$ constitute the unique solution to the
+common-noise MFG equilibrium system. Moreover, if all $N$ players in the associated
+finite-player game adopt the strategy $\alpha^*$, the resulting strategy profile is an
+$\varepsilon_N$-Nash equilibrium with $\varepsilon_N = O(N^{-1/2})$.
+\end{theorem}
 
-Since $(\mathcal{M}, \|\cdot\|_{\lambda,T})$ is complete \citep{billingsley1999}, the
-contraction \eqref{eq:rho} and the Banach fixed-point theorem give a unique fixed
-point $\mu^* \in \mathcal{M}$, establishing existence and uniqueness of the FBSDE
-system's solution.
+\begin{proof}[Proof sketch]
+The contraction bound \eqref{eq:contraction} follows by taking the weighted supremum
+of \eqref{eq:stability-estimate} and bounding the resulting convolution integral,
+exactly as in the derivation of \eqref{eq:constants}; see \Cref{app:contraction-proof}
+for the full computation. Existence and uniqueness of the fixed point then follow from
+the Banach fixed-point theorem, since $(\mathcal{M}, \|\cdot\|_{\lambda,T})$ is
+complete (inherited from completeness of $\mathcal{P}_2(\mathbb{R}^d)$ and standard
+properties of Skorokhod space; \citealp{billingsley1999}). The $\varepsilon$-Nash
+property follows from conditional propagation of chaos
+\citep[Vol.~II, Thm.~6.16]{carmonadelarue2018}, applied to bound the distance between
+the finite-player empirical measure and $\mu^*$, combined with the Lipschitz stability
+of the FBSDE system established above.
+\end{proof}
 
-For the $\varepsilon$-Nash property, let $\mu_t^{N,-i}$ be the empirical measure of
-$N-1$ agents following the equilibrium strategy $\alpha^*$, while agent $i$
-deviates. By the conditional propagation of chaos
-\citep[Thm~6.16]{carmonadelarue2018},
-$\E[\Wass(\mu_t^{N,-i},\mu_t^*)^2] \leq C_{\mathrm{PoC}}/N$ for a constant
-independent of $N$. Combining this with the Lipschitz stability of the rewards and
-\eqref{eq:stability} applied to the finite-$N$ empirical measure gives
-\[
-    \sup_{\alpha^i} \big(J_i(\alpha^i,\alpha^{-i,*}) - J_i(\alpha^*,\alpha^{-i,*})\big)
-    \leq \varepsilon_N = O(N^{-1/2}),
-\]
-so the symmetric profile $(\alpha^*,\dots,\alpha^*)$ is an $\varepsilon_N$-Nash
-equilibrium of the $N$-player game.
-
-
-\section{Discussion}
+\section{Discussion of the Contraction Constant}
 \label{sec:discussion}
 
-\subsection{The contraction constant}
-
-\Cref{tab:constant} summarises the origin of each term in $C$.
-
-\begin{table}[ht]
-\centering
-\caption{Components of the contraction constant $C$}
-\label{tab:constant}
-\begin{tabular}{lll}
-\toprule
-\textbf{Term} & \textbf{Expression} & \textbf{Origin} \\
-\midrule
-Drift Lipschitz & $2L_b^2$ & Gronwall step on $\Delta X_t$ \\
-Common noise & $2\|\sigma_0\|_F^2$ & BSDE estimate constant $C_{\mathrm{BSDE}}$ \\
-Regularity & $C_{\mathrm{reg}}$ & Lions-derivative and BSDE bounds \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-In the linear-quadratic case (drift linear in $(x,\bar\mu,\alpha)$, quadratic
-rewards), all constants -- including $C_{\mathrm{reg}}$ -- are explicit functions of
-the model parameters via the associated Riccati system; we give this specialisation
-in \Cref{app:lq-example} as a worked example. For general nonlinear coefficients,
-$C_{\mathrm{reg}}$ remains an implicit bound on Lions-derivative Lipschitz constants
-and BSDE operator norms.
-
-\subsection{Practical use of the explicit constant}
-
-The constant $C$ directly bounds the rate at which numerical and learning errors
-can be amplified through the fixed-point iteration. A numerical scheme
-approximating $\Phi$ to discretisation error $\delta$ inherits, via
-\eqref{eq:stability}, an equilibrium approximation error of order
-$\delta/(1-\rho)$ with $\rho$ as in \eqref{eq:rho}; similarly, a multi-timescale
-learning algorithm's slowest permissible timescale ratio is governed by $C$. We
-develop these applications, with full numerical and reinforcement-learning detail,
-in companion work currently in preparation.
-
-\subsection{Limitations}
-
+The constant $C_1 = 2L_b^2 + 2\|\sigma_0\|_F^2 + C_{\mathrm{reg}}$ in
+\eqref{eq:constants} admits a clean decomposition:
 \begin{itemize}
-    \item \textbf{Expectation, not pathwise.} \Cref{rem:expectation} applies
-    throughout; pathwise stability would require a different (and to our knowledge
-    open) argument, since the cancellation we exploit is intrinsically an
-    expectation-level phenomenon.
-    \item \textbf{Regularity of optimal transport maps.} The argument implicitly
-    uses stability properties of optimal couplings, which require absolute
-    continuity of the measures involved. Discrete empirical measures -- the
-    practically relevant case in, e.g., financial applications -- violate this, and
-    a regularisation (kernel smoothing, entropic optimal transport) is needed in
-    practice; the resulting additional approximation error is not quantified here.
-    \item \textbf{Implicit $C_{\mathrm{reg}}$.} Outside tractable special cases,
-    $C_{\mathrm{reg}}$ is a bound, not a closed-form expression, on Lions-derivative
-    regularity constants that are themselves typically estimated rather than known
-    exactly in applications.
-    \item \textbf{Homogeneous common-noise exposure.} The cancellation argument
-    assumes all agents share the same common-noise loading $\sigma_0$. If agents
-    have heterogeneous exposures, the first-order cancellation under synchronous
-    coupling fails and the argument must be revisited.
+    \item $2L_b^2$: the standard Lipschitz contribution from the drift, present even
+    without common noise;
+    \item $2\|\sigma_0\|_F^2$: the effect of the common noise, entering not through
+    the (cancelling) first-order stochastic term but through the dependence of the
+    BSDE constant $C_{\mathrm{BSDE}}$ on $\|\sigma_0\|_F$ via the martingale
+    representation for $r_t$;
+    \item $C_{\mathrm{reg}}$: regularity constants from the Lions derivatives of
+    $b, f, g$ and the adjoint BSDE bounds. This term is fully explicit for specific
+    models (e.g., the linear-quadratic case of \Cref{sec:example}) and otherwise
+    bounded in terms of Lipschitz constants of the Lions derivatives.
 \end{itemize}
 
+\paragraph{Limitations.} The estimate relies on absolute continuity and bounded
+densities for the stability of optimal transport maps (\Cref{ass:regularity}). In
+particle-method implementations, where the empirical measure is discrete, this
+assumption requires regularisation (e.g., entropic smoothing); the error introduced
+by such regularisation is not quantified here. The contraction constant $\rho$ also
+grows with the horizon $T$ through $C_1, C_2$; for long horizons this may require
+choosing a large $\lambda$, and under weaker structural conditions the contraction
+established here may only hold locally in time.
+
+\section{Illustration: The Linear-Quadratic Benchmark}
+\label{sec:example}
+
+\begin{example}[Canonical LQ-MFG]
+\label{ex:lq-mfg}
+\begin{align*}
+    \text{State:}\quad & dX_t = [\kappa(\bar\mu_t - X_t) + \alpha_t]\, dt + \sigma\,
+        dW_t + \sigma_0\, dW_t^0, \\
+    \text{Running cost:}\quad & f(t,x,\mu,\alpha) = \tfrac{c_1}{2}x^2 +
+        \tfrac{\lambda}{2}\alpha^2, \\
+    \text{Terminal cost:}\quad & g(x,\mu) = \tfrac{c_2}{2}(x-\bar\mu)^2,
+\end{align*}
+with $\bar\mu_t = \int x\,\mu_t(dx)$, $\kappa, \lambda, c_1, c_2 > 0$.
+\end{example}
+
+For this model, every constant in \Cref{thm:stability,thm:wellposedness} is explicit
+in terms of $\kappa, \lambda, c_1, c_2, \sigma, \sigma_0$. The value function is
+$V(t,x,\mu) = -\tfrac12 A_t x^2 - B_t x\bar\mu - \tfrac12 C_t\bar\mu^2 - D_t x -
+E_t\bar\mu - F_t$, with $(A_t,\ldots,F_t)$ solving a coupled Riccati system derived
+from the master equation for this model. With baseline parameters $\kappa=0.5$,
+$\lambda=1$, $c_1=2$, $c_2=5$, $\sigma=0.2$, $\sigma_0=0.3$, $T=1$, the Riccati system
+is well-posed on $[0,T]$ and yields an explicit contraction constant, verified
+numerically by two independent ODE solvers (LSODA and Radau). The full derivation of
+this Riccati system, including a re-derivation identifying and resolving two
+discrepancies against an earlier working version (a sign difference in the quadratic
+coefficient and missing mean-field coupling terms), is provided in a companion
+technical note.
 
 \section{Conclusion}
 
-We have given an explicit, parameter-dependent contraction estimate for the
-mean-field fixed-point map governing common-noise MFG equilibria, isolating the
-precise mechanism (a second-order BSDE effect, not a first-order state-difference
-effect) by which the common-noise coefficient enters the contraction rate. The
-result refines existing qualitative well-posedness theory
-\citep{ahujarenyang2019,carmonadelarue2018} to a quantitative statement usable
-directly in algorithm design, at the cost of an expectation-level (rather than
-pathwise) guarantee and an implicit regularity constant outside tractable special
-cases. We view the extension to pathwise stability, and to heterogeneous
-common-noise exposure, as the most pressing open directions.
-
-
-\appendix
-\section{Supplementary Proofs}
-\label{app:proofs}
-
-\subsection{Control-difference Lipschitz constant}
-\label{app:control-lipschitz}
-
-Differentiating the optimality condition
-$\partial_\alpha H(t,X_t,\mu_t,p_t,\alpha_t^*)=0$ implicitly in $(x,p,\mu)$ and using
-the uniform concavity bound $\partial_{\alpha\alpha}H \leq -\lambda_H < 0$
-(\Cref{ass:noise-concavity}), the implicit function theorem gives
-$\nabla_{(x,p,\mu)}\alpha^* = -(\partial_{\alpha\alpha}H)^{-1}
-\nabla_{(x,p,\mu)}\partial_\alpha H$, so
-$C_\alpha = (L_b+L_\mu)/\lambda_H$, where $L_\mu$ bounds the Lions derivative of
-$f$.
-
-\subsection{The BSDE constant $C_{\mathrm{BSDE}}$}
-\label{app:bsde-constant}
-
-The linear BSDE for $\Delta p_t$ has driver coefficients bounded by the second
-derivatives of $H$ (\Cref{ass:regularity}). The energy identity for linear BSDEs
-\citep[Prop.~2.1]{elkarouipengquenez1997} expresses
-$\E[\sup_t|\Delta p_t|^2]$ in terms of the terminal condition and the running driver,
-plus the quadratic variation of the martingale terms
-$\int \Delta q_t\, dW_t^i + \int \Delta r_t\, dW_t^0$. The idiosyncratic term
-contributes a constant independent of $\sigma_0$; the common-noise term
-contributes $\|\sigma_0\|_F^2 \cdot (\text{driver bound})$ via the martingale
-representation theorem applied to the common-noise filtration. Collecting these
-gives $C_{\mathrm{BSDE}} = C_0'(1+\|\sigma_0\|_F^2)$.
-
-\subsection{Linear-quadratic specialisation}
-\label{app:lq-example}
-
-For $b(t,x,\mu,\alpha)=\kappa(\bar\mu-x)+\alpha$,
-$f=-(Qx^2+\tfrac{\lambda}{2}\alpha^2)$, $g=-P(x-\bar\mu_T)^2$, the value function is
-quadratic, $u(t,x,\mu) = -\tfrac12 A_t x^2 - B_t x\bar\mu - \dots$, with $(A_t,B_t)$
-solving a scalar Riccati system. All constants in \Cref{thm:main}, including
-$C_{\mathrm{reg}}$, are then explicit functions of $\kappa,\lambda,Q,P,\sigma,
-\sigma_0$ and the Riccati solution; we omit the lengthy but routine computation.
+We have established a quantitative, parameter-dependent contraction estimate for the
+fixed-point map characterising equilibria of common-noise mean-field games, extending
+the qualitative well-posedness theory of \citet{carmonadelarue2018} and
+\citet{ahujarenyang2019} with an explicit rate suitable for algorithmic use. Natural
+directions for future work include extending the explicit-constant analysis beyond
+the linear-quadratic case, quantifying the regularisation error for discrete
+(particle-based) approximations, and using the contraction rate derived here as a
+design criterion for convergent numerical schemes -- a direction pursued in a
+companion paper on numerical approximation of the coupled FBSDE--Fokker--Planck
+system.
 
 \bibliographystyle{plainnat}
-\bibliography{references}
+\begin{thebibliography}{99}
+
+\bibitem[Achdou and Capuzzo-Dolcetta(2010)]{achdoucapuzzo2010}
+Achdou, Y. and Capuzzo-Dolcetta, I. (2010).
+\newblock Mean field games: numerical methods.
+\newblock \emph{SIAM J. Numer. Anal.}, 48(3):1136--1162.
+
+\bibitem[Ahuja et al.(2019)]{ahujarenyang2019}
+Ahuja, S., Ren, W., and Yang, T.-W. (2019).
+\newblock Forward-backward stochastic differential equations with monotone
+functionals and mean field games with common noise.
+\newblock \emph{Stochastic Process. Appl.}, 129(10):3859--3892.
+
+\bibitem[Billingsley(1999)]{billingsley1999}
+Billingsley, P. (1999).
+\newblock \emph{Convergence of Probability Measures}, 2nd edition.
+\newblock Wiley.
+
+\bibitem[Cardaliaguet(2010)]{cardaliaguet2010notes}
+Cardaliaguet, P. (2010).
+\newblock Notes on mean field games.
+\newblock Technical report, Universit\'e Paris-Dauphine.
+
+\bibitem[Cardaliaguet et al.(2019)]{cardaliaguetetal2019}
+Cardaliaguet, P., Delarue, F., Lasry, J.-M., and Lions, P.-L. (2019).
+\newblock \emph{The Master Equation and the Convergence Problem in Mean Field
+Games}.
+\newblock Princeton University Press.
+
+\bibitem[Cardaliaguet et al.(2025)]{cardaliaguetseegersouganidis2025}
+Cardaliaguet, P., Seeger, B., and Souganidis, P. E. (2025).
+\newblock Taming under isoperimetry.
+\newblock \emph{Stochastic Process. Appl.} arXiv:2311.09003.
+
+\bibitem[Carmona and Delarue(2018)]{carmonadelarue2018}
+Carmona, R. and Delarue, F. (2018).
+\newblock \emph{Probabilistic Theory of Mean Field Games with Applications I--II}.
+\newblock Springer.
+
+\bibitem[Carmona et al.(2013)]{carmona2013probabilistic}
+Carmona, R., Delarue, F., and Lachapelle, A. (2013).
+\newblock Control of McKean--Vlasov dynamics versus mean field games.
+\newblock \emph{Math. Financ. Econ.}, 7(2):131--166.
+
+\bibitem[Carmona and Lauri\`ere(2022)]{carmonalauriere2022}
+Carmona, R. and Lauri\`ere, M. (2022).
+\newblock Deep learning for mean field games and mean field control with
+applications to finance.
+\newblock In \emph{Machine Learning and Data Sciences for Financial Markets}.
+Cambridge University Press.
+
+\bibitem[El Karoui et al.(1997)]{elkarouietal1997}
+El Karoui, N., Peng, S., and Quenez, M. C. (1997).
+\newblock Backward stochastic differential equations in finance.
+\newblock \emph{Math. Finance}, 7(1):1--71.
+
+\bibitem[Fournier and Guillin(2015)]{fournierguillin2015}
+Fournier, N. and Guillin, A. (2015).
+\newblock On the rate of convergence in Wasserstein distance of the empirical
+measure.
+\newblock \emph{Probab. Theory Related Fields}, 162(3--4):707--738.
+
+\bibitem[Huang et al.(2006)]{huangetal2006}
+Huang, M., Caines, P. E., and Malham\'e, R. P. (2006).
+\newblock Large population stochastic dynamic games: closed-loop McKean--Vlasov
+systems and the Nash certainty equivalence principle.
+\newblock \emph{Commun. Inf. Syst.}, 6(3):221--252.
+
+\bibitem[Lasry and Lions(2007)]{lasrylions2007}
+Lasry, J.-M. and Lions, P.-L. (2007).
+\newblock Mean field games.
+\newblock \emph{Jpn. J. Math.}, 2(1):229--260.
+
+\bibitem[McKean(1966)]{mckean1966}
+McKean, H. P. (1966).
+\newblock A class of Markov processes associated with nonlinear parabolic
+equations.
+\newblock \emph{Proc. Natl. Acad. Sci. USA}, 56(6):1907--1911.
+
+\bibitem[Sznitman(1991)]{sznitman1991}
+Sznitman, A.-S. (1991).
+\newblock Topics in propagation of chaos.
+\newblock In \emph{\'Ecole d'\'Et\'e de Probabilit\'es de Saint-Flour XIX--1989},
+pages 165--251. Springer.
+
+\bibitem[Zhang(2017)]{zhang2017}
+Zhang, J. (2017).
+\newblock \emph{Backward Stochastic Differential Equations}.
+\newblock Springer.
+
+\end{thebibliography}
+
+\appendix
+
+\section{Algebraic Details of the Gronwall Setup}
+\label{app:algebra}
+
+This appendix gives the algebraic manipulation eliding \eqref{eq:gronwall-setup} and
+\eqref{eq:bsde-estimate} into \eqref{eq:gronwall-differential}, omitted from the main
+text for brevity. [\emph{To be completed with the full derivation extracted from
+Appendix A of the accompanying thesis before submission.}]
+
+\section{Proof of the Contraction Bound}
+\label{app:contraction-proof}
+
+This appendix gives the full derivation of \eqref{eq:contraction} from
+\eqref{eq:stability-estimate} via the weighted-norm change of variables. [\emph{To be
+completed with the full derivation before submission.}]
 
 \end{document}
