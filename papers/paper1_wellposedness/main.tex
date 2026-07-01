@@ -89,23 +89,59 @@ derivatives. This yields a contraction in a weighted Wasserstein metric
 uniqueness, and the $\varepsilon$-Nash property for the associated $N$-player game
 follow. We illustrate all constants explicitly for the canonical linear-quadratic MFG.
 
-To the best of our knowledge, relative to the specific works cited above, an explicit
-computable contraction constant of this form has not previously been derived for the
-common-noise setting. This scope reflects the mean-field-game literature most directly
-relevant to the present setting and is not a claim of an exhaustive survey of all
-adjacent fields.
+We emphasise precisely what this contributes relative to the closely related recent
+work of \citet{jacksontangpi2024} and \citet{jacksonmeszaros2025}, discussed in detail
+below: those papers establish quantitative \emph{convergence rates of $N$-player Nash
+equilibria to an assumed-to-exist mean-field equilibrium} via displacement
+monotonicity, whereas the present paper constructs the mean-field equilibrium itself
+as the fixed point of $\Phi$, via an explicit contraction estimate intended as a
+design criterion for a numerical fixed-point iteration scheme. To the best of our
+knowledge, relative to the specific works cited in this section, an explicit
+computable Banach-contraction estimate of this form for the equilibrium
+fixed-point map itself has not previously been derived in the common-noise setting.
+This scope reflects the mean-field-game literature most directly
+relevant to the present setting, including the papers identified in the focused
+literature search underlying this claim, and is not a claim of an exhaustive survey
+of all adjacent fields.
 
-\paragraph{Related work.} Beyond the works already mentioned,
-\citet{cardaliaguetetal2019} derive the master equation for common-noise MFGs and
+\paragraph{Related work.} \citet{cardaliaguetetal2019} derive the master equation for
+common-noise MFGs and
 establish PDE-level regularity; \citet{cardaliaguetseegersouganidis2025} resolve
 further SPDE regularity questions in this setting. Neither addresses quantitative
-FBSDE contraction rates. For classical (idiosyncratic-only) MFGs,
+FBSDE contraction rates for the fixed-point map $\Phi$. For classical
+(idiosyncratic-only) MFGs,
 \citet{cardaliaguet2010notes} gives a PDE treatment of well-posedness; numerical
 schemes for this setting are studied by \citet{achdoucapuzzo2010} and
 \citet{carmonalauriere2022}. The propagation-of-chaos theory underlying the
 $\varepsilon$-Nash verification traces to \citet{mckean1966} and
 \citet{sznitman1991}, with quantitative Wasserstein rates due to
 \citet{fournierguillin2015}.
+
+\textbf{Closely related work using synchronous coupling for common-noise FBSDE
+stability.} \citet{jacksontangpi2024} use the same synchronous-coupling strategy
+underlying \Cref{sec:stability} to derive quantitative \emph{convergence rates}
+$O(1/N)$ of $N$-player open-loop Nash equilibria to a mean-field equilibrium, for
+common-noise MFGs with controlled volatility, under a displacement-monotonicity
+structural condition. This replaces the small-time-horizon or dissipativity
+restriction used in earlier coupling-based arguments (e.g.\ the idiosyncratic-noise
+result of Lauri\`ere and Tangpi that they build on) with a monotonicity condition
+that holds more broadly. \citet{jacksonmeszaros2025} extend this to mean-field
+games of control. Both works also establish existence and uniqueness of the
+mean-field equilibrium, but via the \emph{method of continuation} for monotone
+FBSDEs (in the sense of \citealp{peng1999}), not via a Banach-fixed-point
+contraction estimate on the space of measure flows. The present paper's target
+object -- an explicit contraction constant for the map $\Phi:\mu \mapsto \Phi(\mu)$
+itself, usable directly as a step-size / convergence-rate criterion for a numerical
+fixed-point iteration -- is accordingly a different (though methodologically
+related) result. We view the displacement-monotonicity condition used by
+\citet{jacksontangpi2024,jacksonmeszaros2025} as a promising route to relaxing the
+smallness condition \eqref{eq:smallness-condition} required to close the Gronwall
+argument in \Cref{app:algebra}, and we flag this as a direction for future work.
+Finally, \citet{frizetal2026} study a linear-quadratic MFG with \emph{rough} (rather
+than It\^o/Brownian) common noise and derive stability estimates with respect to
+initial data and the common-noise path in that pathwise setting; the technical
+setting (rough-path theory) and the notion of stability differ from the present
+Brownian, expectation-level analysis.
 
 \paragraph{Organisation.} \Cref{sec:setup} states the model, assumptions, and the
 fixed-point formulation. \Cref{sec:stability} contains the core stability estimate.
@@ -503,6 +539,29 @@ Sznitman, A.-S. (1991).
 \newblock Topics in propagation of chaos.
 \newblock In \emph{\'Ecole d'\'Et\'e de Probabilit\'es de Saint-Flour XIX--1989},
 pages 165--251. Springer.
+
+\bibitem[Friz et al.(2026)]{frizetal2026}
+Friz, P. K., Gasteratos, I., Horst, U., and Theodorakopoulos, S. (2026).
+\newblock Mean-field games with rough common noise I: the linear-quadratic case.
+\newblock arXiv:2602.19210.
+
+\bibitem[Jackson and Mészáros(2025)]{jacksonmeszaros2025}
+Jackson, J. and Mészáros, A. R. (2025).
+\newblock Quantitative convergence for displacement monotone mean field games of
+control.
+\newblock arXiv:2601.07028.
+
+\bibitem[Jackson and Tangpi(2024)]{jacksontangpi2024}
+Jackson, J. and Tangpi, L. (2024).
+\newblock Quantitative convergence for displacement monotone mean field games with
+controlled volatility.
+\newblock \emph{Math. Oper. Res.}, 49(4):2527--2564.
+
+\bibitem[Peng and Wu(1999)]{peng1999}
+Peng, S. and Wu, Z. (1999).
+\newblock Fully coupled forward-backward stochastic differential equations and
+applications to optimal control.
+\newblock \emph{SIAM J. Control Optim.}, 37(3):825--843.
 
 \bibitem[Zhang(2017)]{zhang2017}
 Zhang, J. (2017).
