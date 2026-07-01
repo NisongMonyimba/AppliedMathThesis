@@ -19,14 +19,16 @@ The central mathematical objects are:
     characterises the Nash equilibrium through the Stochastic Maximum Principle.
 \end{itemize}
 
-The thesis makes four contributions: a quantitative contraction theorem for the
-FBSDE fixed-point map (Chapter 3); a convergent and stable numerical scheme for
-the coupled FBSDE--Fokker--Planck system (Chapter 4); a rigorous particle-method
-analysis including propagation-of-chaos estimates and computational complexity
-(Chapter 5); and a partial formal verification of the core estimates in Lean 4
-(Chapter 6). Throughout, the canonical linear-quadratic MFG serves as the
-benchmark, with a corrected master-equation derivation (Appendix A) providing the
-closed-form reference solution.
+The thesis presents five principal contributions, matching the five listed in
+the Abstract: (1) a quantitative contraction theorem for the
+FBSDE fixed-point map (Chapter 3); (2) a convergent and stable numerical scheme for
+the coupled FBSDE--Fokker--Planck system (Chapter 4); (3) a rigorous particle-method
+analysis including a conditional propagation-of-chaos estimate and computational
+complexity (Chapter 5); (4) a re-derivation of the linear-quadratic master equation
+(Appendix A), providing the closed-form reference solution used as the benchmark
+throughout; and (5) a partial formal verification of selected core estimates in
+Lean 4 (Chapter 7), presented as a complementary check on mathematical correctness
+rather than as a central theoretical contribution.
 
 \section{What Is a Mean-Field Game?}
 
@@ -224,7 +226,14 @@ Cardaliaguet, Seeger \& Souganidis \citep{cardaliaguetseegersouganidis2025} &
 \end{center}
 
 \bigskip
-\noindent\textbf{Contributions of this thesis:}
+\noindent\textbf{Contributions of this thesis.} The claims below are made
+relative to the specific published sources cited in Section~\ref{sec:gap} above
+and in the tables therein; they reflect a review of the mean-field-game and
+propagation-of-chaos literature most directly relevant to the common-noise
+setting, not an exhaustive survey of all adjacent fields (e.g., interacting
+particle systems outside the MFG context, or numerical PDE methods more
+broadly). Where a "to the best of our knowledge" claim is made, it should be
+read against this scope.
 
 \begin{enumerate}
     \item \textbf{Explicit contraction constants.} This thesis (Chapter 3)
@@ -287,7 +296,8 @@ functions? What is the computational cost of a parallel particle implementation?
 
 \section{Principal Contributions}
 
-The principal mathematical contributions of this thesis are:
+The five principal contributions of this thesis, matching those listed in the
+Abstract, are stated precisely below.
 
 \begin{theorem}[Quantitative Well-posedness, Chapter 3]
 \label{thm:intro-wellposedness}
@@ -328,14 +338,25 @@ uniformly over common-noise realisations $W^0$, where $C$ depends on the
 coefficients, $T$, $d$, and the initial variance $\mathbb{E}[|X_0|^2]$ but not on $N$.
 \end{theorem}
 
-\begin{proposition}[Corrected LQ Master Equation, Appendix A]
+\begin{proposition}[Re-derived LQ Master Equation, Appendix A]
 The linear-quadratic common-noise MFG (Example~\ref{ex:lq-mfg}) admits the
 explicit value function $V(t,x,\mu) = -\tfrac12 A_t x^2 - B_t x\bar\mu
 - \tfrac12 C_t \bar\mu^2 - D_t x - E_t\bar\mu - F_t$ where $A_t, \ldots, F_t$
-satisfy the corrected Riccati system derived in Appendix~A. The corrected system
-differs from earlier derivations in (i) the signs of the $A_t^2/\lambda$ and $c_1$
-terms in $\dot{A}_t$, and (ii) the Lions-derivative coupling terms in
-$\dot{B}_t$--$\dot{F}_t$.
+satisfy the Riccati system derived in Appendix~A. This derivation resolves
+two discrepancies found against an earlier internal working version: (i) the
+signs of the $A_t^2/\lambda$ and $c_1$ terms in $\dot{A}_t$, and (ii) the
+Lions-derivative coupling terms in $\dot{B}_t$--$\dot{F}_t$.
+\end{proposition}
+
+\begin{proposition}[Lean 4 Formal Verification, Chapter 7]
+\label{prop:intro-lean}
+Selected core estimates underlying Theorems~\ref{thm:intro-wellposedness}
+and~\ref{thm:intro-chaos} --- Gronwall's inequality, the LQ-MFG optimality
+condition, the Wasserstein-2 formula for Gaussian measures, and the weighted
+Wasserstein contraction factor --- are formalised in Lean 4 targeting Mathlib.
+This is presented as a complementary check on mathematical correctness,
+alongside (not in place of) the written proofs, and is partial: it does not
+constitute a full machine-verified proof of the thesis's main theorems.
 \end{proposition}
 
 \section{The Canonical Linear-Quadratic Benchmark}

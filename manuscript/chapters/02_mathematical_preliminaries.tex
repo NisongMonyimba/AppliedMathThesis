@@ -297,20 +297,13 @@ block-bootstrap consistency in Theorem 9.1, where $B = 10{,}000$ samples give
 $O(10^{-2.5})$ estimation error.
 \end{remark}
 
-\subsection{Wasserstein Barycentre}
-
-\begin{definition}[Fr\'echet Mean / Barycentre]
-Given measures $\mu_1, \dots, \mu_K \in \mathcal{P}_2(\mathbb{R}^d)$ with weights
-$\lambda_k > 0$, $\sum_k \lambda_k = 1$, the Wasserstein barycentre is
-\[
-    \bar{\mu} = \argmin_{\nu \in \mathcal{P}_2} \sum_{k=1}^K \lambda_k W_2(\nu,\mu_k)^2.
-\]
-\end{definition}
-
-The barycentre exists and is unique when at least one $\mu_k$ is absolutely continuous
-(Agueh--Carlier, 2011). It is computed by the free-support Sinkhorn barycentre
-algorithm (Cuturi--Doucet, 2014). \textit{Note: this concept is included for
-completeness but is not directly used in the subsequent chapters.}
+\begin{remark}[Wasserstein barycentre -- not used below]
+The Wasserstein (Fr\'echet) barycentre of measures $\mu_1,\ldots,\mu_K$ with
+weights $\lambda_k$ minimises $\sum_k \lambda_k W_2(\nu,\mu_k)^2$ over $\nu$;
+see Agueh and Carlier (2011) for existence/uniqueness and Cuturi and Doucet
+(2014) for a Sinkhorn-based algorithm. This concept does not appear elsewhere
+in the thesis and is noted here only for completeness.
+\end{remark}
 
 
 \section{Brownian Motion and It\^o Calculus}
