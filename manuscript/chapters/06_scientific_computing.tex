@@ -1,0 +1,505 @@
+% chapters/06_scientific_computing.tex
+% Scientific Computing and Computational Complexity
+
+\section{Overview}
+
+The theoretical results of Chapters 3--5 identify the FBSDE system, the
+Fokker--Planck SPDE, and the $N$-particle system as the objects to be solved
+numerically. This chapter addresses how to solve them \emph{at scale}: the
+linear-algebra structures that arise, the iterative solvers best suited to them,
+the parallel computing strategies that make large-$N$ and fine-mesh simulations
+feasible, and the complexity of every algorithm, stated precisely in time, memory,
+and parallel cost.
+
+The chapter is organized as follows. Section~\ref{sec:sc-linalg} covers the
+sparse linear-algebra structures arising from the finite-difference and particle
+discretisations. Section~\ref{sec:sc-krylov} presents the Krylov subspace methods
+(GMRES, CG, BiCG-STAB) used to solve the resulting linear systems. Section~\ref{sec:sc-precond}
+discusses preconditioning strategies. Section~\ref{sec:sc-parallel} covers
+parallel algorithms (OpenMP, MPI) and the scientific computing ecosystems
+(PETSc, Trilinos) that implement them. Section~\ref{sec:sc-complexity} gives a
+unified complexity table for every algorithm in Chapters 4--5.
+Section~\ref{sec:sc-reproducibility} describes the reproducibility infrastructure
+of this thesis.
+
+\section{Sparse Linear-Algebra Structures}
+\label{sec:sc-linalg}
+
+\subsection{Finite-Difference Discretisation of the Fokker--Planck SPDE}
+
+Discretising the Fokker--Planck SPDE (Chapter 4) on a uniform spatial grid
+$x_j = j\Delta x$, $j = 0, \ldots, M$, yields at each time step a linear system
+\begin{equation}
+    \mathbf{A} \boldsymbol{\rho}^{n+1} = \mathbf{b}^n,
+    \label{eq:sc-linear-system}
+\end{equation}
+where $\boldsymbol{\rho}^n = (\rho^n_0, \ldots, \rho^n_M)^\top$ is the density
+vector and $\mathbf{A} \in \mathbb{R}^{(M+1)\times(M+1)}$ is a tridiagonal matrix:
+\begin{equation}
+    A_{jj} = 1 + \frac{\sigma^2 \Delta t}{\Delta x^2}, \quad
+    A_{j,j\pm 1} = -\frac{\sigma^2 \Delta t}{2\Delta x^2} \pm
+    \frac{b_j \Delta t}{2\Delta x},
+    \label{eq:sc-tridiagonal}
+\end{equation}
+with the common-noise correction adding an $O(\sigma_0^2)$ perturbation to the
+diagonal. The matrix $\mathbf{A}$ is:
+\begin{itemize}
+    \item \textit{Tridiagonal}: bandwidth 1, storage $O(M)$.
+    \item \textit{Strictly diagonally dominant} under the CFL condition
+    $\Delta t \le \Delta x^2 / \sigma^2$, guaranteeing $\mathbf{A}$ is invertible
+    and the Thomas algorithm converges.
+    \item \textit{M-matrix} (for upwind differencing), implying the discrete
+    maximum principle holds: $\boldsymbol{\rho}^n \ge 0$ implies
+    $\boldsymbol{\rho}^{n+1} \ge 0$.
+\end{itemize}
+\textbf{Thomas algorithm.} For tridiagonal systems, the Thomas algorithm
+(a specialisation of Gaussian elimination) solves \eqref{eq:sc-linear-system}
+in $O(M)$ operations with $O(M)$ memory, which is optimal.
+
+\subsection{Two-Dimensional and Higher-Dimensional Cases}
+
+For $d \ge 2$, the spatial grid has $M^d$ points and the system matrix
+$\mathbf{A} \in \mathbb{R}^{M^d \times M^d}$ has bandwidth $M^{d-1}$.
+\begin{itemize}
+    \item \textit{Sparse storage}: $\mathbf{A}$ has $O(d M^d)$ nonzeros (each
+    point connects to $2d$ neighbours). Compressed Sparse Row (CSR) format
+    stores this in $O(d M^d)$ memory.
+    \item \textit{Banded structure}: $\mathbf{A}$ is a $d$-point stencil matrix.
+    For $d=2$, it is block tridiagonal with tridiagonal blocks (the ``five-point
+    Laplacian'' structure).
+    \item \textit{Direct solvers}: LU factorisation fills in and costs $O(M^{3d/2})$
+    for $d=2$, prohibitive for large $M$. Iterative solvers are essential.
+\end{itemize}
+
+\subsection{HJB Equation Structure}
+
+The backward HJB equation discretised on the same grid yields a system similar
+to \eqref{eq:sc-linear-system} but with the drift reversed (the adjoint operator).
+For the LQ-MFG, the HJB reduces to the Riccati ODE system of Appendix~A, which
+is solved by a standard ODE integrator (RK45) rather than a linear system solver.
+For general nonlinear HJB equations, Newton linearisation at each time step reduces
+the problem to a sequence of sparse linear systems of the form
+\eqref{eq:sc-linear-system}.
+
+\section{Krylov Subspace Methods}
+\label{sec:sc-krylov}
+
+When direct solvers are too costly (i.e., $d \ge 2$ and $M$ large), Krylov
+subspace methods solve $\mathbf{A}\mathbf{x} = \mathbf{b}$ iteratively by
+building an approximation in the Krylov space
+$\mathcal{K}_k(\mathbf{A}, \mathbf{b}) = \mathrm{span}\{\mathbf{b}, \mathbf{Ab},
+\ldots, \mathbf{A}^{k-1}\mathbf{b}\}$.
+
+\subsection{Conjugate Gradient (CG)}
+
+When $\mathbf{A}$ is symmetric positive definite (SPD) --- which holds for the
+diffusion-dominated Fokker--Planck operator after symmetrisation --- CG is optimal:
+
+\begin{theorem}[CG convergence]
+Let $\kappa = \lambda_{\max}(\mathbf{A}) / \lambda_{\min}(\mathbf{A})$ be the
+condition number. After $k$ iterations, the CG error satisfies
+\[
+    \|\mathbf{x}_k - \mathbf{x}^*\|_{\mathbf{A}} \le 2\left(
+    \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1}\right)^k \|\mathbf{x}_0 -
+    \mathbf{x}^*\|_{\mathbf{A}}.
+\]
+\end{theorem}
+
+Each CG iteration costs one matrix-vector product ($O(M^d)$ for a sparse $d$-point
+stencil), one dot product, and two vector updates: total $O(M^d)$ per iteration.
+For the Fokker--Planck operator, $\kappa = O(\Delta x^{-2})$, so CG requires
+$O(\Delta x^{-1})$ iterations to reduce the error by a fixed factor, giving total
+cost $O(M^{d+1})$.
+
+\subsection{GMRES}
+
+When $\mathbf{A}$ is non-symmetric --- which is the generic case with drift terms
+--- GMRES (Generalised Minimal RESidual) is the standard choice:
+\[
+    \mathbf{x}_k = \arg\min_{\mathbf{x} \in \mathbf{x}_0 +
+    \mathcal{K}_k(\mathbf{A},\mathbf{r}_0)} \|\mathbf{A}\mathbf{x} - \mathbf{b}\|_2.
+\]
+GMRES is guaranteed to converge and minimises the residual over the Krylov space
+at each step. Its cost is $O(k M^d)$ for $k$ iterations (storage of $k$ Krylov
+vectors). Restarted GMRES($m$) limits memory to $O(m M^d)$ at the cost of
+potentially slower convergence.
+
+\subsection{BiCG-STAB}
+
+BiConjugate Gradient Stabilised (BiCG-STAB) is a short-recurrence alternative to
+GMRES for non-symmetric systems, with $O(M^d)$ memory per iteration (vs. $O(k M^d)$
+for full GMRES). It is suitable when memory is the primary constraint.
+
+\subsection{Choice of Solver for the MFG System}
+
+\begin{table}[ht]
+\centering
+\caption{Recommended Krylov solver by operator type}
+\label{tab:krylov-choice}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llll}
+\toprule
+\textbf{Operator} & \textbf{Symmetry} & \textbf{Recommended solver} &
+    \textbf{Notes} \\
+\midrule
+Pure diffusion (Laplacian) & SPD & CG & Optimal, $O(M^{d+1})$ \\
+Diffusion + drift (FP) & Non-symmetric & GMRES or BiCG-STAB & Precondition
+    with ILU \\
+HJB (Newton step) & Non-symmetric & GMRES & Restart $m=50$ \\
+Tridiagonal ($d=1$) & Either & Thomas algorithm & Direct, $O(M)$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\section{Preconditioning}
+\label{sec:sc-precond}
+
+The convergence rate of Krylov methods depends critically on the condition number
+$\kappa(\mathbf{A})$. Preconditioning replaces $\mathbf{A}\mathbf{x}=\mathbf{b}$
+with $\mathbf{M}^{-1}\mathbf{A}\mathbf{x} = \mathbf{M}^{-1}\mathbf{b}$ for a
+preconditioner $\mathbf{M} \approx \mathbf{A}$ that is cheap to invert.
+
+\subsection{Incomplete LU (ILU)}
+
+ILU($k$) computes an approximate LU factorisation, retaining fill-in only up to
+level $k$. For the sparse matrices arising here:
+\begin{itemize}
+    \item ILU(0): no fill-in; cost $O(M^d)$ to apply; typically reduces $\kappa$
+    from $O(M^2)$ to $O(M)$ for diffusion-dominated problems.
+    \item ILU(1): one level of fill; better conditioning at higher cost.
+\end{itemize}
+
+\subsection{Multigrid Preconditioning}
+
+Geometric multigrid is theoretically optimal for elliptic operators: each
+V-cycle reduces the error by a mesh-independent factor, and the total cost per
+linear solve is $O(M^d)$. For the Fokker--Planck operator (which is an
+advection-diffusion equation), algebraic multigrid (AMG, implemented in
+\texttt{hypre} and \texttt{ML} within Trilinos) is robust and widely used.
+AMG applied as a preconditioner for CG/GMRES gives $O(M^d)$ total cost,
+independent of $\Delta x$.
+
+\subsection{Block Diagonal Preconditioning for Coupled Systems}
+
+The FBSDE system couples the forward (density) and backward (adjoint) equations.
+A block diagonal preconditioner
+\[
+    \mathbf{M} = \begin{pmatrix} \mathbf{A}_{\mathrm{FP}} & 0 \\ 0 &
+    \mathbf{A}_{\mathrm{HJB}} \end{pmatrix}
+\]
+decouples the two blocks and is effective when the coupling is weak (large $T$
+or small Lipschitz constant $L$).
+
+\section{Parallel Algorithms}
+\label{sec:sc-parallel}
+
+\subsection{Shared-Memory Parallelism: OpenMP}
+
+For the particle system of Chapter 5, OpenMP parallelism is natural: each thread
+updates a subset of particles independently (given fixed $\bar\mu_t^N, v_t^N$).
+
+\begin{lstlisting}[language=C++, caption={OpenMP parallelisation of particle update.}]
+#pragma omp parallel for schedule(static)
+for (int i = 0; i < N; ++i) {
+    double drift = kappa * (mu_bar - X[i]) - (A * X[i] + B * mu_bar) / lambda;
+    X[i] += drift * dt + sigma * dW_idio[i] + sigma0 * dW_common;
+}
+// Reduction: compute new mu_bar and variance
+double mu_bar_new = 0.0;
+#pragma omp parallel for reduction(+:mu_bar_new)
+for (int i = 0; i < N; ++i) mu_bar_new += X[i];
+mu_bar_new /= N;
+\end{lstlisting}
+
+\textbf{Speedup.} For $P$ cores, the per-step cost reduces from $O(N)$ to
+$O(N/P + \log P)$ (the $\log P$ term comes from the parallel reduction for
+$\bar\mu_t^N$). Amdahl's law limits the speedup: if the serial fraction is $s$,
+the maximum speedup is $1/s$ regardless of $P$.
+
+\subsection{Distributed-Memory Parallelism: MPI}
+
+For fine-mesh PDE solvers ($M^d$ large), MPI distributes the spatial domain across
+processes. Each process owns a contiguous block of grid points; boundary communication
+requires exchanging ``halo'' layers with neighbouring processes.
+
+For the Fokker--Planck SPDE on $P$ MPI processes:
+\begin{itemize}
+    \item \textit{Subdomain size}: $M^d / P$ points per process.
+    \item \textit{Communication}: $O(M^{d-1})$ boundary values per process per
+    step (the halo layer).
+    \item \textit{Parallel efficiency}: $(M^d/P) / (M^d/P + M^{d-1}) \to 1$
+    as $M \to \infty$ for fixed $P$ (computation dominates communication).
+\end{itemize}
+The common noise $dW_t^0$ is a scalar broadcast ($O(\log P)$ with a tree
+reduction) — negligible overhead.
+
+\subsection{Scientific Computing Ecosystems}
+
+\textbf{PETSc} (Portable, Extensible Toolkit for Scientific Computation) provides:
+\begin{itemize}
+    \item Sparse matrix formats (AIJ, BAIJ) with parallel assembly;
+    \item Krylov solvers (CG, GMRES, BiCG-STAB) with unified interface;
+    \item Preconditioners (ILU, AMG via \texttt{hypre});
+    \item Time steppers (RK, IMEX) for the FBSDE system;
+    \item Native MPI support with scalable parallel linear algebra.
+\end{itemize}
+
+\textbf{Trilinos} (Sandia National Laboratories) provides:
+\begin{itemize}
+    \item \texttt{Tpetra}: parallel sparse linear algebra;
+    \item \texttt{Belos}: block and recycling Krylov solvers;
+    \item \texttt{ML} / \texttt{MueLu}: algebraic multigrid preconditioners;
+    \item \texttt{Zoltan}: dynamic load balancing for particle methods.
+\end{itemize}
+
+For the MFG system at research scale ($M \le 10^3$, $N \le 10^5$), PETSc with
+GMRES + ILU(0) is sufficient. At production scale ($M \sim 10^4$, $N \sim 10^7$),
+AMG preconditioning and MPI parallelism via PETSc or Trilinos are necessary.
+
+\section{Complexity Analysis}
+\label{sec:sc-complexity}
+
+This section provides a unified complexity analysis for every algorithm introduced
+in Chapters 4 and 5. We distinguish three cost measures: \textit{time} (sequential
+floating-point operations), \textit{memory} (storage), and \textit{parallel time}
+on $P$ processors (assuming perfect load balance).
+
+\begin{table}[ht]
+\centering
+\caption{Algorithm complexity: $M$ spatial points, $N$ particles, $K$ time
+steps, $d$ space dimension, $P$ processors, $k$ Krylov iterations.}
+\label{tab:complexity}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
+\toprule
+\textbf{Algorithm} & \textbf{Time (sequential)} & \textbf{Memory} &
+    \textbf{Parallel time} & \textbf{Notes} \\
+\midrule
+Thomas algorithm ($d=1$) & $O(MK)$ & $O(M)$ & $O(MK/P)$ &
+    Optimal for tridiagonal \\
+GMRES (no precond.) & $O(kM^dK)$ & $O(kM^d)$ & $O(kM^dK/P + kK\log P)$ &
+    $k$ Krylov its./step \\
+CG + ILU(0) & $O(k_{\mathrm{ilu}} M^d K)$ & $O(M^d)$ & $O(k_{\mathrm{ilu}} M^d K/P)$ &
+    $k_{\mathrm{ilu}} = O(M)$ for diffusion \\
+CG + AMG & $O(M^d K)$ & $O(M^d)$ & $O(M^d K / P)$ &
+    Optimal; $k_{\mathrm{amg}} = O(1)$ \\
+\midrule
+Euler--Maruyama (particles) & $O(NK)$ & $O(N)$ & $O(NK/P + K\log P)$ &
+    LQ mean-field factor. \\
+Particle (naive interact.) & $O(N^2K)$ & $O(N)$ & $O(N^2K/P)$ &
+    General interaction \\
+Particle (random batch $K_b$) & $O(NK_bK)$ & $O(N)$ & $O(NK_bK/P)$ &
+    Approx.; batch size $K_b \ll N$ \\
+Sinkhorn OT ($\varepsilon$, $d=1$) & $O(N\log N \cdot K)$ & $O(N)$ &
+    $O(N\log N \cdot K/P)$ & Exact quantile formula \\
+Sinkhorn OT ($\varepsilon$, $d\ge2$) & $O(N^2 K / \varepsilon^d)$ & $O(N^2)$ &
+    $O(N^2 K / (\varepsilon^d P))$ & Regularised OT \\
+\midrule
+Full FBSDE (combined) & $O((M^d + N)K)$ & $O(M^d + N)$ &
+    $O((M^d+N)K/P + K\log P)$ & With AMG + LQ factor. \\
+Full FBSDE (naive) & $O(M^d K k + N^2 K)$ & $O(kM^d + N)$ & --- &
+    Without precond./factor. \\
+\midrule
+LQ benchmark (Riccati) & $O(K_{\mathrm{ode}})$ & $O(1)$ & $O(1)$ &
+    RK45 ODE; $K_{\mathrm{ode}} \sim 10^4$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\subsection{Dominant Cost and Bottlenecks}
+
+For the typical parameter regime of Chapter 4 ($d=1$, $M=10^3$, $N=10^5$,
+$K=10^3$):
+\begin{itemize}
+    \item \textit{PDE solve}: Thomas algorithm, $O(MK) = O(10^6)$ operations
+    — negligible.
+    \item \textit{Particle update}: $O(NK) = O(10^8)$ operations — dominant
+    at $d=1$.
+    \item \textit{Wasserstein computation}: $O(N\log N \cdot K) \approx O(10^9)$
+    — the actual bottleneck for $d=1$.
+\end{itemize}
+
+For $d=2$ with $M=10^2$ per dimension ($10^4$ grid points) and $N=10^4$:
+\begin{itemize}
+    \item \textit{PDE solve with AMG}: $O(M^2 K) = O(10^9)$ — dominant.
+    \item \textit{Particle update}: $O(NK) = O(10^7)$ — cheap.
+    \item \textit{Sinkhorn OT}: $O(N^2 K / \varepsilon^2) \approx O(10^{12})$
+    for $\varepsilon=0.1$ — prohibitive without approximation.
+\end{itemize}
+This confirms that Wasserstein distance computation is the scalability bottleneck
+for $d \ge 2$, motivating the moment-embedding approximations discussed in
+Chapter 8.
+
+\section{Optimal Transport: Additional Structures}
+\label{sec:sc-ot}
+
+The Wasserstein distance computation is central both to the theoretical analysis
+(Chapters 3--5) and to the numerical implementation. This section develops the
+optimal transport structures beyond what was covered in Chapter 2.
+
+\subsection{Benamou--Brenier Formulation}
+
+Benamou and Brenier \citep{benamoubrenier2000} gave a dynamic characterisation
+of the Wasserstein-2 distance:
+\begin{equation}
+    W_2(\mu_0, \mu_1)^2 = \min_{(\rho, v)} \int_0^1 \int_{\mathbb{R}^d}
+    |v(t,x)|^2 \rho(t,x)\, dx\, dt,
+    \label{eq:bb-formulation}
+\end{equation}
+where the minimum is over pairs $(\rho, v)$ satisfying the continuity equation
+$\partial_t \rho + \nabla \cdot (\rho v) = 0$ with $\rho(0,\cdot) = \mu_0$
+and $\rho(1,\cdot) = \mu_1$. This is a convex optimisation problem in $(\rho, v)$
+and can be solved by operator-splitting algorithms (the ALG2 method of Benamou
+and Brenier).
+
+\textbf{Significance for MFGs.} The Benamou--Brenier formulation connects
+the Wasserstein geometry to fluid dynamics: the optimal $v$ is the gradient of
+a convex potential (Brenier's theorem, Chapter 2), and the continuity equation
+is the Fokker--Planck equation without diffusion. The MFG Fokker--Planck equation
+can therefore be viewed as a regularised version of the Benamou--Brenier dynamics,
+with the $\sigma^2/2 \cdot \Delta\rho$ term providing entropic regularisation.
+
+\subsection{JKO Scheme (Jordan--Kinderlehrer--Otto)}
+
+The JKO scheme \citep{jordankinderlehrerotto1998} is a time-discretisation of
+gradient flows in Wasserstein space. For a free energy functional
+$\mathcal{F}(\rho) = \int (\rho \log \rho + V\rho)\, dx$, the gradient flow
+$\partial_t \rho = -\mathrm{grad}_W \mathcal{F}(\rho)$ is approximated by the
+implicit Euler scheme:
+\begin{equation}
+    \rho^{n+1} = \arg\min_{\rho \in \mathcal{P}_2} \left\{
+    \frac{W_2(\rho, \rho^n)^2}{2\tau} + \mathcal{F}(\rho) \right\},
+    \label{eq:jko-scheme}
+\end{equation}
+where $\tau > 0$ is the time step. The Fokker--Planck equation
+$\partial_t \rho = \sigma^2/2 \cdot \Delta\rho + \nabla\cdot(\rho\nabla V)$
+is the Wasserstein gradient flow of the free energy $\mathcal{F}$.
+
+\textbf{Significance for numerical MFGs.} The JKO scheme provides an
+alternative discretisation of the Fokker--Planck component of the MFG system
+that automatically preserves positivity and mass conservation (since each step is
+a Wasserstein projection). Boffi and Vanden-Eijnden (2023) used JKO-type schemes
+for McKean--Vlasov equations; extending this to the common-noise case is an open
+problem noted in Chapter 8.
+
+\subsection{Otto Calculus and Gradient Flows}
+
+Otto \citep{otto2001} showed that $(\mathcal{P}_2(\mathbb{R}^d), W_2)$ is
+formally a Riemannian manifold (an infinite-dimensional one), with the tangent
+space at $\mu$ identified with $L^2(\mu)$-gradients of scalar functions. The
+\emph{Otto calculus} defines:
+\begin{itemize}
+    \item \textit{Riemannian metric:} $\langle v, w \rangle_\mu = \int v \cdot w\,
+    d\mu$ for tangent vectors $v, w \in L^2(\mu)$.
+    \item \textit{Gradient of $\mathcal{F}$:} $\mathrm{grad}_W \mathcal{F}(\mu)
+    = -\nabla \cdot (\mu \nabla (\delta\mathcal{F}/\delta\mu))$ (the continuity
+    equation direction).
+    \item \textit{Geodesics:} straight lines in the Brenier-map parametrisation,
+    $\rho_t = ((1-t)\mathrm{id} + t T)_\# \mu_0$ where $T = \nabla\varphi$ is
+    the optimal transport map.
+\end{itemize}
+The Lions derivative $D_\mu U$ introduced in Chapter 2 is precisely the
+``gradient'' of $U$ in the Otto calculus sense: $D_\mu U(t,x,\mu)(y)$ is the
+derivative of $U$ along the geodesic direction at $y$.
+
+\section{Reproducibility}
+\label{sec:sc-reproducibility}
+
+All numerical results in this thesis are reproducible. The following
+infrastructure is provided:
+
+\subsection{Code Repository}
+
+The repository \texttt{https://github.com/NisongMonyimba/AppliedMathThesis}
+contains:
+\begin{itemize}
+    \item \texttt{manuscript/}: all \LaTeX\ source files for this thesis;
+    \item \texttt{simulations/}: Python simulation scripts for all numerical
+    experiments:
+    \begin{itemize}
+        \item \texttt{euler\_milstein/}: Euler--Maruyama convergence benchmark
+        (Chapter 4);
+        \item \texttt{particle\_filter/}: particle approximation experiments
+        (Chapter 5);
+        \item \texttt{sobol\_sensitivity/}: sensitivity analysis scripts;
+        \item \texttt{rl\_training/}: (archived) earlier RL experiments;
+    \end{itemize}
+    \item \texttt{lean4\_verification/}: Lean 4 source files for all formal
+    proofs (Chapter 7);
+    \item \texttt{.github/workflows/}: CI workflows that compile the \LaTeX\
+    manuscript and run \texttt{lake build} for the Lean 4 proofs on every push.
+\end{itemize}
+
+\subsection{Numerical Experiment Reproducibility}
+
+All simulation scripts:
+\begin{itemize}
+    \item set random seeds explicitly (\texttt{np.random.seed(42)}) for
+    reproducibility;
+    \item use common random numbers (CRN) for convergence rate estimation, so
+    that stochastic error is isolated from discretisation error;
+    \item write results to \texttt{.csv} files (e.g.,
+    \texttt{convergence\_results.csv}) that are tracked in the repository;
+    \item document all parameter choices in the script docstrings.
+\end{itemize}
+The Riccati sign corrections documented in Appendix A are reflected in all
+four simulation scripts (\texttt{euler\_milstein}, \texttt{particle\_filter},
+\texttt{sobol\_sensitivity}, \texttt{rl\_training}), with the corrected equation
+and a comment indicating the fix.
+
+\subsection{Lean 4 Proofs}
+
+The Lean 4 proofs (Chapter 7) are built by the \texttt{lean4-check.yml}
+CI workflow on every push to \texttt{main}. To rebuild locally:
+\begin{lstlisting}[language=bash, caption={Lean 4 local build instructions.}]
+cd lean4_verification/
+lake update     # fetch Mathlib at pinned version
+lake build      # compile all proofs
+\end{lstlisting}
+Known issues: Mathlib lemma names evolve; if \texttt{lake build} fails, check
+the CI log for the current lemma name and update accordingly.
+
+\subsection{Environment}
+
+\begin{table}[ht]
+\centering
+\caption{Software environment for reproducibility}
+\label{tab:environment}
+\begin{tabular}{ll}
+\toprule
+\textbf{Component} & \textbf{Version / Details} \\
+\midrule
+Operating system & Ubuntu 24.04 (WSL2 on Windows 11) \\
+Python & 3.11 (conda, \texttt{fenicsx} environment) \\
+NumPy & 1.26 \\
+SciPy & 1.12 (LSODA, Radau ODE solvers) \\
+\LaTeX & TeX Live 2022, pdflatex \\
+Lean 4 & v4.x (see \texttt{lean-toolchain} in repo) \\
+Mathlib & pinned in \texttt{lakefile.lean} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Conclusion}
+
+This chapter has developed the scientific computing foundation for the algorithms
+of Chapters 4 and 5:
+\begin{itemize}
+    \item the sparse tridiagonal/block-sparse structure of the Fokker--Planck
+    and HJB linear systems, and why direct solvers (Thomas, LU) are optimal
+    for $d=1$ but Krylov methods are necessary for $d \ge 2$;
+    \item GMRES, CG, and BiCG-STAB as the appropriate Krylov solvers for
+    non-symmetric, symmetric, and memory-constrained settings respectively;
+    \item ILU and AMG as preconditioners, with AMG giving $O(M^d)$ total cost;
+    \item OpenMP and MPI parallelism with PETSc/Trilinos as the production
+    ecosystems;
+    \item a unified complexity table for every algorithm in the thesis;
+    \item the Benamou--Brenier, JKO, and Otto calculus perspectives on optimal
+    transport that deepen the connection between the Fokker--Planck dynamics
+    and Wasserstein geometry;
+    \item and the full reproducibility infrastructure of the repository.
+\end{itemize}
+Chapter 7 turns to the formal verification of the mathematical estimates
+underlying these algorithms.

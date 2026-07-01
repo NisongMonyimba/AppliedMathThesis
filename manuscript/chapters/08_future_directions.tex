@@ -71,49 +71,34 @@ framework to nonlinear filtering theory.
 \section{Numerical and Computational Extensions}
 \label{sec:fut-numerical}
 
-\subsection{Deep Galerkin Methods}
+\subsection{Deep Learning Solvers (Deep Galerkin, PINNs)}
 
-The finite-difference scheme of Chapter 4 faces a \emph{curse of dimensionality}
-for $d \ge 2$: the complexity scales exponentially with $d$. Deep Galerkin methods
-(DGM, \citep{sirignano2018}) parametrise the value function $U(t,x,\mu)$ as a
-neural network and minimise the residual of the master equation
-\eqref{eq:master-equation}. The challenge is representing the measure argument
-$\mu$ as an input; moment embeddings (using $(\bar\mu, v, \ldots)$) or the
-Sinkhorn attention mechanism can serve as finite-dimensional surrogates. Error
-analysis for DGM in the MFG setting is an active research area.
-
-\subsection{Physics-Informed Neural Networks for the Fokker--Planck SPDE}
-
-The Fokker--Planck SPDE
-\[
-    d\rho_t = -\nabla_x \cdot (\rho_t b_t)\, dt + \frac{\sigma^2}{2}\Delta_x \rho_t\, dt
-    + \sigma_0 \nabla_x \cdot (\rho_t \circ dW_t^0)
-\]
-is a stochastic PDE in $(d+1)$ dimensions. Physics-informed neural networks
-(PINNs) can enforce the PDE residual in the loss function. For the common-noise
-case, the stochastic term requires an It\^{o}--Stratonovich correction; implementing
-this in an automatic-differentiation framework (JAX, PyTorch) is straightforward
-but has not been systematically studied.
+Deep Galerkin methods \citep{sirignano2018} and physics-informed neural networks
+(PINNs) are promising approaches to the curse of dimensionality for $d \ge 2$,
+parametrising the value function or density as a neural network. For common-noise
+MFGs, representing the measure argument $\mu$ requires moment embeddings or
+attention mechanisms; the It\^{o}--Stratonovich correction in the stochastic
+Fokker--Planck term requires careful treatment in automatic-differentiation
+frameworks. Rigorous error analysis in the MFG setting is not yet available.
+These methods are identified as a high-priority direction for future work;
+no implementation is developed in this thesis.
 
 \subsection{High-Dimensional Common-Noise MFGs}
 
-The particle method of Chapter 5 achieves $O(N^{-2/d})$ rate for $d \ge 5$,
-degrading rapidly with dimension. Three approaches are known to mitigate this:
-(a) \emph{structured state spaces} where the interaction is through low-dimensional
-statistics (e.g., first two moments); (b) \emph{normalising flows} that map the
-measure to a parametric family; (c) \emph{diffusion models} (score-based
-generative models) that directly approximate $\mu_t^*$ from samples. None of these
-has a rigorous convergence theory in the common-noise MFG setting.
+For $d \ge 5$, the Fournier--Guillin rate degrades to $O(N^{-2/d})$ and the
+finite-difference scheme is exponentially expensive. Structured state spaces
+(interaction through low-dimensional statistics), normalising flows, and
+score-based generative models are all candidate approaches. Rigorous convergence
+theory for any of these in the common-noise MFG setting remains open.
 
-\subsection{Matrix Riccati Re-derivation for Chapter 8's Multi-Dimensional LQ-MFG}
+\subsection{Matrix Riccati Re-derivation}
 
-The corrected Appendix A derivation covers the scalar LQ-MFG (Chapter 7 of the
-original thesis). Chapter 8's alpha-generation model uses a matrix-valued Riccati
-system, where the same sign corrections likely apply but have not been independently
-re-derived. Providing a verified matrix re-derivation analogous to Appendix A ---
-including a symbolic PDE-residual check and numerical solver cross-validation ---
-is the primary technical debt left by the revision process and is identified as the
-first priority for future work.
+The corrected Appendix A derivation covers the scalar LQ-MFG only. The
+matrix-valued Riccati system (for multi-dimensional state) requires the same
+sign corrections, verified by a symbolic PDE-residual check and numerical
+cross-validation analogous to Appendix A. This is the primary technical debt
+from the current revision and is identified as the first priority for a follow-up
+paper.
 
 \section{Formal Verification Extensions}
 \label{sec:fut-lean}

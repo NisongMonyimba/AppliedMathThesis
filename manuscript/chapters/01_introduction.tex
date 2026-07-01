@@ -185,6 +185,76 @@ convergence rates in Wasserstein distance were established by Fournier and Guill
 estimates -- bounding $W_2(\mu_t^N, \mu_t)$ given $W^0$ -- which are developed
 in Chapter 5.
 
+\section{Literature Gap and Positioning}
+\label{sec:gap}
+
+The existing literature, while extensive, leaves a precise gap that this thesis
+fills. The gap is most clearly seen by tracing the chain of contributions:
+
+\begin{center}
+\begin{tabular}{p{3.5cm}p{8cm}}
+\toprule
+\textbf{Authors} & \textbf{What they did and what they left open} \\
+\midrule
+Carmona \& Delarue \citep{carmonadelarue2018} &
+    Established FBSDE well-posedness for MFGs via monotonicity; proved existence
+    and uniqueness. \textbf{Left open:} explicit, computable contraction constants
+    for algorithmic design; no quantitative stability bound in Wasserstein distance
+    with parameter dependence. \\[4pt]
+Cardaliaguet, Delarue, Lasry \& Lions \citep{cardaliaguetetal2019} &
+    Derived the master equation for common-noise MFGs; established PDE regularity
+    in smooth settings. \textbf{Left open:} quantitative convergence rates for
+    numerical schemes; no particle-method analysis; no propagation-of-chaos
+    estimate for the common-noise case. \\[4pt]
+Ahuja, Ren \& Yang \citep{ahujarenyang2019} &
+    Proved well-posedness under displacement monotonicity (weaker than strong
+    convexity). \textbf{Left open:} explicit constants; computational algorithms
+    and their convergence analysis. \\[4pt]
+Fournier \& Guillin \citep{fournierguillin2015} &
+    Established sharp $W_2$ convergence rates for empirical measures of i.i.d.\
+    samples. \textbf{Left open:} extension to the \emph{conditional} empirical
+    measure $\mu_t^N = \frac{1}{N}\sum_i \delta_{X_t^{i,N}}$ under common noise,
+    which is not i.i.d.\ (particles are correlated through $W^0$). \\[4pt]
+Cardaliaguet, Seeger \& Souganidis \citep{cardaliaguetseegersouganidis2025} &
+    Resolved SPDE regularity for common-noise MFGs in very recent work.
+    \textbf{Left open:} numerical schemes exploiting this regularity; no
+    practical algorithm with provable convergence rates. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+\noindent\textbf{What nobody has yet done --- and what this thesis does:}
+
+\begin{enumerate}
+    \item \textbf{Explicit contraction constants.} This thesis (Chapter 3)
+    derives a quantitative contraction constant $\rho = C_\alpha^2 C_{\mathrm{BSDE}}
+    / (2\beta) < 1$ that depends explicitly on the Lipschitz constants $L$,
+    the control cost $\lambda_0$, and the exponential weight $\beta$. This constant
+    is computable from the model parameters and serves as a design criterion for
+    numerical algorithms --- a gap left open by both Carmona--Delarue and
+    Ahuja--Ren--Yang.
+
+    \item \textbf{Convergent numerical scheme with CFL analysis.} Chapter 4
+    provides the first convergence analysis for a combined
+    Euler--Maruyama/particle/finite-difference scheme for the common-noise FBSDE
+    system, with an explicit CFL condition that accounts for the common-noise
+    diffusion. Prior numerical work (Achdou--Capuzzo-Dolcetta and others) addresses
+    the deterministic-measure case only.
+
+    \item \textbf{Conditional propagation of chaos.} Chapter 5 establishes the
+    first quantitative $W_2$ convergence rate for the $N$-particle system under
+    common noise, \emph{conditionally given $W^0$}, at the Fournier--Guillin rate
+    $O(N^{-1/2})$. This requires the coupling argument to condition on the
+    common-noise path and is not a direct consequence of Fournier--Guillin
+    (which addresses i.i.d.\ samples, not correlated particles).
+
+    \item \textbf{Corrected LQ master equation.} Appendix A identifies and
+    corrects a previously unnoticed sign error in the standard derivation of the
+    linear-quadratic MFG master equation, and supplies the missing Lions-derivative
+    coupling terms. The corrected system is verified three independent ways.
+\end{enumerate}
+
 \section{The Three Research Questions}
 
 This thesis addresses three interconnected questions:
@@ -283,32 +353,36 @@ a rigorous benchmark for both the theoretical estimates and the numerical scheme
 
 \section{Thesis Roadmap}
 
-\paragraph{Chapter 2} reviews the mathematical prerequisites: Wasserstein geometry,
-It\^{o} calculus with common noise, Sobolev spaces and SPDEs, Lions derivatives, and
-the Stochastic Maximum Principle.
+\paragraph{Chapter 2} reviews the mathematical prerequisites: Wasserstein geometry
+and optimal transport (including the Benamou--Brenier and JKO formulations),
+It\^{o} calculus with common noise, Lions derivatives, Sobolev spaces, SPDEs,
+and the Stochastic Maximum Principle.
 
-\paragraph{Chapter 3} establishes the quantitative well-posedness of the common-noise
-MFG (Theorem~\ref{thm:intro-wellposedness}), including the contraction estimate and
-the $\varepsilon$-Nash property.
+\paragraph{Chapter 3} establishes quantitative well-posedness (Theorem~\ref{thm:intro-wellposedness}),
+with the explicit contraction constant closing the gap identified in Section~\ref{sec:gap}.
 
-\paragraph{Chapter 4} develops numerical approximation: discretisation of the FBSDE
-system, particle approximation of the measure flow, finite-difference approximation
-of the Fokker--Planck SPDE, combined error estimates, and CFL analysis. All schemes
-are validated against the LQ benchmark.
+\paragraph{Chapter 4} develops numerical approximation: Euler--Maruyama discretisation,
+particle approximation of the measure flow, finite-difference SPDE solver, combined
+error estimates, and CFL stability analysis.
 
-\paragraph{Chapter 5} analyses particle methods in depth: the $N$-particle
-McKean--Vlasov system, conditional propagation of chaos, empirical measure
-convergence rates, variance-reduction techniques, and parallel / GPU implementation.
+\paragraph{Chapter 5} analyses particle methods: conditional propagation of chaos,
+Fournier--Guillin rates, variance reduction, and computational complexity.
 
-\paragraph{Chapter 6} presents the Lean 4 formal verification of key estimates
-(Gronwall, contraction factor, LQ optimality, Wasserstein-2 Gaussian formula).
+\paragraph{Chapter 6} develops the scientific computing foundation: sparse linear
+algebra, Krylov solvers (CG, GMRES, BiCG-STAB), preconditioning (ILU, AMG),
+parallel algorithms (OpenMP, MPI), PETSc/Trilinos ecosystems, a unified algorithm
+complexity table, expanded optimal transport structures (Benamou--Brenier, JKO,
+Otto calculus), and the thesis reproducibility infrastructure.
 
-\paragraph{Chapter 7} discusses future directions: jump-diffusion extensions, the
-social optimum (mean-field control), deep Galerkin solvers, and the route from
-subsequential to full convergence via the Lata\l{}a--Oleszkiewicz inequality.
+\paragraph{Chapter 7} presents Lean 4 formal verification of key estimates.
 
-\paragraph{Appendix A} provides the full derivation and correction of the LQ
-master equation, verified three independent ways.
+\paragraph{Chapter 8} discusses future directions: jump-diffusion extensions,
+mean-field control, deep learning solvers (as future work), high-dimensional
+particle methods, and the path to full convergence via the Lata\l{}a--Oleszkiewicz
+inequality.
+
+\paragraph{Appendix A} provides the full corrected LQ master equation derivation,
+verified three independent ways.
 
 \section{Key Notation and Standing Assumptions}
 

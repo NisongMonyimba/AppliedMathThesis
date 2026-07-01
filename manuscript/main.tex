@@ -1,34 +1,54 @@
 \documentclass[12pt]{report}
+
 \input{preamble}
+
 \title{Quantitative Convergence Analysis of Stochastic Maximum Principles \\
        for Mean-Field Games with Common Noise}
 \author{Nisong Monyimba}
 \date{\today}
+
 \begin{document}
+
 \maketitle
+
 \input{abstract}
+
 \tableofcontents
 \listoffigures
 \listoftables
+
 \chapter{Introduction}
 \input{chapters/01_introduction}
-\chapter{Mathematical Preliminaries}
+
+\chapter{Mathematical Foundations}
 \input{chapters/02_mathematical_preliminaries}
-\chapter{Quantitative Well-Posedness of the Common-Noise MFG}
+
+\chapter{Well-Posedness of Common-Noise Mean-Field Games}
 \input{chapters/03_quantitative_wellposedness}
-\chapter{Numerical Approximation of the Common-Noise MFG System}
+
+\chapter{Numerical Approximation}
 \input{chapters/04_numerical_analysis}
-\chapter{Particle Methods for Common-Noise Mean-Field Games}
+
+\chapter{Particle Methods}
 \input{chapters/05_particle_methods}
-\chapter{Formal Verification in Lean 4}
-\input{chapters/06_formal_verification}
+
+\chapter{Scientific Computing and Computational Complexity}
+\input{chapters/06_scientific_computing}
+
+\chapter{Lean 4 Formal Verification}
+\input{chapters/07_formal_verification}
+
 \chapter{Future Directions}
-\input{chapters/07_future_directions}
+\input{chapters/08_future_directions}
+
 \appendix
 \chapter{Proofs}
 \input{chapters/appendix_a_proofs}
+
 \chapter{Additional Results}
 \input{chapters/appendix_c_additional_results}
+
 \bibliographystyle{plainnat}
 \bibliography{references}
+
 \end{document}
