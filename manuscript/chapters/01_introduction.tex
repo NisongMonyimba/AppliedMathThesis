@@ -224,7 +224,7 @@ Cardaliaguet, Seeger \& Souganidis \citep{cardaliaguetseegersouganidis2025} &
 \end{center}
 
 \bigskip
-\noindent\textbf{What nobody has yet done --- and what this thesis does:}
+\noindent\textbf{Contributions of this thesis:}
 
 \begin{enumerate}
     \item \textbf{Explicit contraction constants.} This thesis (Chapter 3)
@@ -232,27 +232,39 @@ Cardaliaguet, Seeger \& Souganidis \citep{cardaliaguetseegersouganidis2025} &
     / (2\beta) < 1$ that depends explicitly on the Lipschitz constants $L$,
     the control cost $\lambda_0$, and the exponential weight $\beta$. This constant
     is computable from the model parameters and serves as a design criterion for
-    numerical algorithms --- a gap left open by both Carmona--Delarue and
-    Ahuja--Ren--Yang.
+    numerical algorithms. To the best of our knowledge, such explicit, computable
+    constants have not been derived in the common-noise setting by
+    Carmona--Delarue \citep{carmonadelarue2018} or Ahuja--Ren--Yang
+    \citep{ahujarenyang2019}, who establish existence and uniqueness but do not
+    provide parameter-dependent contraction bounds suitable for algorithmic design.
 
     \item \textbf{Convergent numerical scheme with CFL analysis.} Chapter 4
-    provides the first convergence analysis for a combined
+    develops and analyses a combined
     Euler--Maruyama/particle/finite-difference scheme for the common-noise FBSDE
     system, with an explicit CFL condition that accounts for the common-noise
-    diffusion. Prior numerical work (Achdou--Capuzzo-Dolcetta and others) addresses
-    the deterministic-measure case only.
+    diffusion. Prior numerical work in the MFG setting (e.g., Achdou--Capuzzo-Dolcetta
+    \citep{achdoucapuzzo2010}) addresses the deterministic-measure case; to the best
+    of our knowledge, a convergence analysis for the \emph{common-noise} FBSDE
+    system is not available in the existing literature.
 
-    \item \textbf{Conditional propagation of chaos.} Chapter 5 establishes the
-    first quantitative $W_2$ convergence rate for the $N$-particle system under
-    common noise, \emph{conditionally given $W^0$}, at the Fournier--Guillin rate
-    $O(N^{-1/2})$. This requires the coupling argument to condition on the
-    common-noise path and is not a direct consequence of Fournier--Guillin
-    (which addresses i.i.d.\ samples, not correlated particles).
+    \item \textbf{Conditional propagation of chaos.} Chapter 5 establishes a
+    quantitative $W_2$ convergence rate for the $N$-particle system under
+    common noise, \emph{conditionally given $W^0$}, at the Fournier--Guillin
+    rate $O(N^{-1/2})$. The argument conditions on the common-noise path and
+    is not a direct consequence of Fournier--Guillin \citep{fournierguillin2015}
+    (which addresses i.i.d.\ samples, not particles correlated through $W^0$).
+    To the best of our knowledge, this conditional estimate has not previously
+    appeared in the MFG literature.
 
-    \item \textbf{Corrected LQ master equation.} Appendix A identifies and
-    corrects a previously unnoticed sign error in the standard derivation of the
-    linear-quadratic MFG master equation, and supplies the missing Lions-derivative
-    coupling terms. The corrected system is verified three independent ways.
+    \item \textbf{Corrected LQ master equation.} Appendix A revisits the
+    linear-quadratic MFG master equation derivation, identifying sign errors
+    in the $\dot{A}_t$ coefficient and missing Lions-derivative coupling terms
+    in the $\dot{B}_t$--$\dot{F}_t$ equations relative to the derivation
+    produced during the preparation of this thesis. The corrected system is
+    verified three independent ways (symbolic PDE-residual substitution, two
+    independent numerical solvers, and structural consistency with the two-state
+    LQR matrix Riccati equation). See Appendix~A for the precise statement of
+    what was corrected and the evidence supporting the correction.
 \end{enumerate}
 
 \section{The Three Research Questions}

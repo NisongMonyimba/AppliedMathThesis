@@ -179,25 +179,26 @@ exogenous linear forcing term).
 
 \subsection{Quadratic Terms}
 
-\textbf{Correction (this revision):} the derivation below replaces an earlier
-version that, despite an empirical optimality check confirming the
-\emph{sign} of the $A_tB_t/\lambda$ cross term in $\dot{B}_t$, was found on
-full re-derivation to (i) contain an independent sign error in $\dot{A}_t$
-unrelated to that check, and (ii) omit a Lions-derivative (master-equation)
-coupling term from $\dot{B}_t$, $\dot{D}_t$, $\dot{C}_t$, $\dot{E}_t$, and
-$\dot{F}_t$ alike. Both issues are corrected together here, since they are
-intertwined: the corrected $A_t$ feeds into every other coefficient. The
-correction was found by (a) re-deriving the Hamiltonian directly from the
-cost functional and adjoint BSDE of Section~\ref{sec:sr-stackelberg} rather
-than from the previously stated $H^*$ alone, which pins down the maximised
-Hamiltonian and its terminal condition unambiguously, and (b) deriving the
-mean-field coupling term explicitly from the same conditional-mean
-consistency argument used for the aggregate drift $\bar{b}(t,\bar\mu)$
-below. The full corrected system was verified three independent ways:
-(1) direct symbolic substitution showing the PDE residual vanishes
-identically; (2) numerical integration with two independent solvers
+\textbf{Note on this derivation.} The derivation below was re-done from
+first principles during the preparation of this thesis after an earlier
+internal working derivation was found to contain two errors: (i) a sign error
+in $\dot{A}_t$ (the $A_t^2/\lambda$ and $c_1$ terms both had the wrong sign),
+and (ii) missing Lions-derivative coupling terms in $\dot{B}_t$, $\dot{C}_t$,
+$\dot{D}_t$, $\dot{E}_t$, and $\dot{F}_t$. These errors were in the \emph{working
+derivation produced during the writing of this thesis}, not in any
+specifically identified published source; the published derivations of the
+common-noise LQ-MFG master equation (e.g., Carmona and Delarue
+\citep{carmonadelarue2018}, Chapter 6) do not present the full $A_t$--$F_t$
+system in the form used here and are not being claimed to contain these
+errors. The correction is relevant because the same working equations
+appeared in multiple scripts in the accompanying repository
+(\texttt{simulations/}), all of which have been corrected accordingly.
+The corrected system was verified three independent ways:
+(1) direct symbolic PDE-residual substitution confirming the residual
+vanishes identically; (2) numerical integration with two independent solvers
 (LSODA and Radau) agreeing to all displayed digits; (3) the corrected
-$A_t,B_t,D_t$ equations, when stripped of the mean-field coupling term,
+equations, when stripped of the mean-field coupling term, exactly reproduce
+the maximised-Hamiltonian-only matching, confirming internal consistency.
 exactly reproduce the maximised-Hamiltonian-only matching below, confirming
 internal consistency of the two-step derivation.
 

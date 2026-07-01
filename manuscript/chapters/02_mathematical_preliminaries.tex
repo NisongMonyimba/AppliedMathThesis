@@ -772,101 +772,53 @@ In our setting $\Omega = \mathbb{R}^d$, $d=1$: $H^1(\mathbb{R}) \hookrightarrow
 C^{0,1/2}(\mathbb{R})$ (functions are H\"older-$\tfrac{1}{2}$ continuous).
 \end{theorem}
 
-\subsection{Hahn--Banach Extension Theorem}
+\subsection{Key Functional Analysis Tools}
+\label{sec:mp-functional-analysis}
 
-\begin{theorem}[Hahn--Banach]
+Three results from functional analysis are used in the well-posedness theory
+(Chapter 3) and the SPDE analysis (Chapter 4). We state each in the form used
+and refer to standard references for proofs.
+
+\begin{theorem}[Hahn--Banach Extension, {\citep[Theorem 1.9]{brezis2011}}]
 \label{thm:hahn-banach}
 Let $E$ be a real normed space, $F \subset E$ a subspace, and $\varphi : F \to
-\mathbb{R}$ a bounded linear functional. Then there exists $\widetilde\varphi : E \to
-\mathbb{R}$ with $\widetilde\varphi|_F = \varphi$ and
+\mathbb{R}$ a bounded linear functional. Then there exists an extension
+$\widetilde\varphi : E \to \mathbb{R}$ with $\widetilde\varphi|_F = \varphi$ and
 $\|\widetilde\varphi\|_{E^*} = \|\varphi\|_{F^*}$.
 \end{theorem}
 
-\begin{remark}[Application in Lemma 4.2]
-The Hahn--Banach theorem is applied in Lemma 4.2 of the thesis to show that the
-Fokker--Planck operator $\mathcal{L}^*$, initially defined on smooth test functions (a
-dense subspace of $H^1$), extends to a bounded operator
-$\mathcal{L}^* : H^1(\mathbb{R}^d) \to H^{-1}(\mathbb{R}^d)$ with the same operator
-norm. This is essential for the Sobolev-space well-posedness of the SPDE.
-\end{remark}
+\noindent\textit{Use here:} shows that the Fokker--Planck operator
+$\mathcal{L}^*$, initially defined on smooth test functions (a dense subspace of
+$H^1$), extends to a bounded operator
+$\mathcal{L}^* : H^1(\mathbb{R}^d) \to H^{-1}(\mathbb{R}^d)$ (Lemma 4.2).
 
-\subsection{Lumer--Phillips Theorem and Contraction Semigroups}
-
-\begin{definition}[Dissipative Operator]
-A linear operator $A : D(A) \subset H \to H$ on a Hilbert space $H$ is dissipative if
-$\mathrm{Re}\langle Au, u \rangle \leq 0$ for all $u \in D(A)$.
-\end{definition}
-
-\begin{theorem}[Lumer--Phillips]
+\begin{theorem}[Lumer--Phillips, {\citep[Theorem 3.15]{pazy1983}}]
 \label{thm:lumer-phillips}
-Let $A$ be a closed densely defined operator on a Banach space $X$. Then $A$ generates
-a $C_0$-contraction semigroup (i.e., $\|e^{tA}x\| \leq \|x\|$ for all $t \geq 0$,
-$x \in X$) if and only if:
-\begin{enumerate}[label=(\roman*)]
-    \item $A$ is dissipative, and
-    \item $(\mathrm{Id} - A)$ has dense range.
-\end{enumerate}
+A closed densely defined operator $A$ on a Banach space $X$ generates a
+$C_0$-contraction semigroup if and only if $A$ is dissipative and
+$(\mathrm{Id} - A)$ has dense range.
 \end{theorem}
 
-\begin{remark}[Application to Fokker--Planck]
-The Fokker--Planck operator $\mathcal{L}^*$ on $L^2(\mu^*)$ (where $\mu^*$ is the MFG
-equilibrium measure) is dissipative:
-\[
-    \langle \mathcal{L}^* \rho, \rho \rangle_{L^2(\mu^*)} = -\sigma^2 \|\nabla\rho\|_{L^2(\mu^*)}^2
-    \leq 0
-\]
-(assuming boundary terms vanish). By Lumer--Phillips, $\mathcal{L}^*$ generates
-a contraction semigroup, and the spectral gap $\lambda_1 > 0$ (the smallest positive
-eigenvalue) gives the exponential decay rate in Theorem~\ref{thm:rl-exponential}.
-\end{remark}
+\noindent\textit{Use here:} the Fokker--Planck operator $\mathcal{L}^*$ on
+$L^2(\mu^*)$ is dissipative ($\langle \mathcal{L}^* \rho, \rho \rangle = -\sigma^2
+\|\nabla\rho\|^2 \le 0$), so Lumer--Phillips gives a contraction semigroup. The
+spectral gap $\lambda_1 > 0$ (the smallest positive eigenvalue of $-\mathcal{L}^*$)
+controls the exponential decay rate of the linearised Fokker--Planck equation.
 
-\subsection{Spectral Gap and Log-Sobolev Inequality}
-
-\begin{definition}[Spectral Gap]
-The spectral gap of the Fokker--Planck operator $\mathcal{L}^*$ on $L^2(\mu^*)$ is
-\[
-    \lambda_1 := \inf \left\{ \frac{-\langle \mathcal{L}^* f, f \rangle_{L^2(\mu^*)}}
-    {\mathrm{Var}_{\mu^*}(f)} \;\middle|\; f \in D(\mathcal{L}^*), \;
-    \mathrm{Var}_{\mu^*}(f) > 0 \right\}.
-\]
-\end{definition}
-
-\begin{theorem}[Log-Sobolev Implies Spectral Gap]
+\begin{theorem}[Log-Sobolev implies Poincar\'e, {\citep[Theorem 5.1]{bakryetal2014}}]
 \label{thm:log-sobolev}
-If $\mu^*$ satisfies the log-Sobolev inequality with constant $C_{\mathrm{Lip}}$:
-\[
-    H(\mu \| \mu^*) \leq C_{\mathrm{Lip}}\, I(\mu \| \mu^*) \qquad \forall \mu \in
-    \mathcal{P}_2(\mathbb{R}^d),
-\]
-where $H(\mu\|\mu^*) = \int \log\frac{d\mu}{d\mu^*}\, d\mu$ and
-$I(\mu\|\mu^*) = \int |\nabla \log\frac{d\mu}{d\mu^*}|^2\, d\mu$, then
-$\lambda_1 \geq 1/C_{\mathrm{Lip}}$.
+If $\mu^*$ satisfies a log-Sobolev inequality with constant $C_{\mathrm{LSI}}$:
+$H(\mu \| \mu^*) \le C_{\mathrm{LSI}}\, I(\mu \| \mu^*)$,
+then $\lambda_1 \ge 1/C_{\mathrm{LSI}}$.
 \end{theorem}
 
-\begin{proof}
-The log-Sobolev inequality implies the Poincar\'e inequality
-\[
-    \mathrm{Var}_{\mu^*}(f) \leq C_{\mathrm{Lip}} \int |\nabla f|^2\, d\mu^*
-\]
-(take
-$\mu = f^2 \mu^*$, expand $H$ to second order). The Poincar\'e inequality is equivalent
-to $\lambda_1 \geq 1/C_{\mathrm{Lip}}$.
-\end{proof}
-
-\begin{remark}[Log-Sobolev in interacting particle systems]
-The log-Sobolev inequality is a strong structural assumption; it typically requires the
-equilibrium measure $\mu^*$ to satisfy Bakry--\'Emery criteria (e.g., strictly
-log-concave density). \textbf{In interacting particle systems, the equilibrium measure
-may exhibit heavy tails or multimodality when the potential is non-convex, which
-violates the LSI and requires only the weaker Poincar\'e inequality.} The LSI is used
-in the convergence-rate analysis of stochastic approximation algorithms to establish
-exponential convergence as a theoretical upper bound; in practice, one expects algebraic
-rates governed by the spectral gap. This limitation is discussed further in the future
-directions (Chapter~7).
-Theorem~\ref{thm:rl-exponential}. Recent work on Lata\l a--Oleszkiewicz inequalities and non-convex
-isoperimetry (see Chapter 10) offers potential pathways to relax this assumption.
-\end{remark}
-
+\noindent\textit{Use here:} under the log-Sobolev condition (Assumption A5'),
+the spectral gap lower bound $\lambda_1 \ge 1/C_{\mathrm{LSI}}$ gives an
+exponential convergence rate for the Fokker--Planck semigroup. As noted in
+Chapter 8, this is a strong assumption: log-concave equilibrium measures satisfy
+it (Bakry--\'Emery criterion), but heavy-tailed or multimodal equilibria do not.
+When only the Poincar\'e inequality holds, the same argument gives algebraic rates
+governed by $\lambda_1$.
 
 \section{Stochastic Maximum Principle}
 \label{sec:mp-smp}
