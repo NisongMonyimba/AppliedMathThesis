@@ -418,18 +418,21 @@ finite-player game adopt the strategy $\alpha^*$, the resulting strategy profile
 $\varepsilon_N$-Nash equilibrium with $\varepsilon_N = O(N^{-1/2})$.
 \end{theorem}
 
-\begin{proof}[Proof sketch]
+\begin{proof}
 The contraction bound \eqref{eq:contraction} follows by taking the weighted supremum
 of \eqref{eq:stability-estimate} and bounding the resulting convolution integral,
-exactly as in the derivation of \eqref{eq:constants}; see \Cref{app:contraction-proof}
-for the full computation. Existence and uniqueness of the fixed point then follow from
+exactly as in the derivation of \eqref{eq:constants}. Existence and uniqueness of the
+fixed point then follow from
 the Banach fixed-point theorem, since $(\mathcal{M}, \|\cdot\|_{\lambda,T})$ is
 complete (inherited from completeness of $\mathcal{P}_2(\mathbb{R}^d)$ and standard
 properties of Skorokhod space; \citealp{billingsley1999}). The $\varepsilon$-Nash
 property follows from conditional propagation of chaos
 \citep[Vol.~II, Thm.~6.16]{carmonadelarue2018}, applied to bound the distance between
 the finite-player empirical measure and $\mu^*$, combined with the Lipschitz stability
-of the FBSDE system established above.
+of the FBSDE system established above. The detailed calculations underlying the
+stability estimate \eqref{eq:stability-estimate} and the contraction bound
+\eqref{eq:contraction} are deferred to Appendices~\ref{app:algebra}
+and~\ref{app:contraction-proof}, respectively.
 \end{proof}
 
 \section{Discussion of the Contraction Constant}
@@ -496,16 +499,25 @@ $[0,T]$ and yields an explicit, finite contraction constant $\rho < 1$ in
 \eqref{eq:contraction}.
 \end{corollary}
 
-\begin{remark}[Numerical verification]
+\begin{remark}[Scope of the numerical verification]
 \label{rem:numerical-verification}
-\Cref{cor:lq-riccati} is verified by direct numerical integration of the two
-leading Riccati coefficients $(A_t, B_t)$ using two independent solvers -- LSODA
+The Riccati system of \Cref{prop:lq-value} is integrated numerically using two
+independent solvers -- LSODA
 and an implicit Runge--Kutta method (Radau IIA) -- implemented via
 \texttt{scipy.integrate.solve\_ivp} with relative and absolute tolerances
 $10^{-12}$ and $10^{-14}$. \Cref{tab:riccati-verification} reports both solutions
 at five points in $[0,T]$; the two methods agree to $10^{-12}$--$10^{-13}$, well
-within their requested tolerance, confirming the well-posedness claimed in
-\Cref{cor:lq-riccati} is not an artefact of a single numerical scheme.
+within their requested tolerance. \textbf{This agreement demonstrates that the
+Riccati system, as coded, is numerically well-conditioned and free of implementation
+errors (e.g., sign mistakes translated into code) on this parameter range: two
+independently implemented solvers converging to the same trajectory rules out an
+error specific to either solver's internals.} It does \emph{not} independently
+verify the mathematical correctness of the Riccati system's derivation from the
+HJB equation (Appendix~\ref{app:algebra} and the companion technical note) --
+that remains an analytical claim, established by the symbolic PDE-residual
+check and the derivation itself, not by numerical agreement. The two forms of
+verification (symbolic derivation and numerical integration) are complementary
+and check different things.
 \end{remark}
 
 \begin{table}[ht]
@@ -691,6 +703,17 @@ Peng, S. and Wu, Z. (1999).
 \newblock Fully coupled forward-backward stochastic differential equations and
 applications to optimal control.
 \newblock \emph{SIAM J. Control Optim.}, 37(3):825--843.
+
+\bibitem[Ahuja(2016)]{ahuja2016}
+Ahuja, S. (2016).
+\newblock Well-posedness of mean field games with common noise under a weak
+monotonicity condition.
+\newblock \emph{SIAM J. Control Optim.}, 54(1):30--48.
+
+\bibitem[Qiao(2025)]{qiao2025}
+Qiao, B. (2025).
+\newblock Heterogeneous mean field games and local well-posedness.
+\newblock arXiv:2511.19766.
 
 \bibitem[Zhang(2017)]{zhang2017}
 Zhang, J. (2017).
