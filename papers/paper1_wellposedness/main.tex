@@ -49,24 +49,23 @@ characterised by a system of forward-backward stochastic differential equations
 (FBSDEs) coupled through the conditional law of the representative agent's state given
 the common-noise filtration. Building on the well-posedness theory of
 \citet{carmonadelarue2018} and \citet{ahujarenyang2019}, we derive an explicit,
-parameter-dependent contraction estimate for the associated fixed-point map, via
-synchronous coupling. The construction follows the standard structure for this
-class of coupled forward-backward estimate: a strict contraction on a short,
-explicit time horizon $\delta_0$ -- computable directly from the drift Lipschitz
-constant, the control-sensitivity and adjoint-BSDE-stability constants (the latter
-depending on the common-noise coefficient through the martingale representation of
-the adjoint process), with no further restriction on these constants -- extended to
-an arbitrary horizon by a standard continuation argument. Existence and uniqueness
-of the mean-field equilibrium follow from the Banach fixed-point theorem applied on
-each subinterval, together with the associated $\varepsilon$-Nash property for the
-finite-player game. Relative to the closely related quantitative results of
+parameter-dependent contraction estimate for the associated fixed-point map via
+synchronous coupling: a strict contraction on a short, explicit time horizon
+$\delta_0$ -- computable directly from the drift Lipschitz constant and the
+control-sensitivity and adjoint-BSDE-stability constants, with no further
+restriction on these constants -- extended to an arbitrary horizon by a standard
+continuation argument, following the structure used by \citet{ahujarenyang2019} and \citet{qiao2025}.
+Existence and uniqueness
+of the mean-field equilibrium follow from the Banach fixed-point theorem applied
+on each subinterval, together with the associated $\varepsilon$-Nash property for
+the finite-player game. Relative to the closely related quantitative results of
 \citet{jacksontangpi2024,jacksonmeszaros2025}, our target is the fixed-point map
-constructing the equilibrium itself -- with the resulting local contraction rate
-and threshold intended as a convergence-rate and stopping criterion for numerical
-solvers -- rather than the $N$-player convergence rate to an assumed equilibrium.
-We illustrate the theory, including a direct numerical verification of the
-underlying Riccati system via two independent solvers, on the canonical
-linear-quadratic MFG.
+constructing the equilibrium itself, with the local contraction rate intended as
+a convergence-rate and stopping criterion for numerical solvers, rather than the
+$N$-player convergence rate to an assumed equilibrium. We
+illustrate the theory, including explicit formulas for the model constants and a
+direct numerical verification of the underlying Riccati system via two
+independent solvers, on the canonical linear-quadratic MFG.
 \end{abstract}
 
 \section{Introduction}
@@ -556,18 +555,42 @@ quantified here.
 with $\bar\mu_t = \int x\,\mu_t(dx)$, $\kappa, \lambda, c_1, c_2 > 0$.
 \end{example}
 
-\begin{proposition}[Explicit value function]
+\begin{proposition}[Explicit constants]
 \label{prop:lq-value}
-For Example~\ref{ex:lq-mfg}, every constant in \Cref{thm:stability,thm:wellposedness}
-is explicit in terms of $\kappa,\lambda,c_1,c_2,\sigma,\sigma_0$. The value function
+For Example~\ref{ex:lq-mfg}, the model constants of \Cref{thm:stability,thm:wellposedness}
+are explicit in terms of $\kappa,\lambda,c_1,c_2,\sigma,\sigma_0$. The drift
+$b(t,x,\mu,\alpha) = \kappa(\bar\mu-x)+\alpha$ satisfies
+\Cref{ass:lipschitz-drift} with
+\begin{equation}
+    L_b = \max(\kappa, 1),
+    \label{eq:lq-Lb}
+\end{equation}
+since $b(t,x,\mu,\alpha)-b(t,x',\mu',\alpha') = \kappa(\bar\mu-\bar\mu')-\kappa(x-x')
++(\alpha-\alpha')$ is linear with coefficients $\kappa,\kappa,1$ on the three
+Lipschitz terms. The Hamiltonian
+$H(t,x,\mu,p,\alpha)=p[\kappa(\bar\mu-x)+\alpha]-\tfrac{c_1}{2}x^2-\tfrac{\lambda}{2}
+\alpha^2$ is maximised at $\alpha^*=p/\lambda$, giving
+\begin{equation}
+    C_\alpha = 1/\lambda
+    \label{eq:lq-Calpha}
+\end{equation}
+in \eqref{eq:control-lipschitz} (the coefficients on the $\Delta X$ and $W_2$ terms
+are identically zero for this model, since $\alpha^*$ depends only on $p$). The
+adjoint BSDE $-dp_t = (-\kappa p_t - c_1 x_t)\,dt - q_t\,dW_t - r_t\,dW_t^0$ is
+linear with bounded coefficients $(\kappa,c_1)$; $C_{\mathrm{BSDE}}$ is computable
+by applying \citet[Thm.~4.3.1]{zhang2017} directly to this linear driver (we do
+not restate the resulting closed-form expression here, since it depends on the
+precise constants in the cited theorem and is mechanical to evaluate once
+$\kappa,c_1,T$ are fixed). The value function
 takes the quadratic form
 \[
     V(t,x,\mu) = -\tfrac12 A_t x^2 - B_t x\bar\mu - \tfrac12 C_t\bar\mu^2 - D_t x -
     E_t\bar\mu - F_t,
 \]
 where $(A_t,\ldots,F_t)$ solve a coupled Riccati system derived from the master
-equation for this model (full derivation in the companion technical note referenced
-below).
+equation for this model; the full derivation is given in Appendix A of the
+author's PhD thesis \citep{monyimba2026thesis}, publicly available in the
+repository cited on the title page.
 \end{proposition}
 
 \begin{corollary}[Well-posedness of the benchmark Riccati system]
@@ -593,7 +616,7 @@ errors (e.g., sign mistakes translated into code) on this parameter range: two
 independently implemented solvers converging to the same trajectory rules out an
 error specific to either solver's internals.} It does \emph{not} independently
 verify the mathematical correctness of the Riccati system's derivation from the
-HJB equation (Appendix~\ref{app:algebra} and the companion technical note) --
+HJB equation (Appendix~\ref{app:algebra} and \citealp[Appendix A]{monyimba2026thesis}) --
 that remains an analytical claim, established by the symbolic PDE-residual
 check and the derivation itself, not by numerical agreement. The two forms of
 verification (symbolic derivation and numerical integration) are complementary
@@ -624,7 +647,8 @@ $t$ & $A_t$ (LSODA) & $A_t$ (Radau) & $|A_t^{\mathrm{LSODA}}-A_t^{\mathrm{Radau}
 The full derivation of the Riccati system of \Cref{prop:lq-value}, including a
 re-derivation identifying and resolving two discrepancies against an earlier
 working version (a sign difference in the quadratic coefficient of $\dot A_t$ and
-missing mean-field coupling terms), is provided in a companion technical note.
+missing mean-field coupling terms), is provided in Appendix A of
+\citet{monyimba2026thesis}.
 \end{remark}
 
 \section{Conclusion}
@@ -643,8 +667,9 @@ answers these questions directly: it gives a concrete convergence rate for a
 fixed-point iteration $\mu^{(k+1)} = \Phi(\mu^{(k)})$, a stopping criterion for
 numerical solvers, and a quantitative sensitivity bound with respect to
 $L_b, \|\sigma_0\|_F$, and the regularity constants -- exactly the kind of
-information required to design and validate the numerical schemes of a companion
-paper on the coupled FBSDE--Fokker--Planck system.
+information required to design and validate the numerical schemes of Chapter 4 of
+\citet{monyimba2026thesis}, on the coupled FBSDE--Fokker--Planck system, and of a
+planned standalone companion paper developing that chapter's results further.
 
 \paragraph{What this enables computationally.} The local contraction of
 \Cref{thm:wellposedness}(i) justifies a simple fixed-point (Picard) iteration as a
@@ -659,7 +684,8 @@ a target tolerance $\varepsilon$ on that subinterval bounded explicitly by
 the sup-Wasserstein metric $d_{\delta_0}$ of \Cref{thm:wellposedness}), and the
 continuation argument of part (ii) gives an explicit total number of subintervals,
 $\lceil T/\delta_0\rceil$, needed to cover the full horizon. This is used as a
-design criterion in the companion numerical paper referenced below.
+design criterion in Chapter 4 of \citet{monyimba2026thesis} and in the planned
+companion numerical paper described below.
 
 \paragraph{Limitations.} The present analysis has three main limitations, each
 discussed at the point where it arises: the local threshold $\delta_0$
@@ -675,14 +701,15 @@ bounded densities, which particle-based discretisations violate and which would
 need to be addressed via regularisation with a quantified error
 (\Cref{sec:discussion}).
 
-\paragraph{What the next paper proves.} A companion paper develops a combined
+\paragraph{What a planned companion paper will prove.} Chapter 4 of
+\citet{monyimba2026thesis} develops a combined
 Euler--Maruyama / particle / finite-difference scheme for the coupled
 FBSDE--Fokker--Planck system characterising the same equilibrium studied here, and
 establishes a weak Wasserstein convergence rate under an explicit CFL-type
-stability condition. The contraction constant $\rho$ derived in the present paper
-is used there as the theoretical basis for the outer fixed-point loop of that
-numerical scheme, directly connecting the qualitative and quantitative results of
-the two papers.
+stability condition. Extracting and extending that chapter into a standalone paper,
+using the contraction constant $\rho$ derived here as the theoretical basis for
+the outer fixed-point loop of the numerical scheme, is planned future work that
+would directly connect the qualitative and quantitative results of the two.
 
 \bibliographystyle{plainnat}
 \begin{thebibliography}{99}
@@ -803,6 +830,13 @@ monotonicity condition.
 Qiao, B. (2025).
 \newblock Heterogeneous mean field games and local well-posedness.
 \newblock arXiv:2511.19766.
+
+\bibitem[Monyimba(2026)]{monyimba2026thesis}
+Monyimba, N. (2026).
+\newblock Quantitative Convergence Analysis of Stochastic Maximum Principles for
+Mean-Field Games with Common Noise.
+\newblock MSc thesis, Missouri University of Science and Technology.
+\newblock Available at \url{https://github.com/NisongMonyimba/AppliedMathThesis}.
 
 \bibitem[Zhang(2017)]{zhang2017}
 Zhang, J. (2017).
@@ -985,18 +1019,21 @@ uniform-in-$k$ bound) across all $\lceil T/\delta_0 \rceil$ subintervals.
 \subsection{Numerical illustration of $\delta_0$}
 
 For the canonical LQ-MFG benchmark (Example~\ref{ex:lq-mfg}, baseline parameters
-$\kappa=0.5,\lambda=1,c_1=2,c_2=5,\sigma=0.2,\sigma_0=0.3,T=1$), the model constants
-$L_b, C_\alpha, C_{\mathrm{BSDE}}$ are computable from the Riccati coefficients of
-\Cref{sec:example} (see the companion technical note for the exact relations). Using
-representative values consistent with this benchmark ($L_b \approx 1.5$,
-$C_\alpha \approx 1.0$, $C_{\mathrm{BSDE}} \approx 2.0$, reflecting the magnitude of
-$\kappa, 1/\lambda,$ and the Riccati coefficients over $[0,T]$), formula
-\eqref{eq:delta0} gives $\delta_0 \approx 1.7\times 10^{-3}$, so covering $T=1$
-requires on the order of $600$ subintervals. This threshold is conservative -- a
+$\kappa=0.5,\lambda=1,c_1=2,c_2=5,\sigma=0.2,\sigma_0=0.3,T=1$),
+\Cref{prop:lq-value} gives $L_b=\max(\kappa,1)=1$ and $C_\alpha=1/\lambda=1$
+exactly. $C_{\mathrm{BSDE}}$ requires evaluating the cited BSDE estimate on the
+linear adjoint driver $(-\kappa,-c_1)$; we use a representative value
+$C_{\mathrm{BSDE}} \approx 2.0$, consistent with the magnitude expected for a
+linear driver with these coefficients over $T=1$ (a precise value requires
+tracking the exact constant in the cited theorem, which we do not carry out here).
+With these values, formula
+\eqref{eq:delta0} gives $\delta_0 \approx 2.6\times 10^{-3}$, so covering $T=1$
+requires on the order of $380$ subintervals. This threshold is conservative -- a
 consequence of the crude inequalities used throughout (in particular
 $(a+b+c)^2\le 3(a^2+b^2+c^2)$, which is loose whenever the three terms are of very
 different sizes) -- and is not intended as a practically tight step size for the
-numerical scheme of the companion numerical paper, which uses a much finer,
+numerical scheme of Chapter 4 of \citet{monyimba2026thesis}, which uses a much
+finer,
 independently justified time discretisation. Sharpening $\delta_0$ towards a
 practically useful threshold, e.g.\ via the displacement-monotonicity techniques of
 \citet{jacksontangpi2024} or \citet{jacksonmeszaros2025} in place of the crude
