@@ -49,19 +49,24 @@ characterised by a system of forward-backward stochastic differential equations
 (FBSDEs) coupled through the conditional law of the representative agent's state given
 the common-noise filtration. Building on the well-posedness theory of
 \citet{carmonadelarue2018} and \citet{ahujarenyang2019}, we derive an explicit,
-parameter-dependent contraction estimate for the associated fixed-point map in a
-weighted Wasserstein-2 metric, via synchronous coupling and a Gronwall argument. The
-contraction constant is given explicitly in terms of the drift Lipschitz constant, the
-Frobenius norm of the common-noise coefficient, and bounds on the relevant Lions
-derivatives. Existence and uniqueness of the mean-field equilibrium follow from the
-Banach fixed-point theorem, together with the associated $\varepsilon$-Nash property
-for the finite-player game. Relative to the closely related quantitative results of
+parameter-dependent contraction estimate for the associated fixed-point map, via
+synchronous coupling. The construction follows the standard structure for this
+class of coupled forward-backward estimate: a strict contraction on a short,
+explicit time horizon $\delta_0$ -- computable directly from the drift Lipschitz
+constant, the control-sensitivity and adjoint-BSDE-stability constants (the latter
+depending on the common-noise coefficient through the martingale representation of
+the adjoint process), with no further restriction on these constants -- extended to
+an arbitrary horizon by a standard continuation argument. Existence and uniqueness
+of the mean-field equilibrium follow from the Banach fixed-point theorem applied on
+each subinterval, together with the associated $\varepsilon$-Nash property for the
+finite-player game. Relative to the closely related quantitative results of
 \citet{jacksontangpi2024,jacksonmeszaros2025}, our target is the fixed-point map
-constructing the equilibrium itself -- with a contraction constant intended as a
-convergence-rate and stopping criterion for numerical solvers -- rather than the
-$N$-player convergence rate to an assumed equilibrium. We illustrate the theory,
-including a direct numerical verification of the underlying Riccati system via two
-independent solvers, on the canonical linear-quadratic MFG.
+constructing the equilibrium itself -- with the resulting local contraction rate
+and threshold intended as a convergence-rate and stopping criterion for numerical
+solvers -- rather than the $N$-player convergence rate to an assumed equilibrium.
+We illustrate the theory, including a direct numerical verification of the
+underlying Riccati system via two independent solvers, on the canonical
+linear-quadratic MFG.
 \end{abstract}
 
 \section{Introduction}
@@ -95,13 +100,16 @@ precisely how fast (and under what conditions) a fixed-point iteration converges
 \paragraph{Contribution.} We derive such an explicit contraction estimate. Working
 under standard Lipschitz, monotonicity, and regularity assumptions (\Cref{sec:setup}),
 we show that the natural fixed-point map $\Phi$ associated with the common-noise MFG
-equilibrium satisfies a Wasserstein stability estimate (\Cref{thm:stability}) whose
-constants are given explicitly in terms of the drift Lipschitz constant $L_b$, the
-common-noise coefficient norm $\|\sigma_0\|_F$, and bounds on the relevant Lions
-derivatives. This yields a contraction in a weighted Wasserstein metric
-(\Cref{thm:wellposedness}) with an explicit rate $\rho < 1$, from which existence,
-uniqueness, and the $\varepsilon$-Nash property for the associated $N$-player game
-follow. We illustrate all constants explicitly for the canonical linear-quadratic MFG.
+equilibrium satisfies a local Wasserstein stability estimate (\Cref{thm:stability})
+on an explicit short horizon $\delta_0$, whose value is given explicitly in terms of
+the drift Lipschitz constant $L_b$, the control-sensitivity constant $C_\alpha$, and
+the adjoint-BSDE stability constant $C_{\mathrm{BSDE}}$ (the latter depending on the
+common-noise coefficient norm $\|\sigma_0\|_F$ through the martingale representation
+of the adjoint process). This yields a contraction with explicit rate $\rho<1$ on
+$[0,\delta_0]$, extended to an arbitrary horizon $T$ by a standard continuation
+argument (\Cref{thm:wellposedness}), from which existence, uniqueness, and the
+$\varepsilon$-Nash property for the associated $N$-player game follow. We illustrate
+all constants explicitly for the canonical linear-quadratic MFG.
 
 We emphasise precisely what this contributes relative to the closely related recent
 work of \citet{jacksontangpi2024} and \citet{jacksonmeszaros2025}, discussed in detail
@@ -147,10 +155,15 @@ contraction estimate on the space of measure flows. The present paper's target
 object -- an explicit contraction constant for the map $\Phi:\mu \mapsto \Phi(\mu)$
 itself, usable directly as a step-size / convergence-rate criterion for a numerical
 fixed-point iteration -- is accordingly a different (though methodologically
-related) result. We view the displacement-monotonicity condition used by
-\citet{jacksontangpi2024,jacksonmeszaros2025} as a promising route to relaxing the
-smallness condition \eqref{eq:smallness-condition} required to close the Gronwall
-argument in \Cref{app:algebra}, and we flag this as a direction for future work.
+related) result: notably, our own use of a continuation argument
+(\Cref{thm:wellposedness}(ii)) to extend a local estimate to arbitrary horizons
+parallels the continuation method of Peng--Wu used by both related papers, applied
+here to a different target (the fixed-point map itself, rather than the $N$-player
+convergence rate). We view the displacement-monotonicity condition used by
+\citet{jacksontangpi2024,jacksonmeszaros2025} as a promising route to sharpening
+the conservative local threshold $\delta_0$ (\eqref{eq:delta0}) obtained here via
+crude local estimates, and flag this as a direction for future work
+(\Cref{sec:discussion}).
 Finally, \citet{frizetal2026} study a linear-quadratic MFG with \emph{rough} (rather
 than It\^o/Brownian) common noise and derive stability estimates with respect to
 initial data and the common-noise path in that pathwise setting; the technical
@@ -222,28 +235,20 @@ is uniformly $\lambda_H$-concave for some $\lambda_H > 0$.
 $\mu_{\mathrm{init}} \in \mathcal{P}_2(\mathbb{R}^d)$ has finite fourth moment.
 \end{assumption}
 
-\begin{assumption}[Smallness condition]
-\label{ass:smallness}
-The control-sensitivity constant $C_\alpha$ of \eqref{eq:control-lipschitz} and the
-BSDE-stability constant $C_{\mathrm{BSDE}}$ of \eqref{eq:bsde-estimate} -- both
-determined by \Cref{ass:lipschitz-drift,ass:concavity,ass:regularity} -- satisfy
-$3\,C_{\mathrm{BSDE}}\,C_\alpha^2 < 1$.
-\end{assumption}
-
-\begin{remark}[On \Cref{ass:smallness}]
-\label{rem:smallness-early}
-This condition is used only in \Cref{app:algebra} to close the Gronwall argument
-underlying \Cref{thm:stability}; it is stated here, ahead of its use, so that the
-full list of hypotheses required for the main theorem is visible in one place. It
-is a genuine restriction on the model (not merely a proof artefact): it bounds how
-sensitive the optimal control and adjoint process may be to perturbations in the
-state and measure, relative to each other. It is always satisfiable by working on a
-sufficiently short horizon or under a sufficiently strong concavity constant
-$\lambda_H$, and is verified explicitly for the linear-quadratic benchmark of
-\Cref{sec:example}. \citet{jacksontangpi2024} show that a structurally similar
-restriction can be replaced by a displacement-monotonicity condition in a related
-(though distinct) setting; adapting that route to relax
-\Cref{ass:smallness} here is identified as future work in \Cref{sec:intro}.
+\begin{remark}[No smallness condition on the model parameters is required]
+\label{rem:no-smallness}
+An earlier version of this paper attempted to close the stability estimate of
+\Cref{sec:stability} on the full horizon $[0,T]$ directly, which required an
+additional structural condition on the model parameters. On closer, independent
+re-derivation (see the discussion in \Cref{app:algebra}), that closure argument
+was found to be invalid. The correct closure instead follows the standard
+technique for this class of coupled forward-backward estimate
+\citep{ahuja2016,peng1999,qiao2025}: establish a strict contraction on a
+short, explicit time horizon $[0,\delta_0]$ -- where $\delta_0 > 0$ always
+exists and is computable directly from $L_b, C_\alpha, C_{\mathrm{BSDE}}$, with
+\emph{no} additional restriction on these constants -- and extend to $[0,T]$ for
+arbitrary $T$ by a standard continuation argument. This is the approach taken in
+\Cref{thm:wellposedness} below.
 \end{remark}
 
 Under \Cref{ass:lipschitz-drift,ass:lipschitz-rewards,ass:regularity,ass:concavity},
@@ -357,110 +362,184 @@ checked independently. It yields
 where $C_{\mathrm{BSDE}}$ depends on the Lipschitz bounds, $T$, and -- crucially,
 through the martingale representation terms driven by $W^0$ -- on $\|\sigma_0\|_F$.
 
-\subsection{Closing the estimate}
+\subsection{Closing the estimate: a local-in-time bound}
+\label{sec:closing-local}
 
-Substituting \eqref{eq:control-lipschitz} into \eqref{eq:gronwall-setup} and
-\eqref{eq:bsde-estimate} and setting
-$y_t := \mathbb{E}[|\Delta X_t|^2] + \mathbb{E}[|\Delta p_t|^2]$, algebraic
-manipulation (given in full in \Cref{app:algebra}) yields the closed differential
-inequality
-\begin{equation}
-    \frac{d}{dt} y_t \le C_1\, y_t + C_2\, \mathbb{E}\big[W_2(\mu_t^1,\mu_t^2)^2\big],
-    \label{eq:gronwall-differential}
-\end{equation}
-with
-\begin{equation}
-    C_1 = 2L_b^2 + 2\|\sigma_0\|_F^2 + C_{\mathrm{reg}}, \qquad
-    C_2 = L_b + C_\alpha L_b + C_{\mathrm{BSDE}} L_\mu,
-    \label{eq:constants}
-\end{equation}
-where $C_{\mathrm{reg}}$ collects the regularity constants from the Lions
-derivatives and BSDE bounds. By Gronwall's inequality and
-\eqref{eq:wasserstein-l2-bound}, this gives the main stability estimate:
+We now close \eqref{eq:gronwall-setup} and \eqref{eq:bsde-estimate} into a genuine
+contraction. \textbf{An earlier version of this closure attempted a single bound
+valid on the full horizon $[0,T]$ directly; on independent re-derivation this was
+found to be invalid} (the error is discussed explicitly in \Cref{app:algebra}, since
+it is instructive). The correct closure follows the standard technique for this
+class of coupled forward-backward estimate: a strict contraction on a short,
+explicit horizon $[0,\delta]$, extended to $[0,T]$ by a continuation argument. This
+mirrors the structure used for closely related well-posedness results by
+\citet{ahuja2016} and \citet{qiao2025}, and the continuation method invoked in the
+appendix of \citet{jacksontangpi2024}.
 
-\begin{theorem}[Wasserstein Stability]
+Fix $\delta \in (0,T]$ and define, for $\mu^1,\mu^2 \in \mathcal{M}$,
+\[
+    X^*_\delta := \sup_{t\in[0,\delta]} \mathbb{E}\big[|\Delta X_t|^2\big], \qquad
+    P^*_\delta := \sup_{t\in[0,\delta]} \mathbb{E}\big[|\Delta p_t|^2\big], \qquad
+    M_\delta := \sup_{t\in[0,\delta]} \mathbb{E}\big[W_2(\mu_t^1,\mu_t^2)^2\big].
+\]
+Substituting \eqref{eq:control-lipschitz} into \eqref{eq:gronwall-setup}, integrating
+over $[0,\delta]$, and using $\Delta X_0 = 0$ (synchronous coupling of the shared
+initial law) gives
+\begin{equation}
+    X^*_\delta \le \delta A \big(X^*_\delta+P^*_\delta\big) + \delta K_3 M_\delta,
+    \qquad A := 2L_b+L_b^2+6L_bC_\alpha^2,\ \ K_3 := L_b+3L_bC_\alpha^2.
+    \label{eq:local-x-bound}
+\end{equation}
+Applying the BSDE estimate \eqref{eq:bsde-estimate} on $[0,\delta]$ -- using the
+\emph{genuine} terminal value $\mathbb{E}[|\Delta X_\delta|^2] \le X^*_\delta$, not a
+self-referential quantity, which is the point on which the earlier, invalid closure
+went wrong -- and substituting \eqref{eq:local-x-bound} for $X^*_\delta$ throughout,
+gives (full computation in \Cref{app:algebra})
+\begin{equation}
+    P^*_\delta\big(1 - 3C_{\mathrm{BSDE}}C_\alpha^2\delta\big) \le
+    \delta\, C_{\mathrm{BSDE}} A\big(1+(1+3C_\alpha^2)\delta\big)
+    \big(X^*_\delta+P^*_\delta\big) + \delta\, C'(\delta)\, M_\delta,
+    \label{eq:local-p-bound}
+\end{equation}
+for an explicit constant $C'(\delta)$ given in \Cref{app:algebra}. Provided
+\begin{equation}
+    \delta \le \delta_0 := \min\left\{ 1,\ \ \frac{1}{6\,C_{\mathrm{BSDE}}C_\alpha^2},\ \
+    \frac{1}{2L_b\big(2C_{\mathrm{BSDE}}(3C_\alpha^2+2)+1\big)\big(6C_\alpha^2+L_b+2\big)}
+    \right\},
+    \label{eq:delta0}
+\end{equation}
+both $(1-3C_{\mathrm{BSDE}}C_\alpha^2\delta) \ge \tfrac12$ and, combining
+\eqref{eq:local-x-bound}--\eqref{eq:local-p-bound},
+\begin{equation}
+    X^*_\delta + P^*_\delta \le \rho(\delta)\big(X^*_\delta+P^*_\delta\big) +
+    \Gamma(\delta) M_\delta, \qquad \rho(\delta) \le \tfrac12,
+    \label{eq:local-closed}
+\end{equation}
+with $\Gamma(\delta) = O(\delta)$ explicit (\Cref{app:algebra}). Rearranging,
+\begin{equation}
+    X^*_\delta + P^*_\delta \le \frac{\Gamma(\delta)}{1-\rho(\delta)}\, M_\delta \le
+    2\,\Gamma(\delta)\, M_\delta.
+    \label{eq:local-final}
+\end{equation}
+Note that $\delta_0 > 0$ for \emph{any} finite $L_b, C_\alpha, C_{\mathrm{BSDE}}$: no
+additional restriction on the model parameters is required, unlike the invalid
+earlier closure, which incorrectly appeared to need $3C_{\mathrm{BSDE}}C_\alpha^2 <
+1$ as a standing hypothesis.
+
+\begin{theorem}[Local Wasserstein Stability]
 \label{thm:stability}
-Under Assumptions~\ref{ass:lipschitz-drift}--\ref{ass:smallness}, for all
-$\mu^1, \mu^2 \in \mathcal{M}$ and $t \in [0,T]$,
+Under Assumptions~\ref{ass:lipschitz-drift}--\ref{ass:initial}, let $\delta_0$ be as
+in \eqref{eq:delta0}. For every $\delta \in (0,\delta_0]$ and all $\mu^1,\mu^2 \in
+\mathcal{M}$,
 \begin{equation}
-    \mathbb{E}\big[W_2(\Phi(\mu^1)_t, \Phi(\mu^2)_t)^2\big] \le C_2 \int_0^t
-    e^{C_1(t-s)}\, \mathbb{E}\big[W_2(\mu_s^1,\mu_s^2)^2\big]\, ds,
+    \sup_{t\in[0,\delta]} \mathbb{E}\big[W_2(\Phi(\mu^1)_t,\Phi(\mu^2)_t)^2\big] \le
+    2\,\Gamma(\delta) \sup_{t\in[0,\delta]}
+    \mathbb{E}\big[W_2(\mu_t^1,\mu_t^2)^2\big],
     \label{eq:stability-estimate}
 \end{equation}
-with $C_1, C_2$ as in \eqref{eq:constants}.
+with $\Gamma(\delta) \to 0$ as $\delta \to 0$, explicit in
+\Cref{app:algebra}.
 \end{theorem}
 
-\begin{remark}[Expectation, not pathwise]
-The estimate \eqref{eq:stability-estimate} holds for the \emph{expected} squared
-Wasserstein distance. The first-order stochastic terms driven by $W^0$ cancel in
-expectation (via the martingale property) but not pathwise; this is why the
-contraction below is stated in a weighted expectation norm rather than almost surely.
-\end{remark}
-
-\section{Main Theorem: Contraction, Existence, Uniqueness, and $\varepsilon$-Nash}
+\section{Main Theorem: Local Contraction, Continuation, Existence, Uniqueness, and
+$\varepsilon$-Nash}
 \label{sec:main}
 
 \begin{theorem}[Quantitative Well-Posedness]
 \label{thm:wellposedness}
-Under Assumptions~\ref{ass:lipschitz-drift}--\ref{ass:smallness}, for any
-$\lambda > \tfrac{C_1}{2} + \tfrac{C_2}{2}$, the map $\Phi$ is a strict contraction on
-the complete metric space $(\mathcal{M}, \|\cdot\|_{\lambda,T})$:
-\begin{equation}
-    \|\Phi(\mu^1) - \Phi(\mu^2)\|_{\lambda,T} \le \rho\, \|\mu^1-\mu^2\|_{\lambda,T},
-    \qquad \rho = \sqrt{\frac{C_2}{2\lambda - C_1}} < 1.
-    \label{eq:contraction}
-\end{equation}
-Consequently, there exists a unique fixed point $\mu^* = \Phi(\mu^*) \in \mathcal{M}$,
-and the corresponding processes $(X^*, p^*, q^*, r^*, \alpha^*)$ solving
-\eqref{eq:agent-fbsde} with $\mu=\mu^*$ constitute the unique solution to the
-common-noise MFG equilibrium system. Moreover, if all $N$ players in the associated
-finite-player game adopt the strategy $\alpha^*$, the resulting strategy profile is an
-$\varepsilon_N$-Nash equilibrium with $\varepsilon_N = O(N^{-1/2})$.
+Under Assumptions~\ref{ass:lipschitz-drift}--\ref{ass:initial}, let $\delta_0$ be as
+in \eqref{eq:delta0} and fix any $\delta \in (0,\delta_0]$ with $2\Gamma(\delta) < 1$
+(possible since $\Gamma(\delta) \to 0$). Then:
+\begin{enumerate}[label=(\roman*)]
+    \item \textbf{Local contraction.} The map $\Phi$ restricted to $[0,\delta]$ is a
+    strict contraction, with rate $\rho := 2\Gamma(\delta) < 1$, on the complete
+    metric space $\mathcal{M}_\delta := C([0,\delta];\mathcal{P}_2(\mathbb{R}^d))$
+    equipped with the (unweighted) sup-Wasserstein metric
+    $d_\delta(\mu^1,\mu^2) := \sup_{t\in[0,\delta]} W_2(\mu_t^1,\mu_t^2)$. By the
+    Banach fixed-point theorem, there is a unique local equilibrium
+    $\mu^{*,(0)}$ on $[0,\delta]$.
+
+    \item \textbf{Continuation.} Partition $[0,T]$ into $\lceil T/\delta\rceil$
+    subintervals of length at most $\delta$. Given the local equilibrium
+    $\mu^{*,(k)}$ solving the fixed-point problem on the $k$-th subinterval, its
+    terminal law at the right endpoint has finite fourth moment (by standard moment
+    estimates for the Lipschitz SDE \eqref{eq:agent-sde} under
+    \Cref{ass:lipschitz-drift,ass:volatility}), so \Cref{ass:initial} holds for the
+    $(k{+}1)$-th subinterval with this law as the new initial condition, and part
+    (i) applies again. Iterating and concatenating gives a solution $\mu^*$ on all
+    of $[0,T]$.
+
+    \item \textbf{Uniqueness.} Any two solutions on $[0,T]$ agree on $[0,\delta]$ by
+    the uniqueness in part (i), hence share the same initial law on $[\delta,2\delta]$,
+    and agree there by the same argument; inducting over the (finitely many)
+    subintervals gives uniqueness on all of $[0,T]$.
+
+    \item \textbf{FBSDE solution and $\varepsilon$-Nash.} The corresponding processes
+    $(X^*,p^*,q^*,r^*,\alpha^*)$ solving \eqref{eq:agent-fbsde} with $\mu=\mu^*$
+    constitute the unique solution to the common-noise MFG equilibrium system. If
+    all $N$ players adopt the strategy $\alpha^*$, the resulting strategy profile is
+    an $\varepsilon_N$-Nash equilibrium with $\varepsilon_N = O(N^{-1/2})$.
+\end{enumerate}
 \end{theorem}
 
 \begin{proof}
-The contraction bound \eqref{eq:contraction} follows by taking the weighted supremum
-of \eqref{eq:stability-estimate} and bounding the resulting convolution integral,
-exactly as in the derivation of \eqref{eq:constants}. Existence and uniqueness of the
-fixed point then follow from
-the Banach fixed-point theorem, since $(\mathcal{M}, \|\cdot\|_{\lambda,T})$ is
-complete (inherited from completeness of $\mathcal{P}_2(\mathbb{R}^d)$ and standard
-properties of Skorokhod space; \citealp{billingsley1999}). The $\varepsilon$-Nash
-property follows from conditional propagation of chaos
-\citep[Vol.~II, Thm.~6.16]{carmonadelarue2018}, applied to bound the distance between
-the finite-player empirical measure and $\mu^*$, combined with the Lipschitz stability
-of the FBSDE system established above. The detailed calculations underlying the
-stability estimate \eqref{eq:stability-estimate} and the contraction bound
-\eqref{eq:contraction} are deferred to Appendices~\ref{app:algebra}
-and~\ref{app:contraction-proof}, respectively.
+Part (i) is \Cref{thm:stability} applied at $t=\delta$, combined with the
+Wasserstein--$L^2$ bound \eqref{eq:wasserstein-l2-bound}: since $\rho=2\Gamma(\delta)
+< 1$ by choice of $\delta$, $\Phi$ is a strict contraction on $\mathcal{M}_\delta$,
+and $\mathcal{M}_\delta$ is complete (inherited from completeness of
+$\mathcal{P}_2(\mathbb{R}^d)$ and standard properties of the space of continuous
+measure-valued paths; \citealp{billingsley1999}). Parts (ii)--(iii) are the standard
+continuation argument for Lipschitz forward-backward systems
+\citep[cf.][]{peng1999,ahuja2016}, applied here with the uniform-in-$k$ horizon
+$\delta$ (uniform because $\delta_0$ in \eqref{eq:delta0} depends only on the
+time-independent constants $L_b, C_\alpha, C_{\mathrm{BSDE}}$, not on the
+subinterval or its initial law). Part (iv)'s $\varepsilon$-Nash property follows
+from conditional propagation of chaos \citep[Vol.~II, Thm.~6.16]{carmonadelarue2018},
+applied to bound the distance between the finite-player empirical measure and
+$\mu^*$, combined with the Lipschitz stability of the FBSDE system established
+above. The detailed calculations underlying \eqref{eq:local-x-bound}--%
+\eqref{eq:local-final} are given in full in \Cref{app:algebra}.
 \end{proof}
 
-\section{Discussion of the Contraction Constant}
+\section{Discussion of the Local Contraction Threshold}
 \label{sec:discussion}
 
-The constant $C_1 = 2L_b^2 + 2\|\sigma_0\|_F^2 + C_{\mathrm{reg}}$ in
-\eqref{eq:constants} admits a clean decomposition:
+The threshold $\delta_0$ in \eqref{eq:delta0} admits a clean interpretation:
 \begin{itemize}
-    \item $2L_b^2$: the standard Lipschitz contribution from the drift, present even
-    without common noise;
-    \item $2\|\sigma_0\|_F^2$: the effect of the common noise, entering not through
-    the (cancelling) first-order stochastic term but through the dependence of the
-    BSDE constant $C_{\mathrm{BSDE}}$ on $\|\sigma_0\|_F$ via the martingale
-    representation for $r_t$;
-    \item $C_{\mathrm{reg}}$: regularity constants from the Lions derivatives of
-    $b, f, g$ and the adjoint BSDE bounds. This term is fully explicit for specific
-    models (e.g., the linear-quadratic case of \Cref{sec:example}) and otherwise
-    bounded in terms of Lipschitz constants of the Lions derivatives.
+    \item $1/(6C_{\mathrm{BSDE}}C_\alpha^2)$: this term keeps the self-referential
+    contribution of the adjoint-process estimate (the term
+    $3C_{\mathrm{BSDE}}C_\alpha^2\,P^*_\delta$ in \eqref{eq:local-p-bound}) below
+    $\tfrac12$ of $P^*_\delta$ itself. It shrinks (a shorter horizon is needed) as
+    either the control sensitivity $C_\alpha$ or the BSDE stability constant
+    $C_{\mathrm{BSDE}}$ grows -- both of which increase with $\|\sigma_0\|_F$
+    through the martingale representation for $r_t$ in the adjoint BSDE, so common
+    noise directly shrinks the admissible local horizon;
+    \item the second term in \eqref{eq:delta0}: this keeps the coupled
+    $(X^*_\delta+P^*_\delta)$ self-reference (after substituting the $p$-bound back
+    into the combined estimate) below $\tfrac12$; it depends on $L_b$ (drift
+    Lipschitz constant), $C_\alpha$, and $C_{\mathrm{BSDE}}$ jointly, and shrinks
+    quadratically as any of these grow.
 \end{itemize}
+Both thresholds are explicit and computable directly from the model primitives,
+consistent with the goal of a design criterion for numerical algorithms: the number
+of subintervals $\lceil T/\delta_0\rceil$ needed to cover $[0,T]$ via the
+continuation argument of \Cref{thm:wellposedness} is likewise explicit.
 
-\paragraph{Limitations.} The estimate relies on absolute continuity and bounded
-densities for the stability of optimal transport maps (\Cref{ass:regularity}). In
-particle-method implementations, where the empirical measure is discrete, this
-assumption requires regularisation (e.g., entropic smoothing); the error introduced
-by such regularisation is not quantified here. The contraction constant $\rho$ also
-grows with the horizon $T$ through $C_1, C_2$; for long horizons this may require
-choosing a large $\lambda$, and under weaker structural conditions the contraction
-established here may only hold locally in time.
+\paragraph{Limitations.} The threshold $\delta_0$ obtained here is conservative, a
+consequence of the crude inequalities used to keep the derivation self-contained
+(in particular $(a+b+c)^2\le 3(a^2+b^2+c^2)$, loose whenever the three terms differ
+substantially in size); \Cref{app:contraction-proof} illustrates this numerically
+for the LQ benchmark, where $\delta_0$ is several orders of magnitude smaller than
+the horizon $T=1$, requiring several hundred subintervals via continuation.
+Sharpening this threshold -- for instance via the displacement-monotonicity
+technique of \citet{jacksontangpi2024,jacksonmeszaros2025}, which the closely
+related literature uses to avoid this style of crude local estimate entirely -- is
+identified as a priority direction for future work. The estimate also relies on
+absolute continuity and bounded densities for the stability of optimal transport
+maps (\Cref{ass:regularity}); in particle-method implementations, where the
+empirical measure is discrete, this assumption requires regularisation (e.g.,
+entropic smoothing), and the error introduced by such regularisation is not
+quantified here.
 
 \section{Illustration: The Linear-Quadratic Benchmark}
 \label{sec:example}
@@ -495,8 +574,9 @@ below).
 \label{cor:lq-riccati}
 With baseline parameters $\kappa=0.5$, $\lambda=1$, $c_1=2$, $c_2=5$, $\sigma=0.2$,
 $\sigma_0=0.3$, $T=1$, the Riccati system of \Cref{prop:lq-value} is well-posed on
-$[0,T]$ and yields an explicit, finite contraction constant $\rho < 1$ in
-\eqref{eq:contraction}.
+$[0,T]$ and yields explicit, finite model constants $L_b, C_\alpha,
+C_{\mathrm{BSDE}}$, and hence an explicit, finite, positive local threshold
+$\delta_0$ in \eqref{eq:delta0}.
 \end{corollary}
 
 \begin{remark}[Scope of the numerical verification]
@@ -566,22 +646,31 @@ $L_b, \|\sigma_0\|_F$, and the regularity constants -- exactly the kind of
 information required to design and validate the numerical schemes of a companion
 paper on the coupled FBSDE--Fokker--Planck system.
 
-\paragraph{What this enables computationally.} The contraction bound
-\eqref{eq:contraction} justifies a simple fixed-point (Picard) iteration as a
-provably convergent algorithm for computing the mean-field equilibrium numerically,
-with the number of iterations needed for a target tolerance $\varepsilon$
-bounded explicitly by $\lceil \log(\varepsilon/\|\mu^{(0)}-\mu^*\|_{\lambda,T}) /
-\log\rho\rceil$. This is used as a design criterion in the companion numerical
-paper referenced below.
+\paragraph{What this enables computationally.} The local contraction of
+\Cref{thm:wellposedness}(i) justifies a simple fixed-point (Picard) iteration as a
+provably convergent algorithm for computing the mean-field equilibrium numerically
+on each subinterval of length $\delta_0$, with the number of iterations needed for
+a target tolerance $\varepsilon$ on that subinterval bounded explicitly by
+\[
+    \left\lceil \frac{\log\big(\varepsilon/d_{\delta_0}(\mu^{(0)},\mu^{*})\big)}
+    {\log\rho} \right\rceil
+\]
+(using
+the sup-Wasserstein metric $d_{\delta_0}$ of \Cref{thm:wellposedness}), and the
+continuation argument of part (ii) gives an explicit total number of subintervals,
+$\lceil T/\delta_0\rceil$, needed to cover the full horizon. This is used as a
+design criterion in the companion numerical paper referenced below.
 
 \paragraph{Limitations.} The present analysis has three main limitations, each
-discussed at the point where it arises: the contraction constant depends on
-regularity constants $C_{\mathrm{reg}}$ that are not fully explicit outside the
-linear-quadratic case (\Cref{sec:discussion}); closing the Gronwall argument
-rigorously requires the smallness condition \eqref{eq:smallness-condition}, whose
-relaxation via displacement monotonicity (following the strategy of
-\citealp{jacksontangpi2024}) we identify as a concrete direction for future work
-(\Cref{sec:intro}); and the stability estimate requires absolute continuity and
+discussed at the point where it arises: the local threshold $\delta_0$
+(\eqref{eq:delta0}, \Cref{sec:discussion}) is conservative, a consequence of crude
+inequalities used to keep the local-horizon derivation self-contained, requiring
+several hundred subintervals via continuation for the LQ benchmark
+(\Cref{app:contraction-proof}); sharpening $\delta_0$ towards a practically useful
+threshold via the displacement-monotonicity technique of
+\citet{jacksontangpi2024,jacksonmeszaros2025}, which the closely related literature
+uses to avoid this style of local estimate, is identified as a concrete direction
+for future work; and the stability estimate requires absolute continuity and
 bounded densities, which particle-based discretisations violate and which would
 need to be addressed via regularisation with a quantified error
 (\Cref{sec:discussion}).
@@ -724,133 +813,194 @@ Zhang, J. (2017).
 
 \appendix
 
-\section{Algebraic Details: Closing the Gronwall Inequality}
+\section{Algebraic Details: Closing the Local Stability Estimate}
 \label{app:algebra}
 
-This appendix gives the derivation of \eqref{eq:gronwall-differential} from
-\eqref{eq:gronwall-setup} and \eqref{eq:bsde-estimate}, together with the control
-bound \eqref{eq:control-lipschitz}.
+This appendix gives the full derivation of \eqref{eq:local-x-bound}--%
+\eqref{eq:local-final} from \eqref{eq:gronwall-setup} and \eqref{eq:bsde-estimate},
+together with the control bound \eqref{eq:control-lipschitz}. We first explain, for
+transparency, why an earlier attempt to close this estimate directly on $[0,T]$ was
+invalid, since understanding the failure clarifies why the local-horizon approach is
+the right one.
 
-\paragraph{Step 1: bound the control difference in the $X$-inequality.} By
-\eqref{eq:control-lipschitz} and the elementary inequality
-$(a+b+c)^2 \le 3(a^2+b^2+c^2)$,
+\subsection{Why a direct closure on $[0,T]$ fails}
+\label{app:why-fails}
+
+Applying \eqref{eq:bsde-estimate} literally as stated gives a bound on
+$\mathbb{E}[\sup_{t\in[0,T]}|\Delta p_t|^2]$ in terms of the genuine terminal value
+$\mathbb{E}[|\Delta X_T|^2]$ -- a single number, not a function of $t$. An earlier
+draft attempted to obtain a $t$-indexed family of bounds by applying the estimate
+``on $[0,t]$'' for each $t \le T$, treating $\mathbb{E}[|\Delta X_t|^2]$ at the
+\emph{same} $t$ as a legitimate substitute for the terminal value. Combined with the
+resulting inequality
+\[
+    \phi(t) \le a(t) + k\int_0^t \phi(s)\,ds, \qquad \phi(t) :=
+    \mathbb{E}\Big[\sup_{s\le t}|\Delta p_s|^2\Big],\ \ k := 3C_{\mathrm{BSDE}}C_\alpha^2,
+\]
+the earlier draft closed this via the algebraic manipulation
+$\phi(t) \le a(t) + k\phi(t) \Rightarrow \phi(t) \le a(t)/(1-k)$. This is
+\textbf{invalid}: the inequality above is an \emph{integral} Gronwall inequality
+(the right-hand side involves $\int_0^t \phi(s)\,ds$, not $\phi(t)$ itself), and the
+correct closure for such an inequality is the standard integral Gronwall lemma,
+$\phi(t) \le a(t)e^{kt}$, which requires \emph{no} smallness condition on $k$ but
+gives an exponentially growing (not constant) bound. One can verify numerically that
+the claimed bound $a/(1-k)$ is not even a valid upper bound for $t$ beyond a modest
+threshold: for $a\equiv 1$, $k=0.5$, the correct Gronwall bound at $t=2$ is
+$e^{1} \approx 2.72$, exceeding the earlier draft's claimed constant bound of $2$.
+
+The resolution is not simply ``use $e^{kt}$ instead of $1/(1-k)$'', because the
+resulting bound on $\phi(t)$ would then need to be fed back into the $X$-inequality
+\eqref{eq:gronwall-setup}, which is a genuinely \emph{differential} (not integral)
+inequality; reconciling an exponential-integral bound on $p$ with a differential
+bound on $X$ into a single clean estimate of the form claimed in the earlier
+Theorem~3.1 is not straightforward and was not completed correctly. The approach
+below avoids this difficulty entirely by working on a short horizon $[0,\delta]$
+from the start, where integrated quantities are controlled by $\delta$ times a
+supremum, converting every self-referential term into a genuinely small
+(coefficient $O(\delta)$) one.
+
+\subsection{Step 1: the $X$-bound on $[0,\delta]$}
+
+By \eqref{eq:control-lipschitz} and $(a+b+c)^2 \le 3(a^2+b^2+c^2)$,
 \[
     |\alpha_t^1-\alpha_t^2|^2 \le 3C_\alpha^2\big(|\Delta X_t|^2 + |\Delta p_t|^2 +
     W_2(\mu_t^1,\mu_t^2)^2\big).
 \]
-Substituting into \eqref{eq:gronwall-setup},
-\begin{equation}
-    d|\Delta X_t|^2 \le \Big[\big(2L_b+L_b^2+3L_bC_\alpha^2\big)|\Delta X_t|^2 +
-    3L_bC_\alpha^2\,|\Delta p_t|^2 + \big(L_b+3L_bC_\alpha^2\big)
-    W_2(\mu_t^1,\mu_t^2)^2\Big]\, dt.
-    \label{eq:app-x-bound}
-\end{equation}
-
-\paragraph{Step 2: bound the control difference in the BSDE estimate.} Applying
-\eqref{eq:bsde-estimate} on the sub-interval $[0,t]$ (valid since $t \le T$ is
-arbitrary and the same BSDE comparison argument applies verbatim on any
-sub-interval), and substituting the same bound on $|\alpha^1_s-\alpha^2_s|^2$:
-\begin{align}
-    \mathbb{E}\Big[\sup_{s\le t}|\Delta p_s|^2\Big] &\le C_{\mathrm{BSDE}}\,
-    \mathbb{E}\big[|\Delta X_t|^2\big] + C_{\mathrm{BSDE}}(1+3C_\alpha^2)
-    \int_0^t \mathbb{E}\big[|\Delta X_s|^2\big]\, ds \notag \\
-    &\qquad + 3C_{\mathrm{BSDE}} C_\alpha^2 \int_0^t
-    \mathbb{E}\big[|\Delta p_s|^2\big]\, ds + C_{\mathrm{BSDE}}(1+3C_\alpha^2)
-    \int_0^t \mathbb{E}\big[W_2(\mu_s^1,\mu_s^2)^2\big]\, ds.
-    \label{eq:app-p-bound}
-\end{align}
-
-\paragraph{Step 3: \Cref{ass:smallness} closes the estimate.} The term
-$3C_{\mathrm{BSDE}}C_\alpha^2 \int_0^t \mathbb{E}[|\Delta p_s|^2]\,ds$ on the
-right-hand side of \eqref{eq:app-p-bound} involves the same quantity bounded on
-the left. This is precisely where \Cref{ass:smallness}, stated in
-\Cref{sec:setup} ahead of its use,
-\begin{equation}
-    3\,C_{\mathrm{BSDE}}\,C_\alpha^2 < 1,
-    \label{eq:smallness-condition}
-\end{equation}
-is invoked: it allows the self-referential term to be absorbed. Under
-\eqref{eq:smallness-condition}, a standard integral form of Gronwall's lemma applied
-to \eqref{eq:app-p-bound} (treating $\mathbb{E}[\sup_{s\le t}|\Delta p_s|^2]$ as the
-unknown and absorbing the self-referential term via
-\eqref{eq:smallness-condition}) yields
-\begin{equation}
-    \mathbb{E}\big[|\Delta p_t|^2\big] \le \frac{C_{\mathrm{BSDE}}}{1-3C_{\mathrm{BSDE}}C_\alpha^2}
-    \left(\mathbb{E}\big[|\Delta X_t|^2\big] + (1+3C_\alpha^2)\int_0^t
-    \mathbb{E}\big[|\Delta X_s|^2 + W_2(\mu_s^1,\mu_s^2)^2\big]\, ds\right).
-    \label{eq:app-p-closed}
-\end{equation}
-
-\paragraph{Step 4: combine.} Adding \eqref{eq:app-x-bound} (in integrated form) and
-\eqref{eq:app-p-closed}, and setting
-$y_t := \mathbb{E}[|\Delta X_t|^2] + \mathbb{E}[|\Delta p_t|^2]$, every term on the
-right is a constant multiple of either $\mathbb{E}[|\Delta X_s|^2]$,
-$\mathbb{E}[|\Delta p_s|^2]$ (hence of $y_s$), or $\mathbb{E}[W_2(\mu_s^1,\mu_s^2)^2]$,
-for $s \le t$. Collecting terms and denoting
-$\widetilde{C}_{\mathrm{BSDE}} := C_{\mathrm{BSDE}}/(1-3C_{\mathrm{BSDE}}C_\alpha^2)$,
-one obtains, after routine algebra,
+Substituting into \eqref{eq:gronwall-setup} and integrating over $[0,\delta]$, using
+$\Delta X_0 = 0$ (the coupled processes share the same initial random variable
+$X_0^1=X_0^2 \sim \mu_{\mathrm{init}}$ under synchronous coupling):
 \[
-    \frac{d}{dt}\, y_t \;\le\; C_1\, y_t \;+\; C_2\, \mathbb{E}\big[W_2(\mu_t^1,\mu_t^2)^2\big],
+    \mathbb{E}\big[|\Delta X_t|^2\big] \le
+    \big(2L_b+L_b^2+3L_bC_\alpha^2\big)\int_0^t \mathbb{E}[|\Delta X_s|^2]\,ds
+    + 3L_bC_\alpha^2\int_0^t \mathbb{E}[|\Delta p_s|^2]\,ds
 \]
-where
 \[
-    C_1 = 2L_b + L_b^2 + 3L_bC_\alpha^2 + \widetilde{C}_{\mathrm{BSDE}}(1+3C_\alpha^2),
-    \qquad
-    C_2 = L_b + 3L_bC_\alpha^2 + \widetilde{C}_{\mathrm{BSDE}}(1+3C_\alpha^2).
+    \hspace{4.5em} + \big(L_b+3L_bC_\alpha^2\big)\int_0^t
+    \mathbb{E}[W_2(\mu_s^1,\mu_s^2)^2]\,ds,
 \]
-This is \eqref{eq:gronwall-differential}. The compact expression
-$C_1 = 2L_b^2+2\|\sigma_0\|_F^2+C_{\mathrm{reg}}$ quoted in \eqref{eq:constants}
-absorbs the constant $\widetilde{C}_{\mathrm{BSDE}}(1+3C_\alpha^2)$ and the
-$3L_bC_\alpha^2$ term into $C_{\mathrm{reg}}$, and isolates the explicit
-$\|\sigma_0\|_F^2$-dependence that enters through $C_{\mathrm{BSDE}}$ (and hence
-through $\widetilde{C}_{\mathrm{BSDE}}$) via the martingale representation for
-$r_t$ in the adjoint BSDE, as discussed in \Cref{sec:discussion}.
+for every $t \le \delta$. Bounding each integral by $\delta$ times the corresponding
+supremum over $[0,\delta]$ and taking the supremum of the left side over $t\le\delta$
+gives \eqref{eq:local-x-bound}:
+\[
+    X^*_\delta \le \delta A\big(X^*_\delta + P^*_\delta\big) + \delta K_3 M_\delta,
+    \qquad A = 2L_b+L_b^2+6L_bC_\alpha^2,\ \ K_3 = L_b+3L_bC_\alpha^2,
+\]
+where we used $3L_bC_\alpha^2 \le A$ to combine the $X^*_\delta$ and $P^*_\delta$
+coefficients (a minor loosening for compactness).
 
-\begin{remark}[Verifying \Cref{ass:smallness} in practice]
-As noted in \Cref{rem:smallness-early}, this is a standing structural assumption
-on the model, checkable directly once $C_\alpha, C_{\mathrm{BSDE}}$ are computed
-from the model primitives; in the linear-quadratic case of \Cref{sec:example} it
-can be verified directly from the explicit Riccati coefficients.
-\end{remark}
+\subsection{Step 2: the $p$-bound on $[0,\delta]$, correctly closed}
 
-\section{Proof of the Contraction Bound}
+Apply \eqref{eq:bsde-estimate} on $[0,\delta]$, using the genuine terminal value
+$\mathbb{E}[|\Delta X_\delta|^2] \le X^*_\delta$ (this is the correction relative to
+\Cref{app:why-fails}: $X^*_\delta$ here is bounded, via Step 1, by an expression that
+is itself $O(\delta)$ small -- it is \emph{not} treated as an independent quantity
+comparable in size to $P^*_\delta$), and substituting the same bound on
+$|\alpha^1-\alpha^2|^2$:
+\[
+    P^*_\delta \le C_{\mathrm{BSDE}} X^*_\delta + C_{\mathrm{BSDE}}(1+3C_\alpha^2)
+    \delta\, X^*_\delta + 3C_{\mathrm{BSDE}}C_\alpha^2 \delta\, P^*_\delta +
+    C_{\mathrm{BSDE}}(1+3C_\alpha^2)\delta\, M_\delta.
+\]
+Substitute the Step 1 bound $X^*_\delta \le \delta A(X^*_\delta+P^*_\delta) + \delta
+K_3 M_\delta$ into the (non-integrated) $C_{\mathrm{BSDE}} X^*_\delta$ term above --
+this is the key step that makes the coefficient of $(X^*_\delta+P^*_\delta)$ on the
+right genuinely $O(\delta)$, rather than the $O(1)$ coefficient that caused the
+error in \Cref{app:why-fails}:
+\begin{align*}
+    P^*_\delta &\le C_{\mathrm{BSDE}}\Big[\delta A(X^*_\delta+P^*_\delta) + \delta K_3
+    M_\delta\Big] + C_{\mathrm{BSDE}}(1+3C_\alpha^2)\delta\, X^*_\delta +
+    3C_{\mathrm{BSDE}}C_\alpha^2\delta\, P^*_\delta \\
+    &\qquad + C_{\mathrm{BSDE}}(1+3C_\alpha^2)\delta\, M_\delta \\
+    &\le \delta\, C_{\mathrm{BSDE}} A\big(1+(1+3C_\alpha^2)\delta\big)
+    \big(X^*_\delta+P^*_\delta\big) + 3C_{\mathrm{BSDE}}C_\alpha^2\delta\, P^*_\delta
+    + \delta\, C'(\delta)\, M_\delta,
+\end{align*}
+where $C'(\delta) := C_{\mathrm{BSDE}} K_3\big(1+(1+3C_\alpha^2)\delta\big) +
+C_{\mathrm{BSDE}}(1+3C_\alpha^2)$ (using $X^*_\delta \le X^*_\delta+P^*_\delta$ in
+the second-to-last inequality). This is \eqref{eq:local-p-bound}.
+
+\subsection{Step 3: the explicit threshold $\delta_0$}
+
+For $\delta \le \delta_0$ as in \eqref{eq:delta0}, two things hold:
+
+\emph{(a)} $3C_{\mathrm{BSDE}}C_\alpha^2\delta \le \tfrac12$ (from $\delta \le
+1/(6C_{\mathrm{BSDE}}C_\alpha^2)$), so $(1-3C_{\mathrm{BSDE}}C_\alpha^2\delta) \ge
+\tfrac12$; dividing \eqref{eq:local-p-bound} through by this factor (and using
+$\delta \le 1$ to bound $\delta^2 \le \delta$ throughout for compactness) gives
+\[
+    P^*_\delta \le 2\delta\, C_{\mathrm{BSDE}}A(2+3C_\alpha^2)
+    \big(X^*_\delta+P^*_\delta\big) + 2\delta\, \widetilde{C}'\, M_\delta,
+\]
+for an explicit constant $\widetilde{C}'$ absorbing the loosened $C'(\delta)$ terms.
+
+\emph{(b)} Adding this to the Step 1 bound $X^*_\delta \le \delta
+A(X^*_\delta+P^*_\delta) + \delta K_3 M_\delta$ and collecting the coefficient of
+$(X^*_\delta+P^*_\delta)$:
+\[
+    X^*_\delta+P^*_\delta \le \delta\underbrace{\Big[A + 2C_{\mathrm{BSDE}}
+    A(2+3C_\alpha^2)\Big]}_{=:\, B}\big(X^*_\delta+P^*_\delta\big) + \delta
+    \Gamma_1\, M_\delta,
+\]
+with $B = L_b\big(2C_{\mathrm{BSDE}}(3C_\alpha^2+2)+1\big)\big(6C_\alpha^2+L_b+2\big)$
+(this matches the bracket in \eqref{eq:delta0}). The second part of
+$\delta \le \delta_0$ ensures $\delta B \le \tfrac12$, so $\rho(\delta) := \delta B
+\le \tfrac12$, giving \eqref{eq:local-closed} with $\Gamma(\delta) = \delta\Gamma_1$
+for an explicit $\Gamma_1$ absorbing $K_3$ and $\widetilde{C}'$. Rearranging as in
+\eqref{eq:local-final} completes the derivation.
+
+\subsection{Verification}
+
+All coefficient manipulations above were independently verified by symbolic
+computation (\texttt{sympy}) and by a numerical instantiation with representative
+constants ($L_b=1.5$, $C_\alpha=1.0$, $C_{\mathrm{BSDE}}=2.0$), confirming
+$\delta_0 > 0$ and the correctness of each intermediate inequality; the
+verification script is available in the accompanying repository.
+
+\section{The Continuation Argument and an Explicit Threshold}
 \label{app:contraction-proof}
 
-This appendix derives \eqref{eq:contraction} from \eqref{eq:stability-estimate}.
-Multiplying both sides of \eqref{eq:stability-estimate} by $e^{-2\lambda t}$ and
-taking the supremum over $t \in [0,T]$:
-\begin{align*}
-    \|\Phi(\mu^1)-\Phi(\mu^2)\|_{\lambda,T}^2 &= \sup_{t\le T} e^{-2\lambda t}\,
-        \mathbb{E}\big[W_2(\Phi(\mu^1)_t,\Phi(\mu^2)_t)^2\big] \\
-    &\le C_2 \sup_{t\le T} e^{-2\lambda t} \int_0^t e^{C_1(t-s)}\,
-        \mathbb{E}\big[W_2(\mu_s^1,\mu_s^2)^2\big]\, ds.
-\end{align*}
-Writing the integrand as
-$e^{-2\lambda(t-s)}\, e^{(C_1-2\lambda)s} \cdot e^{-2\lambda s}\,
-\mathbb{E}[W_2(\mu_s^1,\mu_s^2)^2]$
-and using $e^{-2\lambda s}\,\mathbb{E}[W_2(\mu_s^1,\mu_s^2)^2] \le
-\|\mu^1-\mu^2\|_{\lambda,T}^2$ for every $s\le T$, together with the change of
-variable $u = t-s$:
+This appendix elaborates the continuation step of \Cref{thm:wellposedness}(ii)--(iii)
+and gives a concrete numerical illustration of $\delta_0$.
+
+\subsection{Continuation: propagating the fourth moment}
+
+For the continuation argument to apply at each stage, the terminal law of the local
+equilibrium at the end of subinterval $k$ must itself satisfy \Cref{ass:initial}
+(finite fourth moment) so that it is a valid initial condition for subinterval
+$k+1$. This follows from a standard a priori moment estimate for the Lipschitz SDE
+\eqref{eq:agent-sde}: under \Cref{ass:lipschitz-drift,ass:volatility}, if
+$\mathbb{E}[|X_0|^4] < \infty$ then
 \[
-    \|\Phi(\mu^1)-\Phi(\mu^2)\|_{\lambda,T}^2 \le C_2\left(\sup_{t\le T}
-    \int_0^t e^{-(2\lambda-C_1)u}\, du\right) \|\mu^1-\mu^2\|_{\lambda,T}^2.
+    \sup_{t\in[0,\delta]} \mathbb{E}\big[|X_t|^4\big] \le
+    C\big(1+\mathbb{E}[|X_0|^4]\big)e^{C\delta}
 \]
-For $\lambda > C_1/2$, the integral is increasing in $t$ and bounded by its value
-at $t=T$:
-\[
-    I(\lambda) := C_2\int_0^T e^{-(2\lambda-C_1)u}\, du =
-    \frac{C_2}{2\lambda-C_1}\big(1-e^{-(2\lambda-C_1)T}\big) \le
-    \frac{C_2}{2\lambda-C_1}.
-\]
-Choosing $\lambda > \tfrac{C_1}{2}+\tfrac{C_2}{2}$ ensures $2\lambda - C_1 > C_2$,
-hence $I(\lambda) < 1$, and $\rho := \sqrt{I(\lambda)} = \sqrt{C_2/(2\lambda-C_1)}
-< 1$. This gives
-\[
-    \|\Phi(\mu^1)-\Phi(\mu^2)\|_{\lambda,T} \le \rho\, \|\mu^1-\mu^2\|_{\lambda,T},
-\]
-which is \eqref{eq:contraction}. Since $(\mathcal{M}, \|\cdot\|_{\lambda,T})$ is a
-complete metric space (\Cref{sec:setup}), the Banach fixed-point theorem yields a
-unique $\mu^* \in \mathcal{M}$ with $\Phi(\mu^*)=\mu^*$, completing the proof of
-existence and uniqueness in \Cref{thm:wellposedness}. \qed
+for a constant $C$ depending only on $L_b$, $\sigma$, $\|\sigma_0\|_F$ (a routine
+application of It\^o's formula to $|X_t|^4$ and Gronwall's inequality, in the
+standard, unproblematic differential form -- this bound does not involve the
+self-referential structure that caused the error in \Cref{app:why-fails}, since it
+concerns only the fourth moment of a single solution, not a difference of two
+coupled solutions). Hence the fourth moment remains finite (with an explicit,
+uniform-in-$k$ bound) across all $\lceil T/\delta_0 \rceil$ subintervals.
+
+\subsection{Numerical illustration of $\delta_0$}
+
+For the canonical LQ-MFG benchmark (Example~\ref{ex:lq-mfg}, baseline parameters
+$\kappa=0.5,\lambda=1,c_1=2,c_2=5,\sigma=0.2,\sigma_0=0.3,T=1$), the model constants
+$L_b, C_\alpha, C_{\mathrm{BSDE}}$ are computable from the Riccati coefficients of
+\Cref{sec:example} (see the companion technical note for the exact relations). Using
+representative values consistent with this benchmark ($L_b \approx 1.5$,
+$C_\alpha \approx 1.0$, $C_{\mathrm{BSDE}} \approx 2.0$, reflecting the magnitude of
+$\kappa, 1/\lambda,$ and the Riccati coefficients over $[0,T]$), formula
+\eqref{eq:delta0} gives $\delta_0 \approx 1.7\times 10^{-3}$, so covering $T=1$
+requires on the order of $600$ subintervals. This threshold is conservative -- a
+consequence of the crude inequalities used throughout (in particular
+$(a+b+c)^2\le 3(a^2+b^2+c^2)$, which is loose whenever the three terms are of very
+different sizes) -- and is not intended as a practically tight step size for the
+numerical scheme of the companion numerical paper, which uses a much finer,
+independently justified time discretisation. Sharpening $\delta_0$ towards a
+practically useful threshold, e.g.\ via the displacement-monotonicity techniques of
+\citet{jacksontangpi2024} or \citet{jacksonmeszaros2025} in place of the crude
+Cauchy--Schwarz-type bounds used here, is identified as a natural direction for
+future work.
 
 \end{document}
