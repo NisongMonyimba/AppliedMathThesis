@@ -35,7 +35,7 @@
 
 \DeclareMathOperator*{\argmax}{arg\,max}
 
-\title{Quantitative Well-Posedness of Mean-Field Games\\ with Common Noise}
+\title{Quantitative Contraction Estimates for Common-Noise\\ Mean-Field Games}
 \author{Nisong Monyimba\thanks{Missouri University of Science and Technology. Email: \texttt{nisongmonyimba278@gmail.com}. Code and supplementary material: \url{https://github.com/NisongMonyimba/AppliedMathThesis}.}}
 \date{\today}
 
@@ -50,16 +50,18 @@ characterised by a system of forward-backward stochastic differential equations
 the common-noise filtration. Building on the well-posedness theory of
 \citet{carmonadelarue2018} and \citet{ahujarenyang2019}, we derive an explicit,
 parameter-dependent contraction estimate for the associated fixed-point map in a
-weighted Wasserstein-2 metric. The contraction constant depends explicitly on the
-Lipschitz constant of the drift, the Frobenius norm of the common-noise coefficient,
-and bounds on the relevant Lions derivatives, and is computable from the model
-primitives. Existence and uniqueness of the mean-field equilibrium follow via the
-Banach fixed-point theorem, and we verify the associated $\varepsilon$-Nash property
-for the finite-player game. To the best of our knowledge, an explicit, computable
-contraction bound of this form -- suitable as a design criterion for numerical
-algorithms -- has not previously been derived in the common-noise setting; existing
-work establishes existence and uniqueness but not quantitative stability. We illustrate
-the theory on the canonical linear-quadratic MFG, for which all constants are explicit.
+weighted Wasserstein-2 metric, via synchronous coupling and a Gronwall argument. The
+contraction constant is given explicitly in terms of the drift Lipschitz constant, the
+Frobenius norm of the common-noise coefficient, and bounds on the relevant Lions
+derivatives. Existence and uniqueness of the mean-field equilibrium follow from the
+Banach fixed-point theorem, together with the associated $\varepsilon$-Nash property
+for the finite-player game. Relative to the closely related quantitative results of
+\citet{jacksontangpi2024,jacksonmeszaros2025}, our target is the fixed-point map
+constructing the equilibrium itself -- with a contraction constant intended as a
+convergence-rate and stopping criterion for numerical solvers -- rather than the
+$N$-player convergence rate to an assumed equilibrium. We illustrate the theory,
+including a direct numerical verification of the underlying Riccati system via two
+independent solvers, on the canonical linear-quadratic MFG.
 \end{abstract}
 
 \section{Introduction}
@@ -472,18 +474,66 @@ established here may only hold locally in time.
 with $\bar\mu_t = \int x\,\mu_t(dx)$, $\kappa, \lambda, c_1, c_2 > 0$.
 \end{example}
 
-For this model, every constant in \Cref{thm:stability,thm:wellposedness} is explicit
-in terms of $\kappa, \lambda, c_1, c_2, \sigma, \sigma_0$. The value function is
-$V(t,x,\mu) = -\tfrac12 A_t x^2 - B_t x\bar\mu - \tfrac12 C_t\bar\mu^2 - D_t x -
-E_t\bar\mu - F_t$, with $(A_t,\ldots,F_t)$ solving a coupled Riccati system derived
-from the master equation for this model. With baseline parameters $\kappa=0.5$,
-$\lambda=1$, $c_1=2$, $c_2=5$, $\sigma=0.2$, $\sigma_0=0.3$, $T=1$, the Riccati system
-is well-posed on $[0,T]$ and yields an explicit contraction constant, verified
-numerically by two independent ODE solvers (LSODA and Radau). The full derivation of
-this Riccati system, including a re-derivation identifying and resolving two
-discrepancies against an earlier working version (a sign difference in the quadratic
-coefficient and missing mean-field coupling terms), is provided in a companion
-technical note.
+\begin{proposition}[Explicit value function]
+\label{prop:lq-value}
+For Example~\ref{ex:lq-mfg}, every constant in \Cref{thm:stability,thm:wellposedness}
+is explicit in terms of $\kappa,\lambda,c_1,c_2,\sigma,\sigma_0$. The value function
+takes the quadratic form
+\[
+    V(t,x,\mu) = -\tfrac12 A_t x^2 - B_t x\bar\mu - \tfrac12 C_t\bar\mu^2 - D_t x -
+    E_t\bar\mu - F_t,
+\]
+where $(A_t,\ldots,F_t)$ solve a coupled Riccati system derived from the master
+equation for this model (full derivation in the companion technical note referenced
+below).
+\end{proposition}
+
+\begin{corollary}[Well-posedness of the benchmark Riccati system]
+\label{cor:lq-riccati}
+With baseline parameters $\kappa=0.5$, $\lambda=1$, $c_1=2$, $c_2=5$, $\sigma=0.2$,
+$\sigma_0=0.3$, $T=1$, the Riccati system of \Cref{prop:lq-value} is well-posed on
+$[0,T]$ and yields an explicit, finite contraction constant $\rho < 1$ in
+\eqref{eq:contraction}.
+\end{corollary}
+
+\begin{remark}[Numerical verification]
+\label{rem:numerical-verification}
+\Cref{cor:lq-riccati} is verified by direct numerical integration of the two
+leading Riccati coefficients $(A_t, B_t)$ using two independent solvers -- LSODA
+and an implicit Runge--Kutta method (Radau IIA) -- implemented via
+\texttt{scipy.integrate.solve\_ivp} with relative and absolute tolerances
+$10^{-12}$ and $10^{-14}$. \Cref{tab:riccati-verification} reports both solutions
+at five points in $[0,T]$; the two methods agree to $10^{-12}$--$10^{-13}$, well
+within their requested tolerance, confirming the well-posedness claimed in
+\Cref{cor:lq-riccati} is not an artefact of a single numerical scheme.
+\end{remark}
+
+\begin{table}[ht]
+\centering
+\caption{Riccati coefficients $A_t, B_t$ for Example~\ref{ex:lq-mfg}, computed by
+two independent ODE solvers.}
+\label{tab:riccati-verification}
+\begin{tabular}{cccccc}
+\toprule
+$t$ & $A_t$ (LSODA) & $A_t$ (Radau) & $|A_t^{\mathrm{LSODA}}-A_t^{\mathrm{Radau}}|$
+    & $B_t$ (LSODA) & $|B_t^{\mathrm{LSODA}}-B_t^{\mathrm{Radau}}|$ \\
+\midrule
+0.00 & 1.087849 & 1.087849 & $1.5\times 10^{-12}$ & 0.194066 & $1.3\times 10^{-13}$ \\
+0.25 & 1.192264 & 1.192264 & $1.6\times 10^{-12}$ & 0.197386 & $2.0\times 10^{-13}$ \\
+0.50 & 1.438407 & 1.438407 & $1.5\times 10^{-12}$ & 0.198580 & $2.6\times 10^{-13}$ \\
+0.75 & 2.109160 & 2.109160 & $1.2\times 10^{-12}$ & 0.183953 & $2.6\times 10^{-13}$ \\
+1.00 & 5.000000 & 5.000000 & $0$ & 0.000000 & $0$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[Provenance of the Riccati system]
+\label{rem:lq-provenance}
+The full derivation of the Riccati system of \Cref{prop:lq-value}, including a
+re-derivation identifying and resolving two discrepancies against an earlier
+working version (a sign difference in the quadratic coefficient of $\dot A_t$ and
+missing mean-field coupling terms), is provided in a companion technical note.
+\end{remark}
 
 \section{Conclusion}
 
