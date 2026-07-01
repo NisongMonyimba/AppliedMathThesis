@@ -25,7 +25,7 @@ of this thesis.
 \section{Sparse Linear-Algebra Structures}
 \label{sec:sc-linalg}
 
-\subsection{Finite-Difference Discretisation of the Fokker--Planck SPDE}
+\subsection{Finite-Difference Discretisation of Fokker--Planck}
 
 Discretising the Fokker--Planck SPDE (Chapter 4) on a uniform spatial grid
 $x_j = j\Delta x$, $j = 0, \ldots, M$, yields at each time step a linear system
@@ -202,7 +202,8 @@ updates a subset of particles independently (given fixed $\bar\mu_t^N, v_t^N$).
 \begin{lstlisting}[language=C++, caption={OpenMP parallelisation of particle update.}]
 #pragma omp parallel for schedule(static)
 for (int i = 0; i < N; ++i) {
-    double drift = kappa * (mu_bar - X[i]) - (A * X[i] + B * mu_bar) / lambda;
+    double drift = kappa * (mu_bar - X[i])
+                   - (A * X[i] + B * mu_bar) / lambda;
     X[i] += drift * dt + sigma * dW_idio[i] + sigma0 * dW_common;
 }
 // Reduction: compute new mu_bar and variance

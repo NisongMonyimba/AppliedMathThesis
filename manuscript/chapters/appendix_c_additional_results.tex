@@ -99,7 +99,7 @@ statement for quick lookup.
 \begin{table}[ht]
 \centering
 \small
-\caption{Index of numbered results: Chapters 3--8 (main theoretical and applied contributions)}
+\caption{Index of numbered results: Chapters 3--7 (main theoretical contributions)}
 \label{tab:appC-theorem-index-ch3to8}
 \begin{tabular}{p{1.7cm}p{3.1cm}p{7.8cm}}
 \toprule
@@ -116,33 +116,25 @@ statement for quick lookup.
 4 & Theorem~\ref{thm:fd-convergence} & Finite-difference Fokker--Planck scheme
     converges at the same rate under a CFL condition. \\
 \addlinespace
-5 & \textbf{Theorem~\ref{thm:rl-subsequential}} (Subsequential RL Convergence) &
-    Three-timescale actor-critic converges $\liminf W_2 = 0$ a.s.\ under compact
-    Lipschitz function classes. \\
+5 & \textbf{Theorem~\ref{thm:poc}} (Conditional Propagation of Chaos) &
+    $\sup_t \mathbb{E}[W_2(\mu_t^N,\mu_t^*)^2 \mid W^0] \le C/N$, uniformly over
+    common-noise realisations, with $C$ independent of $N$. \\
 \addlinespace
-5 & \textbf{Theorem~\ref{thm:rl-exponential}} (Exponential Convergence) &
-    Entropy regularisation + log-Sobolev policy class $\Rightarrow$ exponential
-    $W_2$ convergence rate $\lambda = \beta/(2C_{\mathrm{Lip}})$. \\
-\addlinespace
-6 & \textbf{Proposition~\ref{prop:timescale-separation}} (Hierarchical
-    Architectural Principle) & SPDE operator decomposition justifies a
-    fast-critic/intermediate-actor/slow-meta-learner timescale separation. \\
-\addlinespace
-7 & Proposition~\ref{prop:sr-propagation-of-chaos} & $O(1/N)$ propagation of
-    chaos and $\varepsilon_N = O(N^{-1/2})$-Nash property for the systemic risk
-    model. \\
-\addlinespace
-8 & \textbf{Proposition~\ref{prop:alpha-signals}} (Four Alpha Signals) & Optimal
-    spread, mean-reversion speed, factor exposure, and crowding measure
-    $c_t = W_2(\mu_t,\mu_t^*)$ are explicit functions of the LQ-MFG equilibrium. \\
+5 & Theorem~\ref{thm:fournier-guillin} (Empirical Measure Rates) & Sharp
+    dimension-dependent Wasserstein convergence rates for empirical measures of
+    i.i.d.\ samples, underlying the proof of Theorem~5.1. \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Reading guide.} The three results in \textbf{bold} (Theorems 3.1, 4.1,
-5.1, 5.2, and Propositions 6.1, 8.1) form the central logical chain summarised in
-the conclusion of Chapter 10: well-posedness $\to$ numerical approximability
-$\to$ learnability $\to$ practical architecture $\to$ tradable signals.
+\paragraph{Reading guide.} The results in \textbf{bold} (Theorems 3.1, 4.1, and 5.1)
+form the central logical chain of the thesis: well-posedness of the equilibrium
+$\to$ convergent numerical approximation $\to$ convergent particle
+approximation. Chapter 6 (Scientific Computing) and Chapter 7 (Lean 4 Formal
+Verification) support this chain computationally and via partial formal
+verification respectively, but do not introduce additional numbered theorems of
+the same character; Chapter 8 (Future Directions) is prospective and contains no
+numbered results.
 
 
 \section{Expanded Notation Glossary}

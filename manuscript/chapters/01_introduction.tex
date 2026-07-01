@@ -108,6 +108,7 @@ Hamiltonian. The equilibrium $(X^*, \mu^*, \alpha^*, p, q, r)$ satisfies:
     \mu_t^* &= \mathcal{L}(X_t^* \mid \mathcal{F}_t^{W^0}).
         \label{eq:consistency-condition}
 \end{align}
+\label{eq:fbsde-system}
 The four equations \eqref{eq:forward-sde}--\eqref{eq:consistency-condition} form
 the FBSDE system studied in Chapter 3. The forward equation \eqref{eq:forward-sde}
 is driven by the common noise; the backward equation \eqref{eq:adjoint-bsde} is a
@@ -120,13 +121,13 @@ the distribution of the state.
 The master equation is the fundamental PDE governing the value function
 $U: [0,T] \times \mathbb{R}^d \times \mathcal{P}_2(\mathbb{R}^d) \to \mathbb{R}$
 of the mean-field game. It reads
-\begin{equation}
-    -\partial_t U = H^*(t,x,\mu, D_x U) + \bar{b}(t,\mu) \cdot D_\mu U
-    + \frac{\sigma^2 + \sigma_0^2}{2}\Delta_x U
-    + \sigma_0^2 \,\mathrm{tr}(D_x D_\mu U)
+\begin{align}
+    -\partial_t U &= H^*(t,x,\mu, D_x U) + \bar{b}(t,\mu) \cdot D_\mu U
+    + \frac{\sigma^2 + \sigma_0^2}{2}\Delta_x U \notag \\
+    &\quad + \sigma_0^2 \,\mathrm{tr}(D_x D_\mu U)
     + \frac{\sigma_0^2}{2} \int D_\mu^2 U(\tilde{x},\tilde{x})\, \mu(d\tilde{x}),
     \label{eq:master-equation}
-\end{equation}
+\end{align}
 with terminal condition $U(T,x,\mu) = g(x,\mu)$, where $D_\mu U$ denotes the
 Lions derivative of $U$ with respect to $\mu$, and $\bar{b}(t,\mu)$ is the
 aggregate drift of the equilibrium measure flow. The terms in
@@ -248,8 +249,8 @@ read against this scope.
     provide parameter-dependent contraction bounds suitable for algorithmic design.
 
     \item \textbf{Convergent numerical scheme with CFL analysis.} Chapter 4
-    develops and analyses a combined
-    Euler--Maruyama/particle/finite-difference scheme for the common-noise FBSDE
+    develops and analyses a combined Euler--Maruyama, particle, and
+    finite-difference scheme for the common-noise FBSDE
     system, with an explicit CFL condition that accounts for the common-noise
     diffusion. Prior numerical work in the MFG setting (e.g., Achdou--Capuzzo-Dolcetta
     \citep{achdoucapuzzo2010}) addresses the deterministic-measure case; to the best
@@ -442,5 +443,8 @@ conditional expectation given the full common-noise path.
 \end{itemize}
 
 \textbf{Assumption D1 (Dissipativity for chaos).}
-$\langle b(t,x,\mu,\alpha^*(t,x,\mu)) - b(t,x',\mu,\alpha^*(t,x',\mu)), x-x'\rangle
-\le -\kappa_1|x-x'|^2$ for some $\kappa_1 > 0$, uniformly in $t, \mu$.
+\[
+    \langle b(t,x,\mu,\alpha^*(t,x,\mu)) - b(t,x',\mu,\alpha^*(t,x',\mu)), x-x'\rangle
+    \le -\kappa_1|x-x'|^2
+\]
+for some $\kappa_1 > 0$, uniformly in $t, \mu$.

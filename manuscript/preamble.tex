@@ -35,6 +35,19 @@
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
+% Without these, \Cref (and \cref) render as "??" for any custom environment
+% not recognised by cleveref out of the box. This was found to be a live bug
+% in the companion standalone paper (papers/paper1_wellposedness) and is
+% fixed here at the source so it cannot recur in any chapter of the thesis.
+\crefname{theorem}{Theorem}{Theorems}
+\crefname{proposition}{Proposition}{Propositions}
+\crefname{lemma}{Lemma}{Lemmas}
+\crefname{corollary}{Corollary}{Corollaries}
+\crefname{definition}{Definition}{Definitions}
+\crefname{assumption}{Assumption}{Assumptions}
+\crefname{example}{Example}{Examples}
+\crefname{remark}{Remark}{Remarks}
+
 % --- Common macros ---
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\E}{\mathbb{E}}

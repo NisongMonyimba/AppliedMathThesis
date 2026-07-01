@@ -118,7 +118,7 @@ of order $\Delta t^{1/2}$ to the Wasserstein distance between laws.
 discrete adjoint process satisfies $|\mathbb{E}[\psi(p^n)] -
 \mathbb{E}[\psi(p_{t_n})]| \leq C\Delta t$ for smooth $\psi$. This propagates to
 the optimal control via the Lipschitz dependence $\alpha^* = p/\lambda$
-(\Cref{eq:alpha-optimal-control}), contributing a further $O(\Delta t)$ term, which
+(via $\alpha^* = p/\lambda$, the general LQ-MFG optimal-control formula), contributing a further $O(\Delta t)$ term, which
 after the same square-root argument as Step 1 contributes $O(\Delta t^{1/2})$ to
 the Wasserstein bound.
 
@@ -152,13 +152,19 @@ This section provides the detailed derivation of the Riccati equations for the
 canonical linear-quadratic MFG (Example~\ref{ex:lq-mfg}). The scalar case is derived
 in full here; the matrix generalisation for multi-dimensional state spaces follows
 by an identical argument with matrix-valued coefficients and is flagged in
-Chapter~7 as remaining future work.
+Chapter~8 as remaining future work.
 
 \subsection{Setup}
 
 We work with the scalar LQ-MFG (Example~\ref{ex:lq-mfg}). The matrix
 generalisation follows by an identical coefficient-matching argument with matrix
-products replacing scalar ones. Substituting the quadratic ansatz
+products replacing scalar ones. We seek a value function of the quadratic form
+\begin{equation}
+    u(t,x,\mu) = -\tfrac12 A_t x^2 - B_t x\bar\mu - \tfrac12 C_t \bar\mu^2 - D_t x -
+    E_t \bar\mu - F_t,
+    \label{eq:sr-value-ansatz}
+\end{equation}
+with $(A_t,\ldots,F_t)$ to be determined. Substituting this ansatz
 \eqref{eq:sr-value-ansatz} into the HJB equation
 \[
     \partial_t u + \frac{\sigma^2}{2}\partial_{xx} u + \frac{\sigma_0^2}{2}
@@ -173,9 +179,10 @@ $\mu$ at $y$ is
 \]
 Substituting into the integral term and using $\int y\, \mu(dy) = \bar\mu$ gives
 the contributions to the coefficients. The terms involving $D_t, E_t, F_t$ arise
-from the linear part of the Hamiltonian and the bailout policy $b_t$ (Chapter 7) or
-the baseline drift (Chapter 8, where $d_t = e_t = f_t = 0$ since Example~1.1 has no
-exogenous linear forcing term).
+from the linear part of the Hamiltonian and an exogenous forcing term $b_t$, when
+present, or vanish identically for the baseline Example~\ref{ex:lq-mfg} (where
+$D_t = E_t = F_t$'s forcing-dependent parts are all zero, since Example~\ref{ex:lq-mfg}
+has no exogenous linear forcing term).
 
 \subsection{Quadratic Terms}
 
@@ -202,8 +209,10 @@ the maximised-Hamiltonian-only matching, confirming internal consistency.
 exactly reproduce the maximised-Hamiltonian-only matching below, confirming
 internal consistency of the two-step derivation.
 
-The cost functional (Eq.~\ref{eq:sr-running-cost} and surrounding text) and
-adjoint BSDE (Eq.~\ref{eq:sr-adjoint-bsde}) give the Hamiltonian
+The cost functional $f(t,x,\mu,\alpha) = \tfrac{c_1}{2}x^2 + \tfrac{\lambda}{2}\alpha^2$
+of Example~\ref{ex:lq-mfg} (with an optional exogenous linear forcing term $b_t$ in
+the drift, included here for generality) and the corresponding adjoint BSDE give
+the Hamiltonian
 \[
     H(t,x,\mu,p,\alpha) = p\big[\kappa(\bar\mu-x)+\alpha+b_t\big] -
     \frac{c_1}{2}x^2 - \frac{\lambda}{2}\alpha^2,
@@ -229,11 +238,9 @@ independently verified by formulating the bank's problem as a textbook
 two-state ($x,\bar\mu$) linear-quadratic regulator and solving the resulting
 matrix Riccati equation directly, which reproduces this same $A_t$ with no
 free sign choices. A welcome consequence: under this corrected equation, the
-numerical illustration of Section~\ref{sec:sr-numerical} no longer exhibits
-the finite-time blow-up reported in an earlier revision, and the originally
-intended parameter $c_2=5.0$ may be restored without modification (see the
-updated Table~\ref{tab:sr-baseline-parameters} and discussion in
-Section~\ref{sec:sr-numerical}).
+numerical illustration of the LQ benchmark (Chapter 4) no longer exhibits
+the finite-time blow-up reported in an earlier working version, and the originally
+intended parameter $c_2=5.0$ may be restored without modification.
 
 The full master equation for $V(t,x,\mu)=-\tfrac12A_tx^2-B_tx\bar\mu-\tfrac12C_t\bar\mu^2
 -D_tx-E_t\bar\mu-F_t$ also requires the Lions-derivative coupling term,
@@ -275,12 +282,12 @@ $\bar\mu^2$:
     \dot{C}_t = -2\kappa B_t + \frac{2A_tC_t}{\lambda} + \frac{B_t^2}{\lambda} +
     \frac{2B_tC_t}{\lambda}, \qquad C_T = 0.
 \]
-These replace \eqref{eq:sr-riccati-quadratic} (and, with $Q,P$ in place of
+These replace the quadratic-coefficient equations of an earlier working
+version (with $Q,P$ in place of
 the scalar $c_1/2,c_2/2$ and matrix products throughout, the analogous
-system in Chapter~8's \eqref{eq:alpha-riccati-system} should be re-derived
+matrix-valued system for multi-dimensional state spaces should be re-derived
 under the same correction; this is flagged as remaining work in
-Chapter~10, \S10.4, since the matrix case was not re-derived in this
-revision).
+Chapter~8, as noted in \Cref{sec:appA-riccati} above).
 
 \subsection{Linear Terms}
 
@@ -309,37 +316,45 @@ $\bar{b}\cdot\partial_{\bar\mu}V$ pieces:
 \]
 The full system $(A_t,B_t,C_t,D_t,E_t,F_t)$ was verified to make the PDE
 residual vanish identically under direct symbolic substitution, and was
-integrated numerically (Section~\ref{sec:sr-numerical}) with no blow-up
+integrated numerically (see the numerical verification below in this section) with no blow-up
 across the full original parameter range, including the originally intended
-$c_2=5.0$. As in the previous revision, when $b_t\equiv0$ (Chapter~8's
-alpha-generation model has no exogenous bailout term), $D_t=E_t\equiv0$, but
-$C_t$ and $F_t$ no longer vanish in general -- the simplification used in
-Chapter~8 should therefore be re-checked against this corrected system as
-part of the matrix-case re-derivation noted above.
+$c_2=5.0$. As in the earlier working version, when $b_t\equiv0$ (no exogenous
+forcing term), $D_t=E_t\equiv0$, but
+$C_t$ and $F_t$ no longer vanish in general -- this should be
+re-checked against the matrix-case re-derivation noted above when that
+generalisation is carried out.
 
 \subsection{Proof that $v_t$ is Independent of $b_t$}
 
-From the variance dynamics \eqref{eq:sr-variance-dynamics}, the variance $v_t$
-satisfies a linear ODE whose coefficients depend only on $A_t, \kappa, \lambda,
-\sigma$, and $\sigma_0$. None of these depend on the bailout policy $b_t$.
-Therefore, the government's choice of $b_t$ affects the mean $\bar\mu_t$ but not
-the variance $v_t$. This justifies the separation in the government's objective
-used to derive \eqref{eq:sr-optimal-bailout}.
+For a two-agent (representative-agent-and-population) extension of
+Example~\ref{ex:lq-mfg} with an exogenous linear forcing term $b_t$ in the drift,
+the variance $v_t$ of the population state satisfies a linear ODE whose
+coefficients depend only on $A_t, \kappa, \lambda, \sigma$, and $\sigma_0$. None of
+these depend on $b_t$. Consequently, any policy governing $b_t$ affects the
+population mean $\bar\mu_t$ but not the variance $v_t$; this separation is used
+whenever an outer optimisation over $b_t$ is layered on top of the base LQ-MFG
+system, and is stated here for completeness.
 
-\subsection{Government's Riccati Equation (Chapter 7)}
+\begin{remark}[Scope note: content originally developed for a systemic-risk
+application]
+An earlier version of this appendix additionally derived a "government's Riccati
+equation" for a bank-versus-regulator Stackelberg extension of
+Example~\ref{ex:lq-mfg}, motivated by a systemic-risk application that is not part
+of the current thesis chapters (it is preserved in the accompanying repository as
+archived material, outside the compiled document, for anyone extending this work
+in that direction). That derivation is omitted here since it has no corresponding
+application chapter in the present document; the underlying scalar and matrix
+Riccati derivation above is unaffected and applies directly to
+Example~\ref{ex:lq-mfg} as used throughout Chapters 1--8.
+\end{remark}
 
-The government's value function takes the form $V(t,\bar\mu) = -\frac{1}{2}\Pi_t
-\bar\mu^2 - \delta_t$. Substituting into the HJB equation for the government's
-control problem (with dynamics \eqref{eq:sr-mean-dynamics} and cost
-\eqref{eq:sr-gov-objective}) and matching coefficients of $\bar\mu^2$ yields
-\eqref{eq:sr-gov-riccati}.
+\subsection{An Explicit Bound for the Propagation-of-Chaos Constant}
 
-\subsection{Explicit Bound for the Propagation of Chaos Constant (Chapter 7)}
-
-The bound for $C$ in Proposition~\ref{prop:sr-propagation-of-chaos} follows from
-the synchronous coupling estimate of Chapter 3. Specifically, let
-$\Delta X_t^i = X_t^{i,N} - X_t^{i,*}$ be the difference between the $N$-bank
-state and the limiting McKean--Vlasov state under the same noises. Then, by the
+This subsection derives the explicit constant $C$ appearing in the propagation of
+chaos estimate of Chapter 5 (Theorem 5.1 there), specialised to the
+linear-quadratic case of Example~\ref{ex:lq-mfg}. Let
+$\Delta X_t^i = X_t^{i,N} - X_t^{i,*}$ be the difference between the $N$-particle
+state and the limiting McKean--Vlasov state under the same noises. By the
 same It\^o-expansion argument as in \Cref{sec:appA-contraction},
 \[
     \mathbb{E}\big[|\Delta X_t^i|^2\big] \leq \int_0^t e^{2L_b(t-s)} L_b\,
@@ -353,4 +368,6 @@ Gronwall's inequality, with the explicit constant
     \sup_t (A_t+B_t)^2 \right) e^{2L_b T},
 \]
 where $\kappa_{\min} = \inf_t(\kappa + A_t/\lambda) > 0$ and $L_b = \kappa +
-\sup_t(A_t + |B_t|)/\lambda$, as stated in Chapter 7.
+\sup_t(A_t + |B_t|)/\lambda$. This gives, for the baseline parameters of
+Example~\ref{ex:lq-mfg}, a fully computable constant governing the rate in
+Chapter 5's propagation-of-chaos theorem for this benchmark model.

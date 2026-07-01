@@ -155,7 +155,7 @@ Under Assumptions A1--A5 and D1 with $2\kappa_1 > L$, the constant $C$ in
 For the idealised i.i.d.\ particle system $(\tilde X^i)$, the Fournier--Guillin
 theorem \citep{fournierguillin2015} gives:
 \begin{theorem}[Empirical measure rates]
-\label{thm:fournier-guillin}
+\label{thm:fournier-guillin-rates}
 Let $\mu \in \mathcal{P}_p(\mathbb{R}^d)$ for $p > 2$ and let $\tilde\mu^N =
 \frac{1}{N}\sum_{i=1}^N \delta_{\tilde X^i}$ be the empirical measure of i.i.d.
 samples $\tilde X^i \sim \mu$. Then:
@@ -178,7 +178,7 @@ In one dimension ($d = 1$), the Wasserstein-2 distance has an exact representati
 via quantile functions:
 \begin{equation}
     W_2(\mu, \nu)^2 = \int_0^1 \big(F_\mu^{-1}(u) - F_\nu^{-1}(u)\big)^2\, du,
-    \label{eq:1d-wasserstein}
+    \label{eq:1d-wasserstein-particle}
 \end{equation}
 where $F_\mu^{-1}$ is the quantile function of $\mu$. For the particle system, this
 gives an $O(N \log N)$ algorithm for computing $W_2(\mu_t^N, \mu_t^*)$ by sorting
@@ -218,7 +218,7 @@ from the comparison, leaving only the discretisation error. CRN is used througho
 Chapter 4 and in the convergence benchmark of
 \texttt{simulations/euler\_milstein/run\_convergence\_simulation.py}.
 
-\section{Parallel Implementation and Computational Complexity}
+\section{Parallel Implementation and Complexity}
 
 \subsection{Naive Particle Algorithm}
 
@@ -237,7 +237,7 @@ When the interaction is through a Wasserstein distance (e.g., in the
 crowding signal of the equilibrium), the Sinkhorn algorithm \citep{cuturi2013}
 approximates $W_2(\mu^N, \nu)$ in $O(N^2 / \varepsilon^d)$ time for regularisation
 $\varepsilon > 0$, with approximation error $O(\varepsilon)$. For the LQ benchmark
-($d=1$), the exact quantile formula \eqref{eq:1d-wasserstein} is used at $O(N\log N)$.
+($d=1$), the exact quantile formula \eqref{eq:1d-wasserstein-particle} is used at $O(N\log N)$.
 
 \subsection{Mean-Field Factorisation}
 
