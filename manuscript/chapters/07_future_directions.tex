@@ -1,0 +1,155 @@
+% chapters/07_future_directions.tex
+
+\section{Overview}
+
+This chapter discusses natural extensions of the framework developed in
+Chapters 3--6. The extensions are grouped by mathematical character:
+analytic extensions of the model (Section~\ref{sec:fut-analytic}),
+numerical and computational extensions (Section~\ref{sec:fut-numerical}),
+and formal-verification extensions (Section~\ref{sec:fut-lean}).
+
+\section{Analytic Extensions}
+\label{sec:fut-analytic}
+
+\subsection{Jump-Diffusion Common Noise}
+
+The current framework assumes continuous common noise modelled by a Brownian motion
+$W^0$. A natural extension is to allow \emph{jump-diffusion common noise}:
+\[
+    dX_t = b(t, X_t, \mu_t, \alpha_t)\, dt + \sigma\, dW_t + \sigma_0\, dW_t^0
+    + \int_{\mathbb{R}} \gamma(t, X_{t-}, \mu_{t-}, z)\, (\eta - \bar\eta)(dt, dz),
+\]
+where $\eta$ is a Poisson random measure with compensator $\bar\eta$. This models
+sudden common shocks (e.g., macroeconomic announcements, regime changes, natural
+disasters) affecting all agents simultaneously. The FBSDE characterisation
+acquires a jump component in the adjoint equation, and the master equation gains
+an integral term involving finite differences of $U$ in the measure argument.
+Existence and uniqueness for this class was studied for the deterministic-$\mu$
+case in \citep{carmona2013probabilistic}; the common-noise analogue remains open.
+arXiv:2401.10952 (Bayraktar and Cohen, 2024) initiates this study in finite
+state spaces; the continuous-state extension is a priority for future work.
+
+\subsection{Mean-Field Control (Social Optimum)}
+
+The current thesis studies \emph{mean-field games} (competitive equilibrium), where
+each agent minimises its own cost. The complementary problem is \emph{mean-field
+control} (social optimum), where a central planner minimises the aggregate cost
+$\frac{1}{N}\sum_i J^i$. The social optimum satisfies a different FBSDE system in
+which the interaction term carries an additional derivative with respect to the
+measure. The gap between the competitive equilibrium and the social optimum --- the
+\emph{price of anarchy} --- is an important quantity in multi-agent systems.
+Quantifying this gap in the common-noise setting via a Wasserstein distance is
+an open problem.
+
+\subsection{Full Convergence via Lata\l{}a--Oleszkiewicz}
+
+Theorem~\ref{thm:intro-wellposedness} establishes \emph{subsequential} convergence
+of the iterates of the fixed-point map $\Phi$. Full convergence (not just along a
+subsequence) follows from uniqueness of the equilibrium and the contraction theorem,
+which are already established. However, the convergence of the reinforcement
+learning actor-critic algorithm of earlier work is only subsequential, because
+the limit-point theorem for stochastic approximation gives $\liminf W_2 = 0$
+rather than $\lim W_2 = 0$. The Lata\l{}a--Oleszkiewicz inequality
+\[
+    W_2(\mu, \mu^*)^2 \le C \cdot \mathrm{Ent}(\mu \| \mu^*)
+    \quad (\text{log-Sobolev class})
+\]
+combined with an entropy descent argument could convert the subsequential limit
+to a full limit, at the cost of restricting to log-Sobolev policy classes. This
+route remains open.
+
+\subsection{McKean--Vlasov Games with Asymmetric Information}
+
+All agents in the current model observe the same common noise $W^0$. Extending to
+\emph{asymmetric information} --- where agent $i$ observes a private signal
+$Y_t^i = h(X_t^i, W^0_t) + \varepsilon_t^i$ in addition to a common signal ---
+leads to a filtering problem for each agent. The equilibrium measure $\mu_t$ then
+becomes the conditional distribution given the agent's information set, and the
+master equation acquires a Zakai-type SPDE term. This extension connects the MFG
+framework to nonlinear filtering theory.
+
+\section{Numerical and Computational Extensions}
+\label{sec:fut-numerical}
+
+\subsection{Deep Galerkin Methods}
+
+The finite-difference scheme of Chapter 4 faces a \emph{curse of dimensionality}
+for $d \ge 2$: the complexity scales exponentially with $d$. Deep Galerkin methods
+(DGM, \citep{sirignano2018}) parametrise the value function $U(t,x,\mu)$ as a
+neural network and minimise the residual of the master equation
+\eqref{eq:master-equation}. The challenge is representing the measure argument
+$\mu$ as an input; moment embeddings (using $(\bar\mu, v, \ldots)$) or the
+Sinkhorn attention mechanism can serve as finite-dimensional surrogates. Error
+analysis for DGM in the MFG setting is an active research area.
+
+\subsection{Physics-Informed Neural Networks for the Fokker--Planck SPDE}
+
+The Fokker--Planck SPDE
+\[
+    d\rho_t = -\nabla_x \cdot (\rho_t b_t)\, dt + \frac{\sigma^2}{2}\Delta_x \rho_t\, dt
+    + \sigma_0 \nabla_x \cdot (\rho_t \circ dW_t^0)
+\]
+is a stochastic PDE in $(d+1)$ dimensions. Physics-informed neural networks
+(PINNs) can enforce the PDE residual in the loss function. For the common-noise
+case, the stochastic term requires an It\^{o}--Stratonovich correction; implementing
+this in an automatic-differentiation framework (JAX, PyTorch) is straightforward
+but has not been systematically studied.
+
+\subsection{High-Dimensional Common-Noise MFGs}
+
+The particle method of Chapter 5 achieves $O(N^{-2/d})$ rate for $d \ge 5$,
+degrading rapidly with dimension. Three approaches are known to mitigate this:
+(a) \emph{structured state spaces} where the interaction is through low-dimensional
+statistics (e.g., first two moments); (b) \emph{normalising flows} that map the
+measure to a parametric family; (c) \emph{diffusion models} (score-based
+generative models) that directly approximate $\mu_t^*$ from samples. None of these
+has a rigorous convergence theory in the common-noise MFG setting.
+
+\subsection{Matrix Riccati Re-derivation for Chapter 8's Multi-Dimensional LQ-MFG}
+
+The corrected Appendix A derivation covers the scalar LQ-MFG (Chapter 7 of the
+original thesis). Chapter 8's alpha-generation model uses a matrix-valued Riccati
+system, where the same sign corrections likely apply but have not been independently
+re-derived. Providing a verified matrix re-derivation analogous to Appendix A ---
+including a symbolic PDE-residual check and numerical solver cross-validation ---
+is the primary technical debt left by the revision process and is identified as the
+first priority for future work.
+
+\section{Formal Verification Extensions}
+\label{sec:fut-lean}
+
+\subsection{Full FBSDE Well-Posedness in Lean 4}
+
+The current Lean 4 proofs (Chapter 6) cover the key analytic lemmas but not the
+full FBSDE well-posedness theorem. A complete formalisation would require:
+\begin{enumerate}
+    \item Measure-valued SDEs in Lean / Mathlib (not yet available as of Mathlib
+    4.14; relevant PRs are in progress);
+    \item The Banach fixed-point theorem applied to the function space
+    $\mathcal{C}([0,T]; \mathcal{P}_2(\mathbb{R}^d))$ (available via
+    \texttt{Mathlib.Topology.MetricSpace.Contracting});
+    \item Measurability of the conditional measure flow $t \mapsto \mu_t$ with
+    respect to $\mathcal{F}_t^{W^0}$ (requires stochastic analysis infrastructure
+    in Lean not yet in Mathlib).
+\end{enumerate}
+
+\subsection{Verified Numerical Scheme}
+
+A longer-term goal is a Lean 4 / Coq proof of the convergence theorem
+(Theorem~\ref{thm:intro-numerical}) for the Euler--Maruyama scheme. This requires
+a verified floating-point arithmetic model and interval arithmetic to bound
+rounding errors. The Lean 4 formalisation of Euler's method for ODEs in
+\texttt{Mathlib.Analysis.ODE.Picard} provides a starting point, but
+extension to stochastic integrals and Wasserstein distances requires substantial
+new infrastructure.
+
+\section{Conclusion}
+
+The framework developed in this thesis --- quantitative well-posedness
+(Chapter 3), convergent numerical schemes (Chapter 4), propagation-of-chaos
+analysis (Chapter 5), and partial formal verification (Chapter 6) --- provides
+a rigorous foundation for the mathematical study of interacting particle systems
+under common noise. The extensions described in this chapter map out a research
+agenda that spans stochastic analysis, computational mathematics, and formal
+methods: exactly the intersection where the most interesting open problems
+currently lie.

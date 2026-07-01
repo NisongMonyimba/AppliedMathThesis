@@ -1,87 +1,70 @@
+% abstract.tex -- reframed for Applied Mathematics PhD submission
 \begin{abstract}
-\noindent
-This thesis develops a mathematically rigorous and computationally implementable
-framework for mean-field games with common noise, integrating three research streams
---- SPDE theory, multi-timescale reinforcement learning, and quantitative finance ---
-into a single coherent pipeline. The central claim is that market inefficiency can be
-productively understood as distributional disequilibrium under shared shocks: a
-measurable distance in probability space between the observed distribution of
-institutional investor positions and the game-theoretic equilibrium.
 
-The work provides six principal contributions.
+This thesis develops a mathematically rigorous and computationally implementable
+framework for mean-field games with common noise. The central object of study is the
+\emph{stochastic mean-field equilibrium}: the Nash equilibrium of a large population
+of interacting agents subject to both idiosyncratic and common sources of randomness,
+characterised through a system of forward-backward stochastic differential equations
+(FBSDEs) coupled with a stochastic Fokker--Planck equation. The Wasserstein distance
+$W_2(\mu_t, \mu^*)$ between the evolving empirical measure and the equilibrium measure
+serves throughout as the primary metric for quantifying convergence and stability.
+
+The thesis establishes five principal contributions:
 
 \begin{enumerate}
-    \item \textbf{Quantitative well-posedness} (Theorem 3.1). Under standard
-    regularity assumptions, the mean-field game with common noise admits a unique
-    equilibrium, and the fixed-point map is a contraction in a weighted Wasserstein-2
-    metric. The stability constant is explicit in the model parameters
-    ($C = 2L_b^2 + 2\|\sigma_0\|_F^2 + C_{\mathrm{reg}}$), directly informing numerical
-    step-size selection and reinforcement-learning rate design. The contraction is
-    established in expectation under synchronous coupling of the common noise.
+    \item \textbf{Quantitative well-posedness} (Chapter 3, Theorem 3.1).
+    Under standard regularity assumptions on the Hamiltonian and coefficients, the
+    FBSDE characterisation of the common-noise MFG equilibrium admits a unique
+    solution, with an explicit parameter-dependent contraction constant $\rho < 1$
+    in a weighted Wasserstein metric. The contraction bound is sharp enough to
+    serve as a computable design criterion for numerical algorithms.
 
-    \item \textbf{Numerical convergence} (Theorem 4.1). A combined Euler--Maruyama /
-    particle / SPDE discretisation converges with weak error
-    $O(\Delta t^{1/2} + \Delta x)$, and a CFL condition coupling parabolic, stochastic
-    transport, and explicit feedback constraints is derived and validated on the
-    linear-quadratic benchmark.
+    \item \textbf{Numerical convergence} (Chapter 4, Theorem 4.1).
+    A combined Euler--Maruyama/particle/SPDE scheme for the coupled FBSDE--Fokker--Planck
+    system converges with weak Wasserstein error $O(\Delta t^{1/2} + \Delta x + M^{-1/2})$,
+    where $\Delta t$ is the time step, $\Delta x$ the spatial mesh, and $M$ the
+    particle count. The scheme satisfies a CFL-type stability condition that couples
+    the temporal and spatial resolutions. Convergence is verified numerically against
+    the closed-form linear-quadratic solution, with a corrected Riccati system
+    (see below) used as the benchmark.
 
-    \item \textbf{Three-timescale reinforcement-learning convergence} (Theorem 5.1).
-    A multi-timescale actor-critic algorithm converges almost surely along
-    subsequences (in the sense $\liminf W_2 = 0$) to the equilibrium measure flow,
-    in continuous state-action spaces under compact Lipschitz function
-    approximators. An exponential
-    convergence rate under entropy regularisation and a log-Sobolev inequality is also
-    established (Theorem 5.2).
+    \item \textbf{Particle methods and propagation of chaos} (Chapter 5).
+    An interacting particle system of $N$ agents approximates the McKean--Vlasov
+    dynamics with strong error $O(N^{-1/2})$ (Fournier--Guillin rate), uniformly
+    in time under dissipation conditions. Variance-reduction techniques reduce this
+    to $O(N^{-1})$ for smooth test functions. The particle scheme parallelises
+    naturally; complexity and GPU implementation strategies are analysed.
 
-    \item \textbf{SPDE-grounded hierarchical architecture} (Proposition 6.1). The
-    master-equation decomposition into idiosyncratic, mean-field, and common-noise
-    operators canonically motivates a three-tier architecture (SAC-PPO-TD3), which
-    significantly outperforms monolithic baselines in sample efficiency and stability,
-    with a control experiment isolating the SPDE-guided timescale contribution.
+    \item \textbf{Corrected linear-quadratic master equation} (Appendix A).
+    The canonical LQ-MFG master equation is re-derived from first principles,
+    identifying and correcting sign errors in the $A_t$ Riccati coefficient and
+    missing Lions-derivative coupling terms in the $B_t$--$F_t$ equations that
+    appeared in prior derivations. The corrected system is verified by three
+    independent methods: symbolic PDE-residual substitution, two independent
+    numerical ODE solvers (LSODA and Radau), and structural consistency with the
+    two-state LQR matrix Riccati equation.
 
-    \item \textbf{Alpha signals from the equilibrium} (Proposition 8.1). Four trading
-    signals are derived from the linear-quadratic MFG equilibrium. Three are adaptations
-    of prior work (optimal spread, mean-reversion speed, factor exposure); the novel
-    contribution is a crowding measure $c_t = W_2(\mu_t, \mu_t^*)$ that quantifies
-    distributional disequilibrium. Methods for estimating the unobservable equilibrium
-    measure (GMM, Kalman filtering, reduced-form proxies) are provided, and a
-    mean-variance portfolio construction with a crowding discount is developed.
-
-    \item \textbf{Empirical validation methodology, demonstrated on synthetic
-    S\&P 500-style data (2000--2024)} (Chapter 9). A strategy based on the four signals,
-    using a methodology specified for point-in-time 13F holdings and CFTC COT
-    data, achieves an out-of-sample Sharpe ratio of 1.91 (net of 5--10bps transaction
-    costs) on a synthetic panel constructed with a known embedded predictive signal,
-    with a maximum drawdown of $-18.3\%$ and positive skewness (0.32). Statistical
-    significance is $p = 0.002$ (block bootstrap, 10{,}000 samples). Performance is robust
-    to alternative cost assumptions, calibration windows, discount functions, and
-    sub-periods, and incremental over both a na\"ive 13F mean-reversion benchmark
-    (Sharpe 0.72) and a 13F residual momentum benchmark (Sharpe 0.89), all evaluated on
-    the same synthetic panel. The crowding measure
-    $c_t$ is strongly monotonic in subsequent alpha: the top quintile yields average
-    monthly returns of 2.8\% versus 0.9\% in the bottom quintile. \textbf{These figures
-    demonstrate that the methodology behaves as intended on data with known structure;
-    they are not evidence of profitability on real markets}, since the licensed data
-    sources (CRSP, Compustat, SEC 13F, CFTC COT) were not available in the environment
-    where this thesis was produced. Deployment on real market data is identified as
-    future work.
+    \item \textbf{Lean 4 formal verification} (Chapter 6).
+    Key mathematical properties are formalised in Lean 4 targeting Mathlib, including
+    Gronwall's inequality, optimality of the linear feedback control in the LQ-MFG,
+    the contraction factor in weighted Wasserstein metric, and the closed-form
+    Wasserstein-2 distance between Gaussian measures. The proofs follow standard
+    Mathlib idioms; compilation against a live Mathlib installation is handled by
+    the repository's continuous-integration workflow.
 \end{enumerate}
 
-Selected core estimates --- the Gronwall inequality, the Riccati system derivation, the
-CFL condition, and the optimality of the linear feedback control --- have been formally
-verified in the Lean 4 interactive theorem prover; the code is publicly available. The
-thesis concludes with a candid discussion of limitations (regularity assumptions,
-subsequential convergence, model-risk dominance in the empirical Sharpe ratio) and a map
-of six open problems, including jump-diffusion extensions, online RL with streaming data,
-and full formal verification of the pipeline.
+The honest limitations of the present work are documented throughout. The
+subsequential (rather than full) nature of the actor-critic convergence theory,
+the restriction to the LQ special case for explicit numerical illustration,
+and the gap in the matrix Riccati re-derivation for the general multi-dimensional
+model are each flagged where they appear. The Lean 4 proofs are reviewed for
+mathematical correctness but should be rebuilt via \texttt{lake build} before
+being relied on as machine-verified, as Mathlib's API evolves.
 
-All theoretical results hold under the standing assumptions collected in Section 1.9;
-these are strong and their practical implications are discussed throughout. The reported
-Sharpe ratio is conditional on the LQ model specification and estimation procedures;
-model risk dominates statistical risk.
+The work establishes a foundation for several natural extensions: jump-diffusion
+common noise, mean-field control (social optimum), deep Galerkin and physics-informed
+neural network solvers, and the Lata\l{}a--Oleszkiewicz inequality as a route from
+subsequential to full convergence. These are discussed in Chapter 7.
 
-\vspace{1em}
-\noindent\textbf{Keywords:} Mean-field games, common noise, Wasserstein distance,
-contraction, multi-timescale reinforcement learning, actor-critic, hierarchical
-architecture, alpha generation, crowding measure.
 \end{abstract}

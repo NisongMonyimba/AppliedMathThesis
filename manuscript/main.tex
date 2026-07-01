@@ -1,63 +1,34 @@
 \documentclass[12pt]{report}
-
 \input{preamble}
-
 \title{Quantitative Convergence Analysis of Stochastic Maximum Principles \\
        for Mean-Field Games with Common Noise}
 \author{Nisong Monyimba}
 \date{\today}
-
 \begin{document}
-
 \maketitle
-
 \input{abstract}
-
 \tableofcontents
 \listoffigures
 \listoftables
-
 \chapter{Introduction}
 \input{chapters/01_introduction}
-
 \chapter{Mathematical Preliminaries}
 \input{chapters/02_mathematical_preliminaries}
-
 \chapter{Quantitative Well-Posedness of the Common-Noise MFG}
 \input{chapters/03_quantitative_wellposedness}
-
-\chapter{Numerical Analysis of the Common-Noise MFG System}
+\chapter{Numerical Approximation of the Common-Noise MFG System}
 \input{chapters/04_numerical_analysis}
-
-\chapter{Reinforcement Learning Convergence for Common-Noise MFGs}
-\input{chapters/05_rl_convergence}
-
-\chapter{Hierarchical Reinforcement Learning Architecture for Common-Noise MFGs}
-\input{chapters/06_hierarchical_rl_architecture}
-
-\chapter{Case Study: Systemic Risk and Optimal Bailouts in a Common-Noise MFG}
-\input{chapters/07_systemic_risk_bailouts}
-
-\chapter{Alpha Generation from the Mean-Field Game Equilibrium}
-\input{chapters/08_alpha_generation}
-
-\chapter{Empirical Validation: S\&P 500 Constituents, 2000--2024}
-\input{chapters/09_empirical_validation_sp500}
-
-\chapter{Synthesis and Outlook}
-\input{chapters/10_synthesis_outlook}
-
+\chapter{Particle Methods for Common-Noise Mean-Field Games}
+\input{chapters/05_particle_methods}
+\chapter{Formal Verification in Lean 4}
+\input{chapters/06_formal_verification}
+\chapter{Future Directions}
+\input{chapters/07_future_directions}
 \appendix
 \chapter{Proofs}
 \input{chapters/appendix_a_proofs}
-
-\chapter{Formal Verification in Lean 4}
-\input{chapters/appendix_b_lean4_verification}
-
 \chapter{Additional Results}
 \input{chapters/appendix_c_additional_results}
-
 \bibliographystyle{plainnat}
 \bibliography{references}
-
 \end{document}

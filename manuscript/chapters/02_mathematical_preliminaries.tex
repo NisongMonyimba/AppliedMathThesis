@@ -35,7 +35,7 @@ The chapter covers six interlocking topics:
 
 A summary table at the end of the chapter (\Cref{sec:mp-summary}) maps each tool to its
 first use in the thesis, serving as a quick reference. For readers seeking a deeper
-treatment, we recommend \citep{villani2009} for optimal transport, \citep{carmonadelarue2018},
+treatment, we recommend Villani (2009) for optimal transport, Carmona--Delarue (2018,
 Vol.\ I, Chapters 1--2) for Wasserstein analysis in the MFG context, and
 Karatzas--Shreve (1991) for stochastic calculus.
 
@@ -80,7 +80,7 @@ $\nu$ is
 \end{definition}
 
 The infimum in \eqref{eq:wasserstein-def} is attained: there exists an optimal coupling
-$\pi^* \in \Pi(\mu,\nu)$ achieving the infimum (\citep{villani2009}, Theorem 5.10). The
+$\pi^* \in \Pi(\mu,\nu)$ achieving the infimum (Villani, 2009, Theorem 5.10). The
 optimal $\pi^*$ is supported on the subdifferential of a convex function, the Brenier
 potential.
 
@@ -103,13 +103,14 @@ The proof proceeds in three steps: (i) Kantorovich duality reduces the problem t
 finding a pair of conjugate convex functions $(\varphi, \varphi^*)$; (ii) the
 optimality condition $y \in \partial\varphi(x)$ for $\pi^*$-a.e.\ $(x,y)$ implies the
 transport is a gradient map; (iii) uniqueness follows from strict convexity of the cost
-$c(x,y) = |x-y|^2$. See \citep{villani2009}, Ch.\ 9) for the complete argument.
+$c(x,y) = |x-y|^2$. See Villani (2009, Ch.\ 9) for the complete argument.
 \end{proof}
 
 \begin{remark}[Discrete measures and regularisation]
 Brenier's Theorem requires absolute continuity of the source measure $\mu$. In
-financial applications (Chapter 9), the empirical market measure $\mu_t$ is a sum of
-Dirac masses, and the equilibrium measure $\mu_t^*$ is estimated from discrete data.
+particle-method applications (Chapter 5), the empirical measure $\mu_t^N$ is a sum of
+Dirac masses, and the equilibrium measure $\mu_t^*$ is approximated from discrete
+particle positions.
 The optimal transport between discrete measures is not uniquely given by a gradient of
 a convex function in the classical sense. The Sinkhorn algorithm
 (\Cref{sec:mp-sinkhorn}) bridges this gap: by adding an entropic penalty, the discrete
@@ -156,7 +157,7 @@ Sinkhorn fixed-point equations:
     \label{eq:sinkhorn-fixed-point}
 \end{equation}
 where $a_i = \mu(\{x_i\})$, $b_j = \nu(\{y_j\})$. This converges in $O(N^2/\epsilon^2)$
-operations (\citep{cuturi2013}. In Chapter 4, this regularised distance will be used to
+operations (Cuturi, 2013). In Chapter 4, this regularised distance will be used to
 compute Wasserstein gradients efficiently.
 
 \subsection{Metric Space Structure}
@@ -176,7 +177,7 @@ The Wasserstein-2 distance satisfies:
 
 \begin{proof}[Proof of (iii) via gluing lemma]
 Given $\mu, \nu, \rho$, let $\pi_{12} \in \Pi(\mu,\nu)$ and $\pi_{23} \in \Pi(\nu,\rho)$
-be any couplings. By the gluing lemma (\citep{villani2009}, Lemma 7.6), there exists
+be any couplings. By the gluing lemma (Villani, 2009, Lemma 7.6), there exists
 $\pi_{123} \in \mathcal{P}(\mathbb{R}^d \times \mathbb{R}^d \times \mathbb{R}^d)$ with
 marginals $(\pi_{12}, \pi_{23})$, i.e., the joint distribution of $(X,Y,Z)$ where
 $(X,Y) \sim \pi_{12}$, $(Y,Z) \sim \pi_{23}$. The marginal
@@ -244,12 +245,12 @@ $T = \nabla\varphi$ from $\mu$ to $\nu$,
 \end{equation}
 In other words, the directional derivative of $F$ along a geodesic with initial
 velocity $v = T - \mathrm{id}$ is given by the $L^2(\mu)$ inner product of
-$D_\mu F(\mu)$ and $v$. For a comprehensive treatment, see \citep{carmonadelarue2018},
+$D_\mu F(\mu)$ and $v$. For a comprehensive treatment, see Carmona and Delarue (2018,
 Vol.\ I, Chapter 5).
 
 \subsection{Law of Large Numbers in Wasserstein Distance}
 
-\begin{theorem}[LLN Rate in $W_2$, \citep{fournierguillin2015}]
+\begin{theorem}[LLN Rate in $W_2$, Fournier--Guillin, 2015]
 \label{thm:fournier-guillin}
 Let $\mu \in \mathcal{P}_2(\mathbb{R}^d)$ and $X_1, X_2, \dots$ be i.i.d.\ with law
 $\mu$. Define $\mu^N = \frac{1}{N}\sum_{i=1}^N \delta_{X_i}$.
@@ -261,7 +262,7 @@ $\mu$. Define $\mu^N = \frac{1}{N}\sum_{i=1}^N \delta_{X_i}$.
         \mathbb{E}[W_2(\mu^N,\mu)] \leq C_\mu \cdot N^{-1/2}.
     \]
     For $d \geq 3$: $\mathbb{E}[W_2(\mu^N,\mu)] \leq C_{\mu,d} \cdot N^{-1/d}$, under
-    appropriate moment conditions. (See \citep{fournierguillin2015}, Theorem 1 and
+    appropriate moment conditions. (See Fournier and Guillin, 2015, Theorem 1 and
     Corollary 2.)
 \end{enumerate}
 \end{theorem}
@@ -279,10 +280,10 @@ convergence theorem gives $W_2(\mu^N,\mu)^2 \to 0$ a.s.
 
 \begin{remark}[Curse of dimensionality and mean-field mitigation]
 The rate $N^{-1/d}$ for $d \geq 3$ highlights the curse of dimensionality in
-Wasserstein space: for a portfolio of $d=50$ assets, the empirical measure converges
+Wasserstein space: for a $d=50$ dimensional state space, the empirical measure converges
 exceedingly slowly. \textbf{In practice, the mean-field assumption --- coupled with the
 specific convex structure of the rewards and the contraction property established in
-Theorem 3.1 --- allows the RL architecture (Chapters 5--6) to circumvent this
+Theorem~\ref{thm:wellposedness} --- allows particle approximation (Chapter 5) to circumvent this
 theoretical bottleneck.} The Wasserstein distance is used primarily as an analytical
 tool for stability, not as the primary object of high-dimensional statistical
 estimation.
@@ -307,8 +308,8 @@ $\lambda_k > 0$, $\sum_k \lambda_k = 1$, the Wasserstein barycentre is
 \end{definition}
 
 The barycentre exists and is unique when at least one $\mu_k$ is absolutely continuous
-(\citep{aguehcarlier2011}. It is computed by the free-support Sinkhorn barycentre
-algorithm (\citep{cuturidoucet2014}. \textit{Note: this concept is included for
+(Agueh--Carlier, 2011). It is computed by the free-support Sinkhorn barycentre
+algorithm (Cuturi--Doucet, 2014). \textit{Note: this concept is included for
 completeness but is not directly used in the subsequent chapters.}
 
 
@@ -405,8 +406,8 @@ $\sum_k \mathbb{E}[H_{t_k}^2] \Delta t_k$ by independence. The general case foll
 approximation.
 \end{proof}
 
-\begin{remark}[Significance for Theorem 3.1]
-The It\^o isometry is used in the proof of Theorem 3.1: after deriving the Wasserstein
+\begin{remark}[Significance for Theorem~\ref{thm:wellposedness}]
+The It\^o isometry is used in the proof of Theorem~\ref{thm:wellposedness}: after deriving the Wasserstein
 distance ODE $d W_2^2 \leq C W_2^2\, dt + dM_t$, we take expectations and use
 $\mathbb{E}[M_t] = 0$ (since $M_t = \int_0^t Z_s\, dW_s^0$ is a martingale by It\^o
 isometry, as $\mathbb{E}[\int Z_s^2\, ds] < \infty$). This eliminates the stochastic
@@ -592,7 +593,8 @@ Kushner--Zakai equation of nonlinear filtering, which involves a stochastic
 normalisation factor arising from observations. The homogeneous common-noise exposure
 (constant $\sigma_0$) is sufficient but not necessary for this linearity; the key
 property is that the coefficients do not depend on the measure in a way that would
-introduce nonlinear feedback into the normalisation. See Chapter 4 of \citep{carmonadelarue2018} for a detailed discussion.
+introduce nonlinear feedback into the normalisation. See Chapter 4 of Carmona and
+Delarue (2018) for a detailed discussion.
 \end{remark}
 
 \subsection{Sobolev Regularity}
@@ -685,7 +687,7 @@ For a non-negative submartingale $(M_t)$:
 \end{theorem}
 
 \begin{remark}
-This is used in Theorem 3.1: to bound the expected supremum
+This is used in Theorem~\ref{thm:wellposedness}: to bound the expected supremum
 \[
     \mathbb{E}\big[\sup_t W_2^2(\mu_t^1,\mu_t^2)\big] \leq 4\,\mathbb{E}\big[W_2^2(\mu_T^1,\mu_T^2)\big],
 \]
@@ -747,7 +749,7 @@ the process $\widetilde{W}_t = W_t - \int_0^t \theta_s\, ds$ is a Brownian motio
 \begin{remark}[Use in the thesis]
 Girsanov's theorem is a standard tool for change of measure in stochastic analysis. In
 the MFG setting, it may be applied to remove drift terms under certain monotonicity
-assumptions, but the primary analysis in Theorem 3.1 uses synchronous coupling rather
+assumptions, but the primary analysis in Theorem~\ref{thm:wellposedness} uses synchronous coupling rather
 than Girsanov.
 \end{remark}
 
@@ -815,7 +817,7 @@ equilibrium measure) is dissipative:
 \]
 (assuming boundary terms vanish). By Lumer--Phillips, $\mathcal{L}^*$ generates
 a contraction semigroup, and the spectral gap $\lambda_1 > 0$ (the smallest positive
-eigenvalue) gives the exponential decay rate in Theorem 5.2.
+eigenvalue) gives the exponential decay rate in Theorem~\ref{thm:rl-exponential}.
 \end{remark}
 
 \subsection{Spectral Gap and Log-Sobolev Inequality}
@@ -851,15 +853,17 @@ $\mu = f^2 \mu^*$, expand $H$ to second order). The Poincar\'e inequality is equ
 to $\lambda_1 \geq 1/C_{\mathrm{Lip}}$.
 \end{proof}
 
-\begin{remark}[Log-Sobolev in financial applications]
+\begin{remark}[Log-Sobolev in interacting particle systems]
 The log-Sobolev inequality is a strong structural assumption; it typically requires the
 equilibrium measure $\mu^*$ to satisfy Bakry--\'Emery criteria (e.g., strictly
-log-concave density). \textbf{In financial markets, position distributions often
-exhibit heavy tails (power laws), which violate the LSI and satisfy only the weaker
-Poincar\'e inequality.} The LSI is used in Theorem 5.2 to establish an exponential
-convergence rate as a theoretical upper bound; in practice, one expects algebraic rates
-governed by the spectral gap. This limitation is acknowledged in the caveats of
-Theorem 5.2. Recent work on Lata\l a--Oleszkiewicz inequalities and non-convex
+log-concave density). \textbf{In interacting particle systems, the equilibrium measure
+may exhibit heavy tails or multimodality when the potential is non-convex, which
+violates the LSI and requires only the weaker Poincar\'e inequality.} The LSI is used
+in the convergence-rate analysis of stochastic approximation algorithms to establish
+exponential convergence as a theoretical upper bound; in practice, one expects algebraic
+rates governed by the spectral gap. This limitation is discussed further in the future
+directions (Chapter~7).
+Theorem~\ref{thm:rl-exponential}. Recent work on Lata\l a--Oleszkiewicz inequalities and non-convex
 isoperimetry (see Chapter 10) offers potential pathways to relax this assumption.
 \end{remark}
 
@@ -980,7 +984,7 @@ Here $D_\mu u(t,x,\mu)(\widetilde{x})$ denotes the Lions derivative of $u$ with 
 to the measure argument, evaluated at the independent copy $\widetilde{X}_t$. This
 derivative is defined via the ``lifting'' of functionals on $\mathcal{P}_2(\mathbb{R}^d)$
 to functionals on the Hilbert space $L^2(\Omega; \mathbb{R}^d)$; see
-\citet[Vol.\ I, Chapter 5]{carmonadelarue2018} for a comprehensive treatment. The HJB
+Carmona--Delarue (2018, Vol.\ I, Chapter 5) for a comprehensive treatment. The HJB
 equation
 \[
     -\partial_t u = H^*(t,x,\mu,D_x u) + \bar{b}(t,\mu)\cdot D_\mu u
@@ -1031,7 +1035,7 @@ $\mathcal{P}_2(\mathbb{R}^d)$ & Probability measures with finite 2nd moment & Ch
     (state space for $\mu^*$) \\
 \addlinespace
 Wasserstein distance & $W_2(\mu,\nu) = (\inf_\pi \int |x-y|^2 \pi)^{1/2}$ & Ch.\ 3
-    (Theorem 3.1 LHS) \\
+    (Theorem~\ref{thm:wellposedness} LHS) \\
 \addlinespace
 Brenier's Theorem & Optimal transport map $T = \nabla\varphi$ & Ch.\ 3 (coupling in
     Lemma 3.2) \\

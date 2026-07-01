@@ -1,8 +1,8 @@
 % chapters/appendix_a_proofs.tex
 
 This appendix collects the detailed derivations referenced throughout the main
-text: the algebraic manipulations underlying the Gronwall closure in Theorem~3.1
-(Chapter 3), the discretisation error lemma used in Theorem~4.1 (Chapter 4), and
+text: the algebraic manipulations underlying the Gronwall closure in Theorem~\ref{thm:wellposedness}
+(Chapter 3), the discretisation error lemma used in Theorem~\ref{thm:numerical-convergence} (Chapter 4), and
 the Riccati system derivations underlying the closed-form solutions of Chapters 7
 and 8.
 
@@ -84,8 +84,7 @@ $2\|\sigma_0\|_F^2$ terms. This is precisely \eqref{eq:gronwall-differential}.
 \label{sec:appA-discretisation}
 
 This section proves the discretisation error bound used in the proof of
-Theorem~\ref{thm:numerical-convergence} (Lemma~C.9 in the original
-chapter-internal numbering).
+Theorem~\ref{thm:numerical-convergence}.
 
 \begin{lemma}[Discretisation error of the fixed-point map]
 \label{lem:appA-discretisation-error}
@@ -129,7 +128,7 @@ of the measure flow satisfies
 $\sup_n \mathbb{E}[\|\rho^n - \rho_{t_n}\|_{L^2}^2]^{1/2} \leq C(\Delta t^{1/2} +
 \Delta x)$. Since the $L^2$ density norm controls the Wasserstein-2 distance for
 measures with bounded density ratios (a consequence of the
-Cauchy--Schwarz/transport-cost duality; see \citep{villani2009}, Remark 6.6), this
+Cauchy--Schwarz/transport-cost duality; see Villani, 2009, Remark 6.6), this
 contributes the dominant $O(\Delta t^{1/2} + \Delta x)$ term.
 
 Summing the three contributions (each bounded uniformly over $\mu$ by the
@@ -146,20 +145,20 @@ bounded sets of measure flows.
 \end{proof}
 
 
-\section{Derivation of the Riccati Systems (Chapters 7 and 8)}
+\section{Derivation of the Corrected LQ-MFG Riccati System}
 \label{sec:appA-riccati}
 
-This section provides the detailed derivation of the Riccati equations
-\eqref{eq:sr-riccati-quadratic}--\eqref{eq:sr-riccati-linear} (Chapter 7) and
-\eqref{eq:alpha-riccati-system} (Chapter 8), which share the same derivation
-structure since both arise from the linear-quadratic MFG ansatz.
+This section provides the detailed derivation of the Riccati equations for the
+canonical linear-quadratic MFG (Example~\ref{ex:lq-mfg}). The scalar case is derived
+in full here; the matrix generalisation for multi-dimensional state spaces follows
+by an identical argument with matrix-valued coefficients and is flagged in
+Chapter~7 as remaining future work.
 
 \subsection{Setup}
 
-We work with the scalar version (Chapter 7's systemic risk model; the matrix
-version of Chapter 8 follows by an identical argument with matrix-valued
-coefficients and the same coefficient-matching strategy, replacing scalar products
-by the appropriate matrix products). Substituting the quadratic ansatz
+We work with the scalar LQ-MFG (Example~\ref{ex:lq-mfg}). The matrix
+generalisation follows by an identical coefficient-matching argument with matrix
+products replacing scalar ones. Substituting the quadratic ansatz
 \eqref{eq:sr-value-ansatz} into the HJB equation
 \[
     \partial_t u + \frac{\sigma^2}{2}\partial_{xx} u + \frac{\sigma_0^2}{2}
