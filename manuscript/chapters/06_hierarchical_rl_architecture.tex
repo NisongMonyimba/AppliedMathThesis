@@ -113,15 +113,20 @@ but more rapidly than the common-noise regime.
 
 \paragraph{Operator 3: Common-Noise Drift (Stochastic Transport $\mathcal{L}_{\mathrm{common}}$).}
 The common noise induces a stochastic transport term in the Fokker--Planck equation,
-which in turn affects the master equation through the It\^o correction. The operator
-is
+which in turn affects the master equation through the It\^o correction arising from
+the quadratic variation of the stochastic measure flow $\mu_t$ itself. \textbf{The
+precise form of this correction term is technically delicate (it involves a
+second-order Lions derivative coupled with the common-noise covariance) and is given
+rigorously in \citep{cardaliaguetetal2019}; we do not reproduce the exact expression
+here, since an imprecise restatement risks introducing an error that the rigor of the
+rest of this thesis aims to avoid.} For the purposes of motivating the hierarchical
+RL architecture below, what matters is the qualitative structure: this operator
 \begin{equation}
-    \mathcal{L}_{\mathrm{common}} U(t,\mu) = \frac{1}{2} \|\sigma_0\|_F^2
-    \int_{\mathbb{R}^d} \int_{\mathbb{R}^d} \nabla_x \frac{\delta^2 U}{\delta\mu^2}
-    (\mu)(x,y) \cdot (\sigma_0 \sigma_0^\top) \nabla_y \frac{\delta U}{\delta\mu}
-    (\mu)(y)\, \mu(dx)\mu(dy).
+    \mathcal{L}_{\mathrm{common}} U(t,\mu) \;=\; O\big(\|\sigma_0\|_F^2\big)
     \label{eq:operator-common}
 \end{equation}
+is a second-order functional of $U$ in the measure argument, scaling with
+$\|\sigma_0\|_F^2$.
 This operator captures the second-order effect of common shocks on the value
 function. Because common shocks are infrequent (e.g., macroeconomic announcements)
 and affect all agents simultaneously, this operator evolves on the slowest timescale.
@@ -134,7 +139,11 @@ derivative:
     \partial_t U + \mathcal{L}_{\mathrm{idio}} U + \mathcal{L}_{\mathrm{mf}} U +
     \mathcal{L}_{\mathrm{common}} U = 0.
 \]
-The timescale separation among $\mathcal{L}_{\mathrm{idio}}, \mathcal{L}_{\mathrm{mf}}$,
+\textbf{This decomposition is presented as a qualitative organisational device
+motivating the timescale separation used for the hierarchical RL architecture below,
+not as a fully rigorous re-derivation of the common-noise master equation; the latter
+is available in \citep{cardaliaguetetal2019}.} The timescale separation among
+$\mathcal{L}_{\mathrm{idio}}, \mathcal{L}_{\mathrm{mf}}$,
 and $\mathcal{L}_{\mathrm{common}}$ is the mathematical foundation for the hierarchical
 RL architecture. \Cref{tab:operator-decomposition} summarises the operators and their
 associated timescales.
@@ -157,9 +166,9 @@ $\mathcal{L}_{\mathrm{idio}}$ & $\frac{\sigma^2}{2}\int \Delta_x
 $\mathcal{L}_{\mathrm{mf}}$ & $\int D_\mu H^* \cdot \frac{\delta U}{\delta\mu}\,
     \mu(dx)$ & Mean-field interaction & Intermediate & PPO (Actor) \\
 \addlinespace
-$\mathcal{L}_{\mathrm{common}}$ & $\frac{1}{2}\|\sigma_0\|_F^2 \int\int \nabla_x
-    \frac{\delta^2 U}{\delta\mu^2} \cdot (\sigma_0\sigma_0^\top) \nabla_y
-    \frac{\delta U}{\delta\mu}\, \mu\otimes\mu$ & Common-noise transport & Slow &
+$\mathcal{L}_{\mathrm{common}}$ & $O(\|\sigma_0\|_F^2)$, second-order in
+    $\delta U/\delta\mu$; see \citep{cardaliaguetetal2019} for the exact form &
+    Common-noise transport & Slow &
     TD3 (Meta-Learner) \\
 \bottomrule
 \end{tabular}

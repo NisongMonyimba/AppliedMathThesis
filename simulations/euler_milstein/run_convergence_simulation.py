@@ -96,7 +96,7 @@ def solve_riccati(params: LQMFGParams, n_grid: int = 4096) -> tuple[FloatArray, 
 
     def rhs(tau: float, y: FloatArray) -> FloatArray:
         A, B = y
-        dA_dtau = -(2 * kappa * A - A**2 / lam + 2 * Q)
+        dA_dtau = -(2 * kappa * A + A**2 / lam - 2 * Q)  # CORRECTED: signs of A**2 and Q terms
         dB_dtau = -(kappa * B + (A * B) / lam - kappa * A)  # CORRECTED sign
         return np.array([dA_dtau, dB_dtau])
 
