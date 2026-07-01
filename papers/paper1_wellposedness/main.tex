@@ -21,6 +21,18 @@
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
+% Without these, \Cref (and \cref) render as "??" for any environment not
+% recognised by cleveref out of the box -- this caused a visible "??" bug in
+% an earlier draft of this paper (multi-reference to Assumptions via \Cref).
+\crefname{theorem}{Theorem}{Theorems}
+\crefname{proposition}{Proposition}{Propositions}
+\crefname{lemma}{Lemma}{Lemmas}
+\crefname{corollary}{Corollary}{Corollaries}
+\crefname{definition}{Definition}{Definitions}
+\crefname{assumption}{Assumption}{Assumptions}
+\crefname{example}{Example}{Examples}
+\crefname{remark}{Remark}{Remarks}
+
 \DeclareMathOperator*{\argmax}{arg\,max}
 
 \title{Quantitative Well-Posedness of Mean-Field Games\\ with Common Noise}
@@ -185,10 +197,10 @@ There exists $L_b > 0$ such that for all $t, x, x', \mu, \mu', \alpha, \alpha'$,
 $f$ and $g$ are Lipschitz continuous in all arguments, with constants $L_f, L_g > 0$.
 \end{assumption}
 
-\begin{assumption}[Regularity and Lions differentiability]
+\begin{assumption}[Regularity]
 \label{ass:regularity}
-$b, f, g$ are $C^1$ in $x$ and Lions-differentiable in $\mu$ (in the sense of
-\citealp[Ch.~5]{carmonadelarue2018}), with bounded, Lipschitz Lions derivatives.
+$b, f, g$ are $C^1$ in $x$ and Lions-differentiable in $\mu$, in the sense of
+\citet[Ch.~5]{carmonadelarue2018}, with bounded, Lipschitz Lions derivatives.
 \end{assumption}
 
 \begin{assumption}[Bounded volatility]
@@ -207,6 +219,30 @@ is uniformly $\lambda_H$-concave for some $\lambda_H > 0$.
 \label{ass:initial}
 $\mu_{\mathrm{init}} \in \mathcal{P}_2(\mathbb{R}^d)$ has finite fourth moment.
 \end{assumption}
+
+\begin{assumption}[Smallness condition]
+\label{ass:smallness}
+The control-sensitivity constant $C_\alpha$ of \eqref{eq:control-lipschitz} and the
+BSDE-stability constant $C_{\mathrm{BSDE}}$ of \eqref{eq:bsde-estimate} -- both
+determined by \Cref{ass:lipschitz-drift,ass:concavity,ass:regularity} -- satisfy
+$3\,C_{\mathrm{BSDE}}\,C_\alpha^2 < 1$.
+\end{assumption}
+
+\begin{remark}[On \Cref{ass:smallness}]
+\label{rem:smallness-early}
+This condition is used only in \Cref{app:algebra} to close the Gronwall argument
+underlying \Cref{thm:stability}; it is stated here, ahead of its use, so that the
+full list of hypotheses required for the main theorem is visible in one place. It
+is a genuine restriction on the model (not merely a proof artefact): it bounds how
+sensitive the optimal control and adjoint process may be to perturbations in the
+state and measure, relative to each other. It is always satisfiable by working on a
+sufficiently short horizon or under a sufficiently strong concavity constant
+$\lambda_H$, and is verified explicitly for the linear-quadratic benchmark of
+\Cref{sec:example}. \citet{jacksontangpi2024} show that a structurally similar
+restriction can be replaced by a displacement-monotonicity condition in a related
+(though distinct) setting; adapting that route to relax
+\Cref{ass:smallness} here is identified as future work in \Cref{sec:intro}.
+\end{remark}
 
 Under \Cref{ass:lipschitz-drift,ass:lipschitz-rewards,ass:regularity,ass:concavity},
 the Stochastic Maximum Principle characterises the optimal control for a \emph{fixed}
@@ -299,8 +335,16 @@ differentiability in \Cref{ass:regularity} together with
 
 Differencing the adjoint BSDEs gives a linear BSDE for $\Delta p_t := p_t^1 - p_t^2$
 with a mean-field coupling term controlled, via \Cref{ass:regularity}, by a constant
-$L_\mu$ bounding the relevant Lions-derivative operator norm. Standard BSDE estimates
-\citep{elkarouietal1997,zhang2017} yield
+$L_\mu$ bounding the relevant Lions-derivative operator norm. This is a linear BSDE
+with bounded coefficients (by \Cref{ass:regularity,ass:volatility}) and a
+square-integrable driver; the a priori estimate for such equations -- energy
+estimate via It\^o's formula on $|\Delta p_t|^2$, the Burkholder--Davis--Gundy
+inequality to control the stochastic integral term, and Gronwall's inequality
+applied to the resulting differential inequality -- is standard and stated
+explicitly, e.g., as \citet[Thm.~4.3.1]{zhang2017} or in the original form of
+\citet{elkarouietal1997}; we invoke it directly rather than reproducing the (purely
+mechanical) derivation, and cite the precise theorem number so the estimate can be
+checked independently. It yields
 \begin{align}
     \mathbb{E}\bigg[\sup_{t\in[0,T]} |\Delta p_t|^2 + \int_0^T \big(|\Delta q_t|^2 +
     |\Delta r_t|^2\big)\, dt\bigg] \notag \\
@@ -334,7 +378,7 @@ derivatives and BSDE bounds. By Gronwall's inequality and
 
 \begin{theorem}[Wasserstein Stability]
 \label{thm:stability}
-Under Assumptions~\ref{ass:lipschitz-drift}--\ref{ass:initial}, for all
+Under Assumptions~\ref{ass:lipschitz-drift}--\ref{ass:smallness}, for all
 $\mu^1, \mu^2 \in \mathcal{M}$ and $t \in [0,T]$,
 \begin{equation}
     \mathbb{E}\big[W_2(\Phi(\mu^1)_t, \Phi(\mu^2)_t)^2\big] \le C_2 \int_0^t
@@ -356,7 +400,7 @@ contraction below is stated in a weighted expectation norm rather than almost su
 
 \begin{theorem}[Quantitative Well-Posedness]
 \label{thm:wellposedness}
-Under Assumptions~\ref{ass:lipschitz-drift}--\ref{ass:initial}, for any
+Under Assumptions~\ref{ass:lipschitz-drift}--\ref{ass:smallness}, for any
 $\lambda > \tfrac{C_1}{2} + \tfrac{C_2}{2}$, the map $\Phi$ is a strict contraction on
 the complete metric space $(\mathcal{M}, \|\cdot\|_{\lambda,T})$:
 \begin{equation}
@@ -446,13 +490,48 @@ technical note.
 We have established a quantitative, parameter-dependent contraction estimate for the
 fixed-point map characterising equilibria of common-noise mean-field games, extending
 the qualitative well-posedness theory of \citet{carmonadelarue2018} and
-\citet{ahujarenyang2019} with an explicit rate suitable for algorithmic use. Natural
-directions for future work include extending the explicit-constant analysis beyond
-the linear-quadratic case, quantifying the regularisation error for discrete
-(particle-based) approximations, and using the contraction rate derived here as a
-design criterion for convergent numerical schemes -- a direction pursued in a
-companion paper on numerical approximation of the coupled FBSDE--Fokker--Planck
-system.
+\citet{ahujarenyang2019} with an explicit rate suitable for algorithmic use.
+
+\paragraph{Why an explicit constant matters.} A qualitative existence-uniqueness
+result guarantees that \emph{some} fixed-point iteration for $\Phi$ eventually
+converges, but says nothing about how many iterations are needed, how the step size
+of a numerical scheme should be chosen, or how sensitive the equilibrium is to
+perturbations of the model parameters. The explicit constant $\rho$ derived here
+answers these questions directly: it gives a concrete convergence rate for a
+fixed-point iteration $\mu^{(k+1)} = \Phi(\mu^{(k)})$, a stopping criterion for
+numerical solvers, and a quantitative sensitivity bound with respect to
+$L_b, \|\sigma_0\|_F$, and the regularity constants -- exactly the kind of
+information required to design and validate the numerical schemes of a companion
+paper on the coupled FBSDE--Fokker--Planck system.
+
+\paragraph{What this enables computationally.} The contraction bound
+\eqref{eq:contraction} justifies a simple fixed-point (Picard) iteration as a
+provably convergent algorithm for computing the mean-field equilibrium numerically,
+with the number of iterations needed for a target tolerance $\varepsilon$
+bounded explicitly by $\lceil \log(\varepsilon/\|\mu^{(0)}-\mu^*\|_{\lambda,T}) /
+\log\rho\rceil$. This is used as a design criterion in the companion numerical
+paper referenced below.
+
+\paragraph{Limitations.} The present analysis has three main limitations, each
+discussed at the point where it arises: the contraction constant depends on
+regularity constants $C_{\mathrm{reg}}$ that are not fully explicit outside the
+linear-quadratic case (\Cref{sec:discussion}); closing the Gronwall argument
+rigorously requires the smallness condition \eqref{eq:smallness-condition}, whose
+relaxation via displacement monotonicity (following the strategy of
+\citealp{jacksontangpi2024}) we identify as a concrete direction for future work
+(\Cref{sec:intro}); and the stability estimate requires absolute continuity and
+bounded densities, which particle-based discretisations violate and which would
+need to be addressed via regularisation with a quantified error
+(\Cref{sec:discussion}).
+
+\paragraph{What the next paper proves.} A companion paper develops a combined
+Euler--Maruyama / particle / finite-difference scheme for the coupled
+FBSDE--Fokker--Planck system characterising the same equilibrium studied here, and
+establishes a weak Wasserstein convergence rate under an explicit CFL-type
+stability condition. The contraction constant $\rho$ derived in the present paper
+is used there as the theoretical basis for the outer fixed-point loop of that
+numerical scheme, directly connecting the qualitative and quantitative results of
+the two papers.
 
 \bibliographystyle{plainnat}
 \begin{thebibliography}{99}
@@ -608,20 +687,16 @@ sub-interval), and substituting the same bound on $|\alpha^1_s-\alpha^2_s|^2$:
     \label{eq:app-p-bound}
 \end{align}
 
-\paragraph{Step 3: a smallness condition closes the estimate.} The term
+\paragraph{Step 3: \Cref{ass:smallness} closes the estimate.} The term
 $3C_{\mathrm{BSDE}}C_\alpha^2 \int_0^t \mathbb{E}[|\Delta p_s|^2]\,ds$ on the
 right-hand side of \eqref{eq:app-p-bound} involves the same quantity bounded on
-the left. We assume, as part of the standing regularity hypotheses
-(\Cref{ass:regularity}), that the model parameters satisfy
+the left. This is precisely where \Cref{ass:smallness}, stated in
+\Cref{sec:setup} ahead of its use,
 \begin{equation}
-    3\,C_{\mathrm{BSDE}}\,C_\alpha^2 < 1;
+    3\,C_{\mathrm{BSDE}}\,C_\alpha^2 < 1,
     \label{eq:smallness-condition}
 \end{equation}
-this is a mild restriction on the size of $C_\alpha$ (control sensitivity) relative
-to $C_{\mathrm{BSDE}}$ (adjoint-process sensitivity), both of which are themselves
-determined by the Lipschitz and concavity constants of the model, and can always be
-arranged by working on a sufficiently short time interval or under a sufficiently
-strong concavity constant $\lambda_H$ in \Cref{ass:concavity}. Under
+is invoked: it allows the self-referential term to be absorbed. Under
 \eqref{eq:smallness-condition}, a standard integral form of Gronwall's lemma applied
 to \eqref{eq:app-p-bound} (treating $\mathbb{E}[\sup_{s\le t}|\Delta p_s|^2]$ as the
 unknown and absorbing the self-referential term via
@@ -658,14 +733,11 @@ $\|\sigma_0\|_F^2$-dependence that enters through $C_{\mathrm{BSDE}}$ (and hence
 through $\widetilde{C}_{\mathrm{BSDE}}$) via the martingale representation for
 $r_t$ in the adjoint BSDE, as discussed in \Cref{sec:discussion}.
 
-\begin{remark}[On the smallness condition \eqref{eq:smallness-condition}]
-This condition does not appear explicitly in the informal derivation sketched in
-the main text; making it explicit here is, in the authors' view, necessary for a
-fully rigorous closure of the Gronwall argument, and we flag it as such rather than
-leaving it implicit. It is a standing structural assumption on the model (via
-$C_\alpha, C_{\mathrm{BSDE}}$), not an additional constraint imposed after the fact;
-in the linear-quadratic case of \Cref{sec:example} it can be checked directly from
-the explicit Riccati coefficients.
+\begin{remark}[Verifying \Cref{ass:smallness} in practice]
+As noted in \Cref{rem:smallness-early}, this is a standing structural assumption
+on the model, checkable directly once $C_\alpha, C_{\mathrm{BSDE}}$ are computed
+from the model primitives; in the linear-quadratic case of \Cref{sec:example} it
+can be verified directly from the explicit Riccati coefficients.
 \end{remark}
 
 \section{Proof of the Contraction Bound}
