@@ -12,3 +12,8 @@ manuscript/*.synctex.gz
 manuscript/*.fls
 manuscript/*.fdb_latexmk
 *.out
+*.egg-info/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
