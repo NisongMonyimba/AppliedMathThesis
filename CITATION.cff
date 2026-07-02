@@ -1,0 +1,53 @@
+cff-version: 1.2.0
+message: "If you use this software or cite this work, please use the following metadata."
+type: software
+title: "AppliedMathThesis: Numerical Analysis of Common-Noise Mean-Field Games"
+abstract: >
+  Research software accompanying an MSc thesis and two companion preprints
+  on the numerical analysis of mean-field games with common noise:
+  particle methods, SDE solvers, Wasserstein geometry algorithms, and
+  finite-difference schemes for the associated Fokker-Planck equation.
+authors:
+  - family-names: Monyimba
+    given-names: Nisong
+    email: nmonyimb@asu.edu
+    affiliation: Arizona State University
+repository-code: "https://github.com/NisongMonyimba/AppliedMathThesis"
+license: MIT
+date-released: 2026-07-02
+keywords:
+  - mean-field games
+  - common noise
+  - stochastic differential equations
+  - numerical analysis
+  - propagation of chaos
+  - optimal transport
+  - Wasserstein distance
+  - scientific computing
+  - Lean 4
+  - formal verification
+preferred-citation:
+  type: thesis
+  title: "Quantitative Convergence Analysis of Stochastic Maximum Principles for Mean-Field Games with Common Noise"
+  authors:
+    - family-names: Monyimba
+      given-names: Nisong
+  thesis-type: "MSc thesis"
+  institution:
+    name: "Missouri University of Science and Technology"
+  year: 2026
+references:
+  - type: article
+    title: "Quantitative Contraction Estimates for Common-Noise Mean-Field Games"
+    authors:
+      - family-names: Monyimba
+        given-names: Nisong
+    year: 2026
+    notes: "Preprint, papers/paper1_wellposedness/"
+  - type: article
+    title: "Numerical Approximation of Common-Noise Mean-Field Games via Particle Methods and Finite Differences"
+    authors:
+      - family-names: Monyimba
+        given-names: Nisong
+    year: 2026
+    notes: "Preprint, papers/paper2_numerics/"

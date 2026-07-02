@@ -11,3 +11,4 @@ manuscript/*.blg
 manuscript/*.synctex.gz
 manuscript/*.fls
 manuscript/*.fdb_latexmk
+*.out
