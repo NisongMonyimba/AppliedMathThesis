@@ -48,7 +48,6 @@ class TestDifferentialGronwall:
         (numerically integrated) solution pointwise.
         """
         C1, C2, y0 = 0.6, 1.0, 0.2
-        rng = np.random.default_rng(0)
 
         def true_forcing(t: float) -> float:
             # bounded above by C2, sometimes strictly less
