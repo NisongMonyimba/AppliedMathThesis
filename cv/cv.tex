@@ -8,18 +8,12 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \hypersetup{pdfborder={0 0 0}}
-\usepackage{tikz}
-\usetikzlibrary{shadows}
 \usepackage{helvet}
 
-% Clickable-link "badge": underlined text in a subtle bordered box with a
-% light background and a soft drop shadow, so links are visually obvious
-% as clickable even when printed or viewed without hover affordances.
+% Clickable link: plain underlined text, same color/font as surrounding
+% text, so it reads as clickable without introducing color or boxes.
 \newcommand{\linkbadge}[2]{%
-  \tikz[baseline=(X.base)]{\node[draw=blue!50!black, thin, fill=blue!8,
-        rounded corners=1.5pt, inner xsep=3pt, inner ysep=1.5pt,
-        drop shadow={shadow xshift=0.6pt, shadow yshift=-0.6pt, opacity=0.5}]
-        (X) {\href{#1}{\textcolor{blue!55!black}{\underline{#2}}}};}%
+  \href{#1}{\underline{#2}}%
 }
 
 \renewcommand{\familydefault}{\sfdefault}
@@ -77,7 +71,7 @@ program in mean-field games with common noise (see Research Statement and supple
   \linkbadge{https://github.com/NisongMonyimba/AppliedMathThesis/tree/main/papers/paper1_wellposedness}{Source}
 \end{itemize}
 
-{\footnotesize \cventry{Numerical Approximation of Common-Noise Mean-Field Games via Particle Methods and Finite Differences}{2026}}
+\cventry{Numerical Approximation of Common-Noise Mean-Field Games via Particle Methods and Finite Differences}{2026}
 \begin{itemize}
   \item Combined Euler--Maruyama, particle-method, and finite-difference scheme for the coupled system
   characterising common-noise mean-field game equilibria; every reported convergence rate is the direct,
