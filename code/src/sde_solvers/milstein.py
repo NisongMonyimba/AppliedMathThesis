@@ -105,7 +105,7 @@ class MilsteinSDE:
             milstein_correction = 0.5 * sigma * sigma_x * (dW**2 - dt)
             paths[:, k + 1, :] = x_k + b * dt + sigma * dW + milstein_correction
 
-        return t_grid, paths
+        return t_grid, paths 
 
     def reset_rng(self, seed: Optional[int] = None) -> None:
         """Reset the internal RNG, e.g. to reproduce a specific Brownian path."""
@@ -198,7 +198,7 @@ class MeanFieldMilstein:
 
             paths[:, k + 1, :] = x_k + increment
 
-        return t_grid, paths
+        return t_grid, paths 
 
     def empirical_measure(self, paths: FloatArray, step: int) -> FloatArray:
         """Return the empirical measure (raw particle states) at a given step."""
