@@ -20,11 +20,6 @@
   [{\vspace{1pt}\titlerule}]
 \titlespacing{\section}{0pt}{10pt}{4pt}
 
-% Entry header: bold title on the left, date right-aligned inside a
-% FIXED-WIDTH box docked to the right margin. This guarantees every
-% date's right edge sits at the exact same horizontal column, reading
-% top to bottom, regardless of how long the title or date text is, and
-% regardless of whether the title wraps to a second line.
 \newcommand{\cventry}[2]{%
   \par\noindent\textbf{#1}\hfill\makebox[1.4in][r]{#2}\par
 }
@@ -38,7 +33,8 @@
 
 \begin{center}
   {\LARGE \textbf{Nisong Monyimba}}\\[3pt]
-  1515 S Extension Rd, Mesa, AZ 85210 \;|\; nmonyimb@asu.edu \;|\; 602-545-6789
+  1515 S Extension Rd, Mesa, AZ 85210 \;|\; nmonyimb@asu.edu \;|\; 602-545-6789 \;|\;
+  \href{https://github.com/NisongMonyimba/AppliedMathThesis}{github.com/NisongMonyimba/AppliedMathThesis}
 \end{center}
 \vspace{2pt}
 
@@ -56,6 +52,32 @@ Object-Oriented Programming, Signals and Systems, Biosignal Processes and Analys
 \noindent Since 2025, self-directed graduate-level study (independent of formal coursework) in real analysis,
 stochastic processes, and stochastic control theory, undertaken in connection with an independent research
 program in mean-field games with common noise (see Research Statement and supplementary repository).
+
+\section*{Research Preprints}
+
+\cventry{Quantitative Contraction Estimates for Common-Noise Mean-Field Games}{2026}
+\begin{itemize}
+  \item Establishes a local contraction estimate, on an explicit time horizon, for the fixed-point map
+  characterising equilibria of mean-field games with common noise; extended to arbitrary horizons via a
+  standard continuation argument.
+  \item \href{https://github.com/NisongMonyimba/AppliedMathThesis/blob/main/papers/paper1_wellposedness/main.pdf}{PDF} \;|\;
+  \href{https://github.com/NisongMonyimba/AppliedMathThesis/tree/main/papers/paper1_wellposedness}{Source}
+\end{itemize}
+
+\cventry{Numerical Approximation of Common-Noise Mean-Field Games via Particle Methods and Finite Differences}{2026}
+\begin{itemize}
+  \item Combined Euler--Maruyama, particle-method, and finite-difference scheme for the coupled system
+  characterising common-noise mean-field game equilibria; every reported convergence rate is the direct,
+  reproducible output of executed code.
+  \item \href{https://github.com/NisongMonyimba/AppliedMathThesis/blob/main/papers/paper2_numerics/main.pdf}{PDF} \;|\;
+  \href{https://github.com/NisongMonyimba/AppliedMathThesis/tree/main/papers/paper2_numerics}{Source \& reproducible code}
+\end{itemize}
+
+\cventry{MSc Thesis: Quantitative Convergence Analysis of Stochastic Maximum Principles for Mean-Field Games with Common Noise}{2026}
+\begin{itemize}
+  \item \href{https://github.com/NisongMonyimba/AppliedMathThesis/blob/main/manuscript/main.pdf}{PDF} \;|\;
+  \href{https://github.com/NisongMonyimba/AppliedMathThesis}{Full repository (code, tests, Lean 4 formal verification)}
+\end{itemize}
 
 \section*{Master's Applied Project \& Undergraduate Capstone Project}
 
