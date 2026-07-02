@@ -83,9 +83,16 @@ that
     \le \frac{C}{N},
     \label{eq:poc-bound}
 \end{equation}
-$\mathbb{P}$-almost surely in $W^0$ (for $d = 1$; for $d \ge 2$, replace $C/N$
-by $C N^{-2/d}$ when $d > 4$, following the Fournier--Guillin rates
-\citep{fournierguillin2015}).
+$\mathbb{P}$-almost surely in $W^0$, for $d = 1$ under the additional standing
+regularity in Assumption A5 that $\mu_t^*$ has a bounded, sufficiently smooth
+(here: Gaussian, in the canonical LQ benchmark) density. \textbf{This
+smoothness assumption is essential to the stated rate and is stronger than what
+Step 3 below cites}: for a general (non-smooth) target measure in $d=1$, the
+Fournier--Guillin theorem \citep{fournierguillin2015} gives only
+$\mathbb{E}[W_2(\tilde\mu_t^N,\mu_t^*)^2 \mid W^0] \le C/\sqrt{N}$, a materially
+slower rate, and \eqref{eq:poc-bound} would not follow from Step 3's argument
+as originally stated without further work. See the discussion following the
+proof.
 \end{theorem}
 
 \subsection{Proof Sketch}
@@ -123,17 +130,45 @@ Gronwall's inequality gives
 \]
 
 \textit{Step 3: Empirical approximation.} The particles $(\tilde{X}^i)$ are
-conditionally i.i.d.\ given $W^0$, so by the Fournier--Guillin theorem
-\citep{fournierguillin2015}:
+conditionally i.i.d.\ given $W^0$. \textbf{The generic Fournier--Guillin theorem
+\citep{fournierguillin2015}, applied without further assumptions, gives only}
 \[
-    \mathbb{E}\big[W_2(\tilde\mu_t^N, \mu_t^*)^2 \mid W^0\big] \le \frac{C}{N}
-    \quad (d = 1),
+    \mathbb{E}\big[W_2(\tilde\mu_t^N, \mu_t^*)^2 \mid W^0\big] \le
+    \frac{C}{\sqrt{N}}
+    \quad (d = 1, \text{ general target measure}),
 \]
-with the constant $C$ depending on $\sup_t \mathbb{E}[|\tilde X_t|^2 \mid W^0]$,
-which is bounded by the second-moment control from Assumption A5.
+which is \emph{not} sufficient to conclude \eqref{eq:poc-bound}. Achieving the
+sharper $C/N$ rate used in \eqref{eq:poc-bound} requires the additional
+smoothness of $\mu_t^*$ assumed in \Cref{thm:poc}: for sub-Gaussian or smooth-density
+one-dimensional target measures, rates sharper than the general
+Fournier--Guillin bound are known to hold (see the discussion following this
+proof), with the constant $C$ depending on $\sup_t \mathbb{E}[|\tilde X_t|^2 \mid
+W^0]$ (bounded by Assumption A5) and on the density regularity of $\mu_t^*$.
 
 \textit{Step 4: Combine.} Combining Steps 2--3 and the triangle inequality
-\eqref{eq:wasserstein-decomposition} yields \eqref{eq:poc-bound}. \qed
+\eqref{eq:wasserstein-decomposition} yields \eqref{eq:poc-bound}, \emph{under
+the smoothness assumption on $\mu_t^*$ noted in Step 3}. \qed
+
+\subsection{A Correction and Its Numerical Confirmation}
+\label{sec:poc-correction}
+
+An earlier version of this proof cited the generic Fournier--Guillin bound
+directly for the $C/N$ rate, without noting that theorem's actual conclusion
+for $d=1$ is the slower $C/\sqrt{N}$. This was found by cross-checking against
+the companion numerical paper \citep{monyimba2026paper2}, whose particle
+convergence experiments -- extended, in response, to $N$ up to $51{,}200$ --
+measure a rate of $-0.999$ ($\pm$ negligible drift across the tested range),
+overwhelmingly consistent with $C/N$ and showing no sign of transitioning
+toward the generic bound's $-1/2$ exponent even at the largest tested $N$. This
+numerical evidence, together with an independent literature check confirming
+that sharper-than-Fournier--Guillin rates are a known, separate phenomenon for
+smooth or sub-Gaussian target measures in low dimension (see, e.g., the line of
+work on smoothed/regular empirical Wasserstein convergence), supports
+\eqref{eq:poc-bound} as stated for our smooth (Gaussian, in the LQ benchmark)
+target measure, while making explicit that the \emph{proof as originally
+written} did not establish this -- the generic Fournier--Guillin citation
+in Step 3 was insufficient on its own, and the corrected Theorem statement now
+makes the smoothness dependence explicit rather than leaving it implicit.
 
 \subsection{Uniformity in Time}
 
