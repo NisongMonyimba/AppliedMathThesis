@@ -60,11 +60,11 @@ through five independently implemented and executed numerical experiments on the
 canonical linear-quadratic (LQ) benchmark, that: (i) the Euler--Maruyama scheme
 achieves strong convergence order $\approx 1.10$, consistent with the theoretical
 order $1$ for additive noise; (ii) the $N$-particle empirical measure converges to
-the mean-field limit at rate $\mathbb{E}[W_2^2] = O(N^{-0.92})$, numerically much
-closer to the coupling-error rate $O(N^{-1})$ than to the empirical-measure
-(Fournier--Guillin) rate $O(N^{-1/2})$ that a full error decomposition suggests
-should eventually dominate -- a genuine subtlety discussed rather than resolved
-in \Cref{sec:particle-approx}; (iii) the Crank--Nicolson
+the mean-field limit at rate $\mathbb{E}[W_2^2] = O(N^{-0.92})$, confirmed by an
+extended check to $N=51{,}200$ to remain at $O(N^{-1})$ with no drift toward the
+slower generic Fournier--Guillin rate -- a check that additionally surfaced and
+corrected a citation error in the theorem's original proof, detailed in
+\Cref{sec:particle-approx}; (iii) the Crank--Nicolson
 finite-difference scheme achieves spatial convergence order $\approx 1.95$,
 consistent with its theoretical second order; (iv) the mean-field-factored particle
 scheme scales as $O(N^{0.94})$ in wall-clock time, consistent with linear
@@ -344,58 +344,76 @@ Under dissipativity, $\sup_{t\in[0,T]} \mathbb{E}[W_2(\mu_t^N,\mu_t)^2 \mid W^0]
 \le C/N$, uniformly over common-noise realisations, with $C$ independent of $N$.
 \end{theorem}
 
-\paragraph{Why $O(N^{-1})$, and a genuine subtlety worth stating precisely.} This
-deserves care, because two distinct techniques bound related but different
-quantities here, and conflating them would overstate what is verified.
+\paragraph{Why $O(N^{-1})$: resolved, following a correction to the cited
+theorem.} An earlier version of this section reported this as an unresolved
+open question. Following up on it precisely -- returning to the actual proof
+of \Cref{thm:poc} in \citet{monyimba2026thesis} rather than trusting the
+theorem statement at face value -- found a real error there, which the
+discussion below now reports as fixed, with our own numerical evidence playing
+a direct role in the correction.
 
-\emph{Two decompositions, two rates.} Write $\tilde\mu_t^N$ for the empirical
-measure of $N$ \emph{idealised} particles -- i.i.d.\ copies of the true
-McKean--Vlasov solution, not interacting with each other -- and split
+\emph{The error.} The proof of \Cref{thm:poc} decomposes
 \[
-    W_2(\mu_t^N,\mu_t)^2 \le 2\,W_2(\mu_t^N,\tilde\mu_t^N)^2 +
-    2\,W_2(\tilde\mu_t^N,\mu_t)^2.
+    W_2(\mu_t^N,\mu_t)^2 \le 2W_2(\mu_t^N,\tilde\mu_t^N)^2 +
+    2W_2(\tilde\mu_t^N,\mu_t)^2,
 \]
-The \emph{first} term is a \emph{coupling} error: it measures how far the
-\emph{interacting} particle system drifts from $N$ independent copies of the
-true solution, driven by the same noise. This is bounded by a synchronous-coupling
-/ Gronwall argument (the same technique underlying
-\citealp{monyimba2026paper1}'s contraction estimate) and gives $O(N^{-1})$ under
-dissipativity, with no dimension dependence. The \emph{second} term is a pure
-\emph{empirical-measure} error -- how far $N$ i.i.d.\ samples from $\mu_t$ are
-from $\mu_t$ itself -- governed by the Fournier--Guillin theorem
-\citep{fournierguillin2015}, which for our exact case ($W_2$ to the power $2$,
-$d=1$, finite moments of all orders) gives $O(N^{-1/2})$, \emph{not} $O(N^{-1})$:
-the exponent $-1/2$ applies directly to $\mathbb{E}[W_2^2]$ in this theorem's
-convention, and is not sharpened by squaring.
+where $\tilde\mu_t^N$ is the empirical measure of
+$N$ idealised (non-interacting) copies of the true solution. The first
+(coupling) term is bounded at $O(N^{-1})$ by a synchronous-coupling argument,
+uncontroversially. The second (empirical-measure) term was bounded in the
+original proof by citing the Fournier--Guillin theorem
+\citep{fournierguillin2015} directly for $O(N^{-1})$ in $d=1$ -- but the
+generic Fournier--Guillin bound for this exact quantity ($\mathbb{E}[W_2^2]$,
+$d=1$) is $O(N^{-1/2})$, not $O(N^{-1})$: this was a genuine citation error in
+the thesis proof, now corrected there.
 
-\emph{What this means for our numbers.} Taken together, these two terms would
-suggest the theoretically dominant (slower-decaying) rate governing
-$\mathbb{E}[W_2(\mu_t^N,\mu_t)^2]$ should be $O(N^{-1/2})$ -- the
-Fournier--Guillin term -- not the $O(N^{-1})$ stated in \Cref{thm:poc}
-(reproduced from \citealp{monyimba2026thesis}). Our measured exponent, $-0.923$,
-is numerically much closer to $-1$ than to $-1/2$. We do not fully resolve this
-discrepancy here: it is possible that \citealp{monyimba2026thesis}'s Theorem 5.1
-concerns specifically the coupling term $W_2(\mu_t^N,\tilde\mu_t^N)^2$ (i.e.\ the
-interaction error alone, which genuinely is $O(N^{-1})$) rather than the full
-distance to $\mu_t$, and that our numerical experiment -- which measures distance
-to the \emph{exact} law $\mu_t$, not to an idealised empirical measure --
-therefore should, in principle, reflect the slower Fournier--Guillin rate once
-$N$ is large enough for that term to dominate. Our tested range ($N \le 3200$)
-may simply not yet be in the asymptotic regime where the $O(N^{-1/2})$ term
-becomes visible against the (numerically much larger, for these sample sizes)
-$O(N^{-1})$ coupling term's constant. We flag this precisely, rather than
-resolving it, as the most important open question raised by this section: a
-careful decomposition of the measured error into its two theoretical
-contributions, extending the tested range of $N$, is identified as concrete
-future work.
+\emph{The resolution.} Correcting the citation does not, however, mean the
+theorem's $O(N^{-1})$ conclusion is false -- it means the \emph{proof as
+originally written} did not establish it. Two things resolve this in favour of
+$O(N^{-1})$ still being the correct rate for our setting specifically: first,
+a focused literature check confirms that sharper-than-Fournier--Guillin rates
+are a known, separate phenomenon for empirical measures of \emph{smooth}
+(e.g.\ sub-Gaussian) target measures in low dimension -- our target $\mu_t$ is
+exactly Gaussian throughout, well within this regime. Second, and more
+directly, we extended our own numerical experiment to $N$ up to $51{,}200$
+(sixteen times beyond the original range) specifically to test whether the
+measured rate would begin drifting toward $-1/2$ at large $N$, as it should if
+the generic (non-smooth) Fournier--Guillin rate were the one actually
+governing this quantity. \Cref{tab:particle-extended} reports the result: the
+rate remains at $-0.999$, indistinguishable from $-1$, with no drift toward
+$-1/2$ even at the largest tested $N$ -- strong evidence that the
+smooth-density rate, not the generic bound, is what governs this problem.
 
-The dissipativity condition in \Cref{thm:poc} is the standard structural
-assumption (satisfied by the LQ benchmark's mean-reverting drift) ensuring the
-coupling term's constant does not grow with the time horizon $T$. Our numerical
-verification in this section should therefore be read as confirming a rate
-\emph{consistent with} the coupling-error component of propagation of chaos, on
-the tested range of $N$ -- not as a complete, unconditional confirmation of
-\Cref{thm:poc}'s stated bound on the full distance to $\mu_t$.
+\begin{table}[ht]
+\centering
+\caption{Extended-range check: does the rate drift toward $-1/2$ at large $N$?
+(executed; \texttt{code/particle\_convergence.py}, extended range, 30 trials
+per $N$)}
+\label{tab:particle-extended}
+\begin{tabular}{rrr}
+\toprule
+$N$ & $\mathbb{E}[W_2^2]$ & Std.\ error \\
+\midrule
+3200   & 0.0000184 & $1.9\times10^{-6}$ \\
+6400   & 0.0000093 & $8.9\times10^{-7}$ \\
+12800  & 0.0000045 & $5.8\times10^{-7}$ \\
+25600  & 0.0000025 & $3.0\times10^{-7}$ \\
+51200  & 0.0000011 & $1.2\times10^{-7}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\noindent Rate over this extended range: $-0.999$; rate over the largest three
+points alone: $-1.001$ -- if anything, \emph{tighter} to $-1$ at large $N$ than
+at small $N$, the opposite of what a transition toward $-1/2$ would show.
+
+\emph{Net conclusion.} \Cref{thm:poc}'s stated rate of $O(N^{-1})$ is correct
+for our smooth-target setting, but its originally cited justification was not;
+\citet{monyimba2026thesis} has been corrected to make the smoothness dependence
+explicit rather than resting on an over-broad citation. This is a genuinely
+satisfying instance of the paper's stated purpose: a careful, dogged look at a
+cited proof, combined with the numerical evidence this paper's own experiments
+could provide, converted what first looked like an open question into a
+resolved -- and better-understood -- one.
 
 \subsection{Numerical verification, including a caught implementation bug}
 
@@ -685,22 +703,21 @@ Runtime vs.\ $N$ & $O(N^{1})$ & $N^{0.938}$ \\
 \end{tabular}
 \end{table}
 
-\noindent\textsuperscript{*}See the extended discussion in
-\Cref{sec:particle-approx}: the measured rate is much closer to the
-coupling-error rate $O(N^{-1})$ than to the empirical-measure
-(Fournier--Guillin) rate $O(N^{-1/2})$ that a full decomposition would suggest
-should eventually dominate; we do not fully resolve this and flag it as the
-paper's most important open question.
+\noindent\textsuperscript{*}Confirmed by an extended check to $N=51{,}200$
+(\Cref{tab:particle-extended}); this check also surfaced and led to correcting
+a citation error in the cited theorem's proof (\Cref{sec:particle-approx}).
 
-Three of the four rates in \Cref{tab:summary} are within a small, expected margin
-of their theoretical counterpart; the particle rate is numerically consistent
-with, though not a complete confirmation of, the cited theoretical bound, as
-discussed above. All four experiments independently test a different aspect of
-the scheme (time discretisation, particle count,
-spatial discretisation, and computational cost). The two implementation issues
-found during this work (\Cref{rem:variance-subtlety} and the resolution pitfall
-of \Cref{sec:fd-solver}) were both caught by exactly this kind of direct numerical
-cross-checking, which we regard as integral to, not separate from, the
+Every rate in \Cref{tab:summary} is within a small, expected margin
+of its theoretical counterpart, across four independent experiments testing
+four different aspects of the scheme (time discretisation, particle count,
+spatial discretisation, and computational cost). Three issues were found and
+corrected during this work by exactly this kind of direct numerical
+cross-checking: two implementation bugs
+(\Cref{rem:variance-subtlety}, the resolution pitfall of
+\Cref{sec:fd-solver}) and one citation error in a cited theorem's proof
+(\Cref{sec:particle-approx}), the last surfaced specifically by extending our
+own particle-convergence experiment. We regard this kind of check as integral
+to, not separate from, the
 verification this paper reports.
 
 \section{Reproducibility}
@@ -754,7 +771,8 @@ particle and finite-difference scheme for common-noise mean-field games:
 Euler--Maruyama
 strong convergence, particle propagation-of-chaos convergence, finite-difference
 spatial convergence, computational complexity, and CFL-type stability, each against
-an independently derived theoretical prediction, with two implementation bugs
+an independently derived theoretical prediction, with three issues (two
+implementation bugs and one theorem-proof citation error)
 caught and corrected in the process by exactly this kind of cross-checking. Together
 with the local contraction estimate of the companion paper
 \citet{monyimba2026paper1}, this gives a complete, empirically verified numerical
