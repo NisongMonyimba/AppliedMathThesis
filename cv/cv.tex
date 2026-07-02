@@ -7,7 +7,20 @@
 \usepackage{titlesec}
 \usepackage{xcolor}
 \usepackage{hyperref}
+\hypersetup{pdfborder={0 0 0}}
+\usepackage{tikz}
+\usetikzlibrary{shadows}
 \usepackage{helvet}
+
+% Clickable-link "badge": underlined text in a subtle bordered box with a
+% light background and a soft drop shadow, so links are visually obvious
+% as clickable even when printed or viewed without hover affordances.
+\newcommand{\linkbadge}[2]{%
+  \tikz[baseline=(X.base)]{\node[draw=blue!50!black, thin, fill=blue!8,
+        rounded corners=1.5pt, inner xsep=3pt, inner ysep=1.5pt,
+        drop shadow={shadow xshift=0.6pt, shadow yshift=-0.6pt, opacity=0.5}]
+        (X) {\href{#1}{\textcolor{blue!55!black}{\underline{#2}}}};}%
+}
 
 \renewcommand{\familydefault}{\sfdefault}
 \pagestyle{empty}
@@ -34,7 +47,7 @@
 \begin{center}
   {\LARGE \textbf{Nisong Monyimba}}\\[3pt]
   1515 S Extension Rd, Mesa, AZ 85210 \;|\; nmonyimb@asu.edu \;|\; 602-545-6789 \;|\;
-  \href{https://github.com/NisongMonyimba/AppliedMathThesis}{github.com/NisongMonyimba/AppliedMathThesis}
+  \linkbadge{https://github.com/NisongMonyimba/AppliedMathThesis}{github.com/NisongMonyimba/AppliedMathThesis}
 \end{center}
 \vspace{2pt}
 
@@ -60,8 +73,8 @@ program in mean-field games with common noise (see Research Statement and supple
   \item Establishes a local contraction estimate, on an explicit time horizon, for the fixed-point map
   characterising equilibria of mean-field games with common noise; extended to arbitrary horizons via a
   standard continuation argument.
-  \item \href{https://github.com/NisongMonyimba/AppliedMathThesis/blob/main/papers/paper1_wellposedness/main.pdf}{PDF} \;|\;
-  \href{https://github.com/NisongMonyimba/AppliedMathThesis/tree/main/papers/paper1_wellposedness}{Source}
+  \item \linkbadge{https://github.com/NisongMonyimba/AppliedMathThesis/blob/main/papers/paper1_wellposedness/main.pdf}{PDF} \;|\;
+  \linkbadge{https://github.com/NisongMonyimba/AppliedMathThesis/tree/main/papers/paper1_wellposedness}{Source}
 \end{itemize}
 
 {\footnotesize \cventry{Numerical Approximation of Common-Noise Mean-Field Games via Particle Methods and Finite Differences}{2026}}
@@ -69,14 +82,14 @@ program in mean-field games with common noise (see Research Statement and supple
   \item Combined Euler--Maruyama, particle-method, and finite-difference scheme for the coupled system
   characterising common-noise mean-field game equilibria; every reported convergence rate is the direct,
   reproducible output of executed code.
-  \item \href{https://github.com/NisongMonyimba/AppliedMathThesis/blob/main/papers/paper2_numerics/main.pdf}{PDF} \;|\;
-  \href{https://github.com/NisongMonyimba/AppliedMathThesis/tree/main/papers/paper2_numerics}{Source \& reproducible code}
+  \item \linkbadge{https://github.com/NisongMonyimba/AppliedMathThesis/blob/main/papers/paper2_numerics/main.pdf}{PDF} \;|\;
+  \linkbadge{https://github.com/NisongMonyimba/AppliedMathThesis/tree/main/papers/paper2_numerics}{Source \& reproducible code}
 \end{itemize}
 
 \cventry{MSc Thesis: Quantitative Convergence Analysis of Stochastic Maximum Principles for Mean-Field Games with Common Noise}{2026}
 \begin{itemize}
-  \item \href{https://github.com/NisongMonyimba/AppliedMathThesis/blob/main/manuscript/main.pdf}{PDF} \;|\;
-  \href{https://github.com/NisongMonyimba/AppliedMathThesis}{Full repository (code, tests, Lean 4 formal verification)}
+  \item \linkbadge{https://github.com/NisongMonyimba/AppliedMathThesis/blob/main/manuscript/main.pdf}{PDF} \;|\;
+  \linkbadge{https://github.com/NisongMonyimba/AppliedMathThesis}{Full repository (code, tests, Lean 4 formal verification)}
 \end{itemize}
 
 \section*{Master's Applied Project \& Undergraduate Capstone Project}
