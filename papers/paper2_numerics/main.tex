@@ -157,22 +157,71 @@ The exact conditional law $\mu_t$ is Gaussian for this model, with a
 \Cref{eq:conditional-var-ode} is used throughout as the closed-form reference
 solution against which numerical schemes are checked.
 
-\begin{remark}[A subtlety this paper got wrong on first attempt]
+\begin{remark}[A bug this paper found, and how: the case of the missing cancellation]
 \label{rem:variance-subtlety}
-\Cref{eq:conditional-var-ode} has \emph{no} $\sigma_0^2$ term. An earlier draft of
-the particle-convergence experiment (\Cref{sec:particle-approx}) incorrectly
-included one, reasoning informally that common noise should inflate all variance
-terms. Direct comparison against a large-$N$ Monte Carlo simulation
-($N=50{,}000$) revealed a factor-of-two discrepancy between the (incorrect)
-formula's prediction ($0.0279$) and the simulated value ($0.0153$), which is what
-prompted the correct re-derivation below. Centering the SDE~\eqref{eq:mv-sde} by
-the \emph{stochastic} conditional mean~\eqref{eq:conditional-mean-sde} shows the
-$\sigma_0\,dW_t^0$ term cancels exactly between the individual particle's dynamics
-and the mean's own dynamics -- common noise moves the whole population together
-and does not, on its own, affect the population's internal spread. This is a
-useful cautionary example, included deliberately: it is easy to get common-noise
-variance decompositions wrong by analogy with the idiosyncratic-noise case, and
-numerical cross-checking against Monte Carlo caught it immediately.
+\Cref{eq:conditional-var-ode} has \emph{no} $\sigma_0^2$ term. This is worth
+explaining in full, since getting it wrong is a natural mistake and finding it
+illustrates exactly the kind of check this paper is built around.
+
+\paragraph{The wrong reasoning.} An earlier draft reasoned informally: ``$X_t$ is
+driven by both $\sigma\,dW_t$ and $\sigma_0\,dW_t^0$, so its variance should pick
+up a contribution from each,'' and used
+\[
+    \frac{dv_t}{dt} = -2\Big(\kappa+\frac{A_t}{\lambda}\Big)v_t + \sigma^2 +
+    \sigma_0^2 \qquad \text{(\textbf{wrong})}.
+\]
+This is exactly the kind of reasoning that is correct for \emph{idiosyncratic-only}
+MFGs, where it is the only source of randomness and this decomposition is standard.
+It does not survive contact with common noise.
+
+\paragraph{How the error was caught.} Solving the wrong ODE gives $v_T = 0.027852$.
+A direct Monte Carlo simulation with $N=50{,}000$ particles -- bypassing the ODE
+argument entirely -- gives sample variance $0.015319$: a factor of $1.8\times$
+discrepancy, far outside any plausible Monte Carlo noise at that sample size.
+\Cref{tab:variance-bug} makes this explicit.
+
+\begin{table}[ht]
+\centering
+\caption{The variance discrepancy that revealed the bug}
+\label{tab:variance-bug}
+\begin{tabular}{lr}
+\toprule
+\textbf{Source} & $v_T$ \\
+\midrule
+Wrong formula (with spurious $\sigma_0^2$) & 0.027852 \\
+Direct Monte Carlo, $N=50{,}000$ (ground truth) & 0.015319 \\
+Corrected formula (derived below) & 0.015277 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{The correct derivation.} Write $Y_t := X_t - \bar\mu_t$ for the
+particle's deviation from the (stochastic!) conditional mean. Subtracting
+\eqref{eq:conditional-mean-sde} from \eqref{eq:mv-sde} term by term:
+\begin{align*}
+    dY_t &= dX_t - d\bar\mu_t \\
+    &= \Big[\kappa(\bar\mu_t-X_t) - \frac{A_tX_t+B_t\bar\mu_t}{\lambda}\Big]dt +
+    \sigma\,dW_t + \sigma_0\,dW_t^0 - \Big[-\frac{A_t+B_t}{\lambda}\bar\mu_t\Big]dt
+    - \sigma_0\,dW_t^0 \\
+    &= \Big[-\kappa Y_t - \frac{A_t}{\lambda}Y_t\Big]dt + \sigma\,dW_t
+    \qquad (\text{the } \sigma_0\,dW_t^0 \text{ terms cancel exactly}).
+\end{align*}
+The common-noise term cancels because it enters $X_t$ and $\bar\mu_t$
+\emph{identically} -- it moves every particle and the population mean by the same
+amount at the same instant, so it contributes nothing to the \emph{spread} around
+the mean. Applying It\^o's formula to $Y_t^2$ and taking expectations gives
+exactly \eqref{eq:conditional-var-ode}, with no $\sigma_0^2$ term. This is why:
+common noise inflates uncertainty about \emph{where the population is}, not about
+\emph{how spread out it is} -- a distinction with no analogue in the
+idiosyncratic-only case, which is precisely why the naive analogy fails.
+
+\paragraph{Lesson.} The corrected formula ($0.015277$) matches the Monte Carlo
+ground truth ($0.015319$) to three significant figures -- the remaining $0.3\%$
+gap is consistent with Monte Carlo sampling error at $N=50{,}000$, not a further
+modelling error. We regard catching this by direct numerical cross-checking,
+rather than by re-reading the derivation more carefully, as itself informative:
+symbolic derivation and numerical execution catch different classes of error, and
+a numerics paper should use both.
 \end{remark}
 
 \section{Euler--Maruyama Discretisation}
@@ -306,16 +355,61 @@ Centered finite differences with implicit time-stepping are formally second-orde
 accurate in space for smooth solutions of linear advection-diffusion equations
 such as~\eqref{eq:centered-fp}. We verified this directly.
 
-\paragraph{A resolution pitfall, corrected.} The terminal density has standard
-deviation $\sqrt{v_T} \approx 0.124$, far narrower than the initial condition's
-standard deviation of $1$. An initial attempt at this experiment used a
-domain/resolution combination adequate for the initial condition but grossly
-under-resolving the narrow terminal density (fewer than $1$ grid point per
-standard deviation at the coarsest resolution tested), producing L2 errors of
-order $1$--$2$ and a spurious apparent convergence rate of $1.48$ dominated by
-pre-asymptotic aliasing rather than genuine truncation error. Rerunning with a
-resolution range appropriate to the narrowest part of the solution's evolution
-resolved this; \Cref{tab:fd-results} reports the corrected results.
+\paragraph{A bug this paper found: under-resolving the terminal density.} The
+terminal density has standard deviation $\sqrt{v_T} \approx 0.124$, far narrower
+than the initial condition's standard deviation of $1$ -- the population starts
+spread out and concentrates sharply under the strong terminal mean-reversion
+($A_T=c_2=5$). This mismatch is worth walking through explicitly, since it is a
+different kind of bug from \Cref{rem:variance-subtlety}: not a wrong formula, but
+a wrong experimental design applied to a correct one.
+
+\paragraph{The wrong experimental design.} A first attempt used a domain and
+resolution chosen to comfortably contain the \emph{initial} condition
+($x_{\max}=6$, $n_x\in\{20,40,80,160\}$) without checking whether that resolution
+also adequately resolves the (much narrower) \emph{terminal} density against which
+the error is actually measured. \Cref{tab:fd-bug} reports what this produces.
+
+\begin{table}[ht]
+\centering
+\caption{The original (under-resolved) run, with the diagnostic that revealed the
+problem}
+\label{tab:fd-bug}
+\begin{tabular}{rrrr}
+\toprule
+$n_x$ & $\Delta x$ & Grid points per std.\ dev.\ of target & $L^2$ error \\
+\midrule
+20  & 0.6000 & 0.206 & 1.76499 \\
+40  & 0.3000 & 0.412 & 0.95033 \\
+80  & 0.1500 & 0.824 & 0.30242 \\
+160 & 0.0750 & 1.648 & 0.08505 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{How the error was caught.} Two things stand out immediately in
+\Cref{tab:fd-bug}, and either alone should raise suspicion: the $L^2$ errors are
+of order $1$--$2$, comparable to the density's own peak height, which is not what
+a converging scheme's error should look like even at coarse resolution; and the
+third column -- computed only after the anomaly was noticed, by asking ``how many
+grid points actually fall within one standard deviation of the target?'' -- shows
+that even the finest grid tested ($n_x=160$) has under $2$ points per standard
+deviation, nowhere near enough to resolve a Gaussian's shape. Fitting a rate to
+this table gives $1.48$: a plausible-looking number that is, in fact, an artefact
+of all four resolutions being in the severely under-resolved (pre-asymptotic)
+regime, not a measurement of the scheme's true asymptotic order.
+
+\paragraph{The fix.} Rerunning with $x_{\max}=5$ (still ample for the initial
+condition) and four times finer resolution ($n_x=100,200,400,800$) -- chosen so
+that even the coarsest resolution gives several grid points per standard
+deviation of the \emph{terminal} density -- gives the results in
+\Cref{tab:fd-results} below, with a clean rate of $1.95$, matching the scheme's
+theoretical second order.
+
+\paragraph{Lesson.} A convergence study is only informative once every resolution
+tested is in, or close to, the asymptotic regime; checking this requires knowing
+the length scale of the object being resolved, not just the length scale of the
+domain. This is easy to overlook precisely when working with the same domain
+across an experiment for convenience, as we did here.
 
 \begin{table}[ht]
 \centering
