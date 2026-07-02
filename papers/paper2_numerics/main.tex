@@ -100,6 +100,39 @@ closed-form calculations (\Cref{sec:particle-approx}) --- a useful illustration
 that numerical verification catches implementation bugs that symbolic derivation
 alone would not.
 
+\paragraph{Related work.} Finite-difference schemes for MFG systems trace to
+\citet{achdoucapuzzo2010}, with convergence proofs given by
+\citet{achdoucamillicapuzzo2013} and \citet{achdouporretta2016}; these results are
+for the deterministic-measure (no common noise) case, where the Fokker--Planck
+equation is a standard PDE rather than an SPDE. \citet{carmonalauriere2019}
+develop machine-learning-based schemes that numerically handle common noise
+directly, including worked examples with common-noise coefficients, but via a
+fundamentally different (deep-learning) technique than the particle/finite-difference
+approach here. Most closely related to the present paper is
+\citet{legall2024}, who establish convergence rates for the Euler scheme and the
+particle method for McKean--Vlasov equations \emph{with common noise} under
+Lipschitz and H\"older-in-time coefficient assumptions, extending the
+without-common-noise theory, with simulation examples on a conditional
+Ornstein--Uhlenbeck process and an interbank model. Our Euler-scheme and
+particle-approximation results (\Cref{sec:em-scheme,sec:particle-approx}) verify
+numerically the same class of rate that \citet{legall2024} establish
+analytically, applied here to a specific MFG equilibrium (with the closed-loop
+feedback control determined by the Riccati system of the companion paper
+\citealp{monyimba2026paper1}, rather than generic given coefficients), and we
+additionally: (i) couple this with a finite-difference solver for the associated
+conditional Fokker--Planck \emph{density} (obtained by centering the SPDE at its
+stochastic conditional mean, reducing it to a deterministic PDE -- see
+\Cref{eq:centered-fp} and \Cref{rem:variance-subtlety}); (ii) analyse and
+numerically verify CFL-type stability, including a demonstration that the
+naive diffusion-only CFL estimate is insufficient for this problem
+(\Cref{sec:stability}); and (iii) verify computational complexity directly
+against measured wall-clock time (\Cref{sec:complexity}). To the best of our
+knowledge, relative to the specific works discussed here, this combination --
+particle and finite-difference methods for a common-noise MFG \emph{equilibrium}
+specifically, with CFL and complexity analysis verified numerically -- has not
+been previously assembled and executed together, though each individual
+technique builds directly on established results.
+
 \paragraph{Organisation.} \Cref{sec:continuous} recalls the continuous problem and
 the canonical LQ benchmark. \Cref{sec:em-scheme} presents the Euler--Maruyama
 scheme and its strong-error convergence, verified numerically.
@@ -644,6 +677,34 @@ as future work.
 
 \bibliographystyle{plainnat}
 \begin{thebibliography}{9}
+
+\bibitem[Achdou and Camilli(2013)]{achdoucamillicapuzzo2013}
+Achdou, Y., Camilli, F., and Capuzzo-Dolcetta, I. (2013).
+\newblock Mean field games: convergence of a finite difference method.
+\newblock \emph{SIAM J. Numer. Anal.}, 51(5):2585--2612.
+
+\bibitem[Achdou and Capuzzo-Dolcetta(2010)]{achdoucapuzzo2010}
+Achdou, Y. and Capuzzo-Dolcetta, I. (2010).
+\newblock Mean field games: numerical methods.
+\newblock \emph{SIAM J. Numer. Anal.}, 48(3):1136--1162.
+
+\bibitem[Achdou and Porretta(2016)]{achdouporretta2016}
+Achdou, Y. and Porretta, A. (2016).
+\newblock Convergence of a finite difference scheme to weak solutions of the
+system of partial differential equations arising in mean field games.
+\newblock \emph{SIAM J. Numer. Anal.}, 54(1):161--186.
+
+\bibitem[Carmona and Lauri\`ere(2019)]{carmonalauriere2019}
+Carmona, R. and Lauri\`ere, M. (2019).
+\newblock Convergence analysis of machine learning algorithms for the
+numerical solution of mean field control and games II: the finite horizon
+case.
+\newblock arXiv:1908.01613.
+
+\bibitem[Le Gall(2024)]{legall2024}
+Le Gall, T. (2024).
+\newblock Particle method for the McKean--Vlasov equation with common noise.
+\newblock arXiv:2412.17418.
 
 \bibitem[Monyimba(2026a)]{monyimba2026thesis}
 Monyimba, N. (2026a).
