@@ -49,7 +49,10 @@ Particle Methods and Finite Differences}
 \maketitle
 
 \begin{abstract}
-We study numerical approximation of the coupled forward-backward system
+This is a computational companion to the theoretical analysis of
+\citet{monyimba2026paper1,monyimba2026thesis}: its contribution is numerical
+verification, not new analytic theorems. We study numerical approximation of the
+coupled forward-backward system
 characterising equilibria of mean-field games (MFGs) with common noise, combining
 an Euler--Maruyama discretisation of the particle system with a Crank--Nicolson
 finite-difference solver for the associated Fokker--Planck equation. We verify,
@@ -57,8 +60,11 @@ through five independently implemented and executed numerical experiments on the
 canonical linear-quadratic (LQ) benchmark, that: (i) the Euler--Maruyama scheme
 achieves strong convergence order $\approx 1.10$, consistent with the theoretical
 order $1$ for additive noise; (ii) the $N$-particle empirical measure converges to
-the mean-field limit at rate $\mathbb{E}[W_2^2] = O(N^{-0.92})$, consistent with
-the theoretical $O(N^{-1})$ propagation-of-chaos rate; (iii) the Crank--Nicolson
+the mean-field limit at rate $\mathbb{E}[W_2^2] = O(N^{-0.92})$, numerically much
+closer to the coupling-error rate $O(N^{-1})$ than to the empirical-measure
+(Fournier--Guillin) rate $O(N^{-1/2})$ that a full error decomposition suggests
+should eventually dominate -- a genuine subtlety discussed rather than resolved
+in \Cref{sec:particle-approx}; (iii) the Crank--Nicolson
 finite-difference scheme achieves spatial convergence order $\approx 1.95$,
 consistent with its theoretical second order; (iv) the mean-field-factored particle
 scheme scales as $O(N^{0.94})$ in wall-clock time, consistent with linear
@@ -72,6 +78,17 @@ accompanying, publicly available code, not illustrative estimates.
 
 \section{Introduction}
 \label{sec:intro}
+
+\textbf{This is a computational companion paper.} Its central theorems
+(\Cref{thm:em-convergence,thm:poc,thm:combined-convergence}) are imported from
+\citet{monyimba2026thesis,monyimba2026paper1} rather than proved here; this
+paper's contribution is the numerical construction, execution, and independent
+verification of the schemes those theorems concern, not new analytic results. We
+state this plainly at the outset because it determines how the paper should be
+read and judged: the question is not whether a new theorem is established, but
+whether the numerical evidence presented is genuine, correctly interpreted, and
+informative about the schemes' actual behaviour -- including where that behaviour
+required correcting our own errors, discussed openly below.
 
 This paper develops and numerically validates a combined particle and
 finite-difference scheme for approximating equilibria of mean-field games (MFGs) with common noise
@@ -327,6 +344,59 @@ Under dissipativity, $\sup_{t\in[0,T]} \mathbb{E}[W_2(\mu_t^N,\mu_t)^2 \mid W^0]
 \le C/N$, uniformly over common-noise realisations, with $C$ independent of $N$.
 \end{theorem}
 
+\paragraph{Why $O(N^{-1})$, and a genuine subtlety worth stating precisely.} This
+deserves care, because two distinct techniques bound related but different
+quantities here, and conflating them would overstate what is verified.
+
+\emph{Two decompositions, two rates.} Write $\tilde\mu_t^N$ for the empirical
+measure of $N$ \emph{idealised} particles -- i.i.d.\ copies of the true
+McKean--Vlasov solution, not interacting with each other -- and split
+\[
+    W_2(\mu_t^N,\mu_t)^2 \le 2\,W_2(\mu_t^N,\tilde\mu_t^N)^2 +
+    2\,W_2(\tilde\mu_t^N,\mu_t)^2.
+\]
+The \emph{first} term is a \emph{coupling} error: it measures how far the
+\emph{interacting} particle system drifts from $N$ independent copies of the
+true solution, driven by the same noise. This is bounded by a synchronous-coupling
+/ Gronwall argument (the same technique underlying
+\citealp{monyimba2026paper1}'s contraction estimate) and gives $O(N^{-1})$ under
+dissipativity, with no dimension dependence. The \emph{second} term is a pure
+\emph{empirical-measure} error -- how far $N$ i.i.d.\ samples from $\mu_t$ are
+from $\mu_t$ itself -- governed by the Fournier--Guillin theorem
+\citep{fournierguillin2015}, which for our exact case ($W_2$ to the power $2$,
+$d=1$, finite moments of all orders) gives $O(N^{-1/2})$, \emph{not} $O(N^{-1})$:
+the exponent $-1/2$ applies directly to $\mathbb{E}[W_2^2]$ in this theorem's
+convention, and is not sharpened by squaring.
+
+\emph{What this means for our numbers.} Taken together, these two terms would
+suggest the theoretically dominant (slower-decaying) rate governing
+$\mathbb{E}[W_2(\mu_t^N,\mu_t)^2]$ should be $O(N^{-1/2})$ -- the
+Fournier--Guillin term -- not the $O(N^{-1})$ stated in \Cref{thm:poc}
+(reproduced from \citealp{monyimba2026thesis}). Our measured exponent, $-0.923$,
+is numerically much closer to $-1$ than to $-1/2$. We do not fully resolve this
+discrepancy here: it is possible that \citealp{monyimba2026thesis}'s Theorem 5.1
+concerns specifically the coupling term $W_2(\mu_t^N,\tilde\mu_t^N)^2$ (i.e.\ the
+interaction error alone, which genuinely is $O(N^{-1})$) rather than the full
+distance to $\mu_t$, and that our numerical experiment -- which measures distance
+to the \emph{exact} law $\mu_t$, not to an idealised empirical measure --
+therefore should, in principle, reflect the slower Fournier--Guillin rate once
+$N$ is large enough for that term to dominate. Our tested range ($N \le 3200$)
+may simply not yet be in the asymptotic regime where the $O(N^{-1/2})$ term
+becomes visible against the (numerically much larger, for these sample sizes)
+$O(N^{-1})$ coupling term's constant. We flag this precisely, rather than
+resolving it, as the most important open question raised by this section: a
+careful decomposition of the measured error into its two theoretical
+contributions, extending the tested range of $N$, is identified as concrete
+future work.
+
+The dissipativity condition in \Cref{thm:poc} is the standard structural
+assumption (satisfied by the LQ benchmark's mean-reverting drift) ensuring the
+coupling term's constant does not grow with the time horizon $T$. Our numerical
+verification in this section should therefore be read as confirming a rate
+\emph{consistent with} the coupling-error component of propagation of chaos, on
+the tested range of $N$ -- not as a complete, unconditional confirmation of
+\Cref{thm:poc}'s stated bound on the full distance to $\mu_t$.
+
 \subsection{Numerical verification, including a caught implementation bug}
 
 We simulate $N$-particle systems for $N \in \{25,\ldots,3200\}$, and for each
@@ -544,6 +614,17 @@ verification that we have carried out and report with full confidence.
 \section{Computational Complexity}
 \label{sec:complexity}
 
+\textbf{The quantity of interest in this section is the scaling exponent, not
+the absolute timings.} All wall-clock measurements below were obtained on a
+single CPU core in one specific environment (\Cref{sec:reproducibility}); a
+different machine will produce different absolute times, and even the same
+machine will show run-to-run jitter. What should, and does, reproduce reliably
+across hardware is the \emph{exponent} of the fitted power law -- i.e., whether
+runtime scales as $N^1$, $N^{1.5}$, $N^2$, etc. -- since this reflects the
+algorithm's structure rather than the machine executing it. We report absolute
+numbers for concreteness and because the per-particle time is a useful practical
+reference point, but the scientific claim being verified is the exponent alone.
+
 \begin{table}[ht]
 \centering
 \caption{Theoretical complexity of each component ($M$ spatial points, $N$
@@ -582,10 +663,8 @@ $1{,}000{,}000$ & 1.6334 & 1.63 \\
 Fitting $\log(\text{time}) = s\log N + c$ gives $s=0.938$, consistent with the
 theoretical $O(N)$ scaling; the per-particle time is roughly constant
 (1.5--2.8~$\mu$s) across three orders of magnitude in $N$, confirming no
-super-linear overhead from the mean-field factorisation. All timings were
-obtained on a single CPU core in the environment described in
-\Cref{sec:reproducibility}; absolute numbers will vary by hardware, but the
-scaling exponent should not.
+super-linear overhead from the mean-field factorisation (see the note on
+hardware-independence of this exponent at the start of this section).
 
 \section{Numerical Experiments: Consolidated Summary}
 \label{sec:experiments}
@@ -599,16 +678,25 @@ scaling exponent should not.
 \textbf{Quantity} & \textbf{Theoretical rate} & \textbf{Measured rate} \\
 \midrule
 EM strong error vs.\ $\Delta t$ & $O(\Delta t^{1})$ & $\Delta t^{1.105}$ \\
-Particle $\mathbb{E}[W_2^2]$ vs.\ $N$ & $O(N^{-1})$ & $N^{-0.923}$ \\
+Particle $\mathbb{E}[W_2^2]$ vs.\ $N$\textsuperscript{*} & $O(N^{-1})$ & $N^{-0.923}$ \\
 FD (Crank--Nicolson) $L^2$ error vs.\ $\Delta x$ & $O(\Delta x^{2})$ & $\Delta x^{1.952}$ \\
 Runtime vs.\ $N$ & $O(N^{1})$ & $N^{0.938}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Every rate in \Cref{tab:summary} is within a small, expected margin of its
-theoretical counterpart, consistent across four independent experiments testing
-four different aspects of the scheme (time discretisation, particle count,
+\noindent\textsuperscript{*}See the extended discussion in
+\Cref{sec:particle-approx}: the measured rate is much closer to the
+coupling-error rate $O(N^{-1})$ than to the empirical-measure
+(Fournier--Guillin) rate $O(N^{-1/2})$ that a full decomposition would suggest
+should eventually dominate; we do not fully resolve this and flag it as the
+paper's most important open question.
+
+Three of the four rates in \Cref{tab:summary} are within a small, expected margin
+of their theoretical counterpart; the particle rate is numerically consistent
+with, though not a complete confirmation of, the cited theoretical bound, as
+discussed above. All four experiments independently test a different aspect of
+the scheme (time discretisation, particle count,
 spatial discretisation, and computational cost). The two implementation issues
 found during this work (\Cref{rem:variance-subtlety} and the resolution pitfall
 of \Cref{sec:fd-solver}) were both caught by exactly this kind of direct numerical
@@ -671,9 +759,75 @@ caught and corrected in the process by exactly this kind of cross-checking. Toge
 with the local contraction estimate of the companion paper
 \citet{monyimba2026paper1}, this gives a complete, empirically verified numerical
 foundation for computing common-noise MFG equilibria on the linear-quadratic
-benchmark. Natural extensions --- verified joint weak-error convergence, extension
-beyond the LQ case, and GPU-parallel implementation for large $N$ --- are identified
-as future work.
+benchmark.
+
+\paragraph{Limitations, discussed at some length since they define the scope of
+what has actually been shown.} Everything in this paper is verified on the
+canonical LQ benchmark: a scalar, affine-drift, quadratic-cost model with a
+closed-form solution. This is a deliberate and necessary choice --- without a
+closed-form reference solution, none of the direct numerical verification in this
+paper would have been possible --- but it also means every result here should be
+read as validating the \emph{schemes}, not as evidence they perform comparably
+outside this setting. Four limitations follow directly from this scope:
+
+\begin{itemize}
+    \item \textbf{Nonlinear (non-LQ) problems.} The LQ model's affine feedback
+    control and Gaussian conditional law are what make closed-form verification
+    possible at all; for a general (nonlinear drift, non-quadratic cost) MFG,
+    no such reference solution exists, and convergence would need to be assessed
+    by internal consistency (e.g.\ Richardson extrapolation, comparing successive
+    refinements against each other) rather than against ground truth. The
+    schemes themselves --- Euler--Maruyama, particle approximation,
+    Crank--Nicolson finite differences --- extend to the nonlinear case without
+    structural modification, but their convergence rates in that setting are not
+    verified here and, for the finite-difference solver in particular, may
+    require upwind (rather than centered) differencing for stability once the
+    drift is state-dependent in a way that can locally violate the CFL
+    condition studied in \Cref{sec:stability}.
+
+    \item \textbf{Higher-dimensional state spaces.} All experiments use $d=1$.
+    The particle method's propagation-of-chaos rate is known to degrade with
+    dimension (\Cref{sec:particle-approx}), and the finite-difference solver's
+    cost is well known to scale exponentially in $d$ for a fixed per-dimension
+    resolution (the curse of dimensionality), since the grid has $O(M^d)$ points
+    for $M$ points per dimension. Neither degradation is quantified numerically
+    in this paper.
+
+    \item \textbf{Computational cost as dimension increases.} Extrapolating
+    \Cref{tab:complexity}: the particle method's $O(N)$ per-step cost is
+    dimension-independent (a genuine advantage for high-dimensional state
+    spaces), but computing the Wasserstein distances used for verification
+    becomes substantially more expensive beyond $d=1$, where the exact quantile
+    formula used throughout this paper no longer applies and one must fall back
+    on optimal-transport solvers (e.g.\ Sinkhorn regularisation) with worse
+    complexity. The finite-difference solver's exponential cost growth in $d$
+    means it is practical only for $d\lesssim3$ without dimension-reduction
+    techniques; beyond that, purely particle-based or moment-closure approaches
+    (dropping the finite-difference component of this paper's scheme entirely)
+    are the more natural choice.
+
+    \item \textbf{Acceleration strategies not explored here.} This paper's
+    particle implementation is single-threaded and unaccelerated. Natural next
+    steps, none of which are implemented or benchmarked in this paper, include:
+    GPU parallelisation (the particle update of \Cref{sec:complexity} is
+    embarrassingly parallel across particles, since the mean-field interaction
+    is factored through a single scalar statistic recomputed once per step);
+    multilevel Monte Carlo, which could reduce the effective cost of the
+    particle-count convergence study of \Cref{sec:particle-approx} by combining
+    coarse- and fine-$N$ simulations rather than running each $N$ independently
+    at full cost; and variance-reduction techniques (antithetic sampling,
+    control variates) for the Monte Carlo error in the convergence-rate
+    estimates themselves, which would tighten the confidence intervals reported
+    throughout \Cref{sec:experiments} without changing the underlying rates.
+\end{itemize}
+
+None of these limitations affect the correctness of what is verified here; they
+define, honestly, the boundary between what this paper establishes (scheme
+behaviour on the $d=1$ LQ benchmark) and what remains open (behaviour beyond
+that setting). Extending the numerical verification in these four directions,
+together with verified joint weak-error convergence for the fully combined
+scheme (\Cref{sec:weak-convergence}), is identified as the concrete research
+agenda following from this paper.
 
 \bibliographystyle{plainnat}
 \begin{thebibliography}{9}
@@ -700,6 +854,12 @@ Carmona, R. and Lauri\`ere, M. (2019).
 numerical solution of mean field control and games II: the finite horizon
 case.
 \newblock arXiv:1908.01613.
+
+\bibitem[Fournier and Guillin(2015)]{fournierguillin2015}
+Fournier, N. and Guillin, A. (2015).
+\newblock On the rate of convergence in Wasserstein distance of the empirical
+measure.
+\newblock \emph{Probab. Theory Related Fields}, 162(3--4):707--738.
 
 \bibitem[Le Gall(2024)]{legall2024}
 Le Gall, T. (2024).
