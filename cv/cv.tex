@@ -45,9 +45,9 @@
 \end{center}
 \vspace{2pt}
 \section*{Research Interests}
-\noindent Stochastic Analysis \textbullet\ Mean-Field Games \textbullet\ Stochastic Control \textbullet\
-Forward--Backward Stochastic Differential Equations \textbullet\ Optimal Transport \textbullet\
-Numerical Analysis \textbullet\ Scientific Computing
+\noindent Stochastic Analysis \textbullet\ Mean-Field Games \textbullet\ Numerical Analysis \textbullet\
+Scientific Computing \textbullet\ Stochastic Control \textbullet\ Optimal Transport \textbullet\
+Partial Differential Equations
 
 \section*{Education}
 \cventry{Biomedical Engineering, M.Sc. --- Arizona State University}{Graduated May 2022}
@@ -58,16 +58,23 @@ Numerical Analysis \textbullet\ Scientific Computing
 \noindent \textbf{Undergraduate quantitative coursework:} Calculus, Differential Equations, Numerical Methods,
 Probability and Statistics, Signals and Systems.
 
-\vspace{2pt}
-\noindent \textbf{Graduate Mathematical Preparation (self-directed, 2025--present):} Real Analysis, Functional
-Analysis, Measure-Theoretic Probability, Stochastic Calculus, Optimal Control, Mean-Field Games --- undertaken
-independently of formal coursework, in connection with the research program below.
+\section*{Independent Mathematical Preparation}
+\cventry{Graduate-Level Self-Study}{2025--Present}
+\cvsub{Undertaken independently of formal coursework, in connection with the research program below}
+\begin{itemize}
+  \item Real Analysis, Functional Analysis, Measure-Theoretic Probability, Stochastic Calculus,
+  McKean--Vlasov SDEs, Mean-Field Games, Optimal Transport, Numerical PDEs
+\end{itemize}
 
 \section*{Research}
 
 \cventry{Independent Research Program in Applied Mathematics}{2025--Present}
 \cvsub{Mean-field games \textbullet\ stochastic control \textbullet\ Wasserstein geometry \textbullet\ optimal
 transport \textbullet\ FBSDEs \textbullet\ numerical PDEs \textbullet\ Lean 4 formal verification}
+\noindent Current research develops mathematical and computational methods for common-noise mean-field games,
+combining stochastic analysis, numerical analysis, scientific computing, and reproducible research software.
+Current outputs: a theoretical preprint, a numerical preprint, a software repository, and an independent
+research monograph (below).
 
 \vspace{2pt}
 \noindent\textbf{Selected Research}
@@ -110,13 +117,16 @@ well-posedness, particle methods, finite-difference schemes, and partial Lean 4 
 
 \section*{Research Software}
 
-\cventry{AppliedMathThesis (GitHub)}{}
+\cventry{AppliedMathThesis (Python, Lean 4)}{}
 \begin{itemize}
-  \item Reproducible implementations of every numerical experiment reported in the papers above
-  \item Mean-field game particle-method solver and Euler--Maruyama/Milstein SDE library (Python)
+  \item Research software implementing numerical methods for common-noise mean-field games
+  \item Euler--Maruyama and Milstein SDE solvers, including mean-field/common-noise variants
+  \item Particle-method implementation with conditional propagation-of-chaos verification
   \item Finite-difference Fokker--Planck solver
+  \item Wasserstein-distance computations for convergence verification
+  \item Automated numerical benchmarks (convergence rates, runtime scaling) and reproducible computational experiments
   \item Lean 4 formalisation of core estimates (Gronwall, contraction bound, propagation of chaos)
-  \item Automated test suite (pytest) and continuous integration (GitHub Actions)
+  \item Version-controlled, continuously integrated (GitHub Actions), automatically tested (pytest)
   \item \linkbadge{https://github.com/NisongMonyimba/AppliedMathThesis}{github.com/NisongMonyimba/AppliedMathThesis}
 \end{itemize}
 
@@ -286,11 +296,25 @@ tutoring experience below}
 Biomedical Engineering Society (BMES) \textbullet\ ASU Global Leadership Academy \textbullet\ Toastmasters International
 \textbullet\ KNUST Peer Counsellors \& MasterCard Peer Mentors \textbullet\ Ghana Engineering Students Association \textbullet\ TraTech
 
+\section*{Mathematical Software}
+\noindent Python (NumPy, SciPy, pandas, statsmodels) \textbullet\ Lean 4 \textbullet\ MATLAB \textbullet\ GNU Octave
+
+\section*{Scientific Computing}
+\noindent Finite-Difference Methods \textbullet\ Monte Carlo Simulation \textbullet\ Euler--Maruyama \& Milstein
+Schemes \textbullet\ Particle Methods \textbullet\ Numerical Linear Algebra \textbullet\ Computational Complexity
+Analysis \textbullet\ Numerical Verification \textbullet\ Reproducible Research
+
+\section*{Formal Mathematics}
+\noindent Lean 4 \textbullet\ formalisation of core estimates in stochastic analysis (Gronwall's inequality,
+contraction bounds, propagation of chaos) --- written and reviewed for correctness; compilation status against
+a live Mathlib installation is tracked in the repository, not asserted here.
+
 \section*{Technical Skills}
 
-\noindent \textbf{Mathematical \& Scientific Computing:} Python (NumPy, SciPy, statsmodels, pandas), MATLAB, R, Git/GitHub, LaTeX (Overleaf).\\[3pt]
-\textbf{Mathematical Methods:} Monte Carlo simulation, stochastic simulation, finite-difference methods, finite element methods, numerical linear algebra, optimization, statistical modeling (ANOVA, PCA, DOE, SPC).\\[3pt]
-\textbf{Engineering Simulation \& CAD:} SolidWorks, ANSYS Fluent, COMSOL Multiphysics, Autodesk Fusion 360, SimScale.\\[3pt]
+\noindent \textbf{Programming \& Version Control:} Python, MATLAB, R, Git/GitHub, LaTeX (Overleaf).\\[3pt]
+\textbf{Engineering Simulation, CAD \& FEA:} SolidWorks, ANSYS Fluent, COMSOL Multiphysics, Autodesk Fusion 360,
+SimScale, finite element methods.\\[3pt]
+\textbf{Statistical \& Process Methods:} ANOVA, PCA, DOE, SPC, optimization, GraphPad Prism, Minitab, JMP.\\[3pt]
 \textbf{Other:} Fiji/ImageJ, BioRender, Figma, Inkscape, LabVIEW, LTSpice, Windchill, Zotero.
 
 \section*{Languages}
