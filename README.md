@@ -3,7 +3,7 @@
 Research software and manuscripts for the numerical analysis of common-noise
 mean-field games (MFGs): implementations of particle methods, stochastic
 differential equation solvers, Wasserstein geometry algorithms, and
-finite-difference methods, accompanying an MSc thesis and two companion
+finite-difference methods, accompanying a thesis and two companion
 preprints in stochastic analysis, optimal transport, and scientific
 computing.
 
