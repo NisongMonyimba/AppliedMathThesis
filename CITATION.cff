@@ -13,6 +13,11 @@ authors:
     email: nmonyimb@asu.edu
     affiliation: Arizona State University
 repository-code: "https://github.com/NisongMonyimba/AppliedMathThesis"
+doi: 10.5281/zenodo.21131132
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.21131132
+    description: "Archived snapshot of this repository on Zenodo (v1.0)"
 license: MIT
 date-released: 2026-07-02
 keywords:
@@ -34,7 +39,7 @@ preferred-citation:
       given-names: Nisong
   thesis-type: "MSc thesis"
   institution:
-    name: "Missouri University of Science and Technology"
+    name: "Arizona State University"
   year: 2026
 references:
   - type: article

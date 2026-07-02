@@ -1,9 +1,11 @@
 # Quantitative Convergence Analysis of Stochastic Maximum Principles for Mean-Field Games with Common Noise
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21131132.svg)](https://doi.org/10.5281/zenodo.21131132)
+
 Research software and manuscripts for the numerical analysis of common-noise
 mean-field games (MFGs): implementations of particle methods, stochastic
 differential equation solvers, Wasserstein geometry algorithms, and
-finite-difference methods, accompanying a thesis and two companion
+finite-difference methods, accompanying an MSc thesis and two companion
 preprints in stochastic analysis, optimal transport, and scientific
 computing.
 
@@ -81,13 +83,12 @@ live Mathlib installation as of this commit).
 
 ## Status
 
-Both preprints are complete and pending arXiv submission. The thesis
-reflects an MSc completed at Missouri University of Science and Technology;
-current affiliation is Arizona State University.
+Both preprints are complete and pending arXiv submission.
 
 ## Citation
 
-See [`CITATION.cff`](CITATION.cff).
+See [`CITATION.cff`](CITATION.cff). This repository is archived on Zenodo with DOI
+[10.5281/zenodo.21131132](https://doi.org/10.5281/zenodo.21131132).
 
 ## License
 
