@@ -89,6 +89,6 @@ jobs:
       - name: Compile manuscript
         uses: xu-cheng/latex-action@v3
         with:
-          root_file: manuscript/main.tex
-          working_directory: .
+          root_file: main.tex
+          working_directory: manuscript
           args: -interaction=nonstopmode -halt-on-error
