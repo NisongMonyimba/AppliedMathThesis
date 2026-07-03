@@ -12,6 +12,7 @@ authors:
     given-names: Nisong
     email: nmonyimb@asu.edu
     affiliation: Arizona State University
+    orcid: "https://orcid.org/0009-0000-7558-8580"
 repository-code: "https://github.com/NisongMonyimba/AppliedMathThesis"
 doi: 10.5281/zenodo.21131132
 identifiers:
@@ -37,6 +38,7 @@ preferred-citation:
   authors:
     - family-names: Monyimba
       given-names: Nisong
+      orcid: "https://orcid.org/0009-0000-7558-8580"
   thesis-type: "MSc thesis"
   institution:
     name: "Arizona State University"
